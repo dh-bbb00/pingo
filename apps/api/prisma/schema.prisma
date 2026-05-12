@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== Auth ====================
+
+/// 서비스 사용자. 관리자 승인 후 로그인 가능.
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String     // bcrypt 해시
+  role      Role       @default(USER)
+  status    UserStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  devices          Device[]
+  approvalRequests ApprovalRequest[] @relation("UserApprovals")
+  reviewedRequests ApprovalRequest[] @relation("ReviewedBy")
+  categories       Category[]
+  transactions     Transaction[]
+  fixedExpenses    FixedExpense[]
+  refreshTokens    RefreshToken[]
+}
+
+enum Role {
+  USER  // 일반 사용자
+  ADMIN // 승인 관리 권한
+}
+
+enum UserStatus {
+  PENDING  // 승인 대기
+  APPROVED // 승인 완료, 로그인 가능
+  REJECTED // 거절
+}
+
+/// 사용자의 기기 정보. isTrusted 기기만 로그인 허용. deviceUid 변경 감지 시 재승인 필요.
+model Device {
+  id         String   @id @default(cuid())
+  userId     String
+  deviceUid  String   // react-native-device-info getUniqueId(). 앱 재설치·초기화 시 변경될 수 있음
+  deviceName String   // getDeviceName()  예: "홍길동의 iPhone"
+  phoneModel String   // getModel()       예: "SM-S921N"
+  osVersion  String   // getSystemVersion() 예: "Android 15"
+  appVersion String   // getVersion()     예: "1.0.0"
+  isTrusted  Boolean  @default(false) // 관리자 승인 완료 후 true. deviceUid 변경 감지 시 false로 초기화
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user             User              @relation(fields: [userId], references: [id])
+  approvalRequests ApprovalRequest[]
+  refreshTokens    RefreshToken[]
+
+  @@unique([userId, deviceUid])
+  @@index([deviceUid])
+}
+
+/// 사용 승인 요청 내역. 관리자가 승인·거절하며 처리자와 처리 시각을 기록.
+model ApprovalRequest {
+  id           String         @id @default(cuid())
+  userId       String
+  deviceId     String
+  status       ApprovalStatus @default(PENDING)
+  reviewedById String?        // 승인·거절한 관리자 ID
+  reviewedAt   DateTime?      // 승인·거절 처리 시각
+  createdAt    DateTime       @default(now())
+
+  user       User    @relation("UserApprovals", fields: [userId], references: [id])
+  device     Device  @relation(fields: [deviceId], references: [id])
+  reviewedBy User?   @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  @@index([status])
+}
+
+enum ApprovalStatus {
+  PENDING  // 대기
+  APPROVED // 승인
+  REJECTED // 거절
+}
+
+/// 승인요청 rate limit. IP + deviceUid 기준 10분간 3회 초과 시 차단.
+model ApprovalRateLimit {
+  id             String   @id @default(cuid())
+  ip             String
+  deviceUid      String
+  requestCount   Int      @default(1)
+  firstRequestAt DateTime @default(now()) // 윈도우 시작 시각. 현재 시각 - firstRequestAt > 10분이면 초기화
+
+  @@unique([ip, deviceUid])
+  @@index([firstRequestAt])
+}
+
+/// JWT refresh token. 기기별로 발급·관리하며 로그아웃 시 삭제.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  deviceId  String
+  token     String   @unique // 해시 저장 권장
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  device Device @relation(fields: [deviceId], references: [id])
+
+  @@index([userId])
+}
+
+// ==================== Finance ====================
+
+/// 사용자가 직접 등록·관리하는 소비 카테고리.
+model Category {
+  id             String   @id @default(cuid())
+  userId         String
+  name           String
+  icon           String?  // 아이콘 식별자
+  color          String?  // HEX 색상코드 예: "#FF5733"
+  budget         Int?     // 월 예산 (원 단위). null이면 예산 미설정 — 예산 관련 기능 비활성
+  isBudgetFixed  Boolean  @default(false) // true면 매월 동일 예산 자동 적용
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id])
+  transactions  Transaction[]
+  fixedExpenses FixedExpense[]
+
+  @@unique([userId, name])
+}
+
+/// 소비 내역. 수동 입력 및 고정 지출 자동 생성분 포함.
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String
+  categoryId      String
+  amount          Int      // 원 단위 (소수점 없음)
+  merchantName    String   // 가맹점명
+  cardCompany     String?  // 카드사 예: "신한", "국민"
+  memo            String?
+  transactionDate DateTime // 실제 거래 일시 (createdAt과 다를 수 있음)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId, transactionDate]) // 날짜 기준 조회·통계 쿼리 최적화
+}
+
+
+/// 고정 지출 항목. 스케줄러가 매월 1일에 실행되어 isActive 항목의 Transaction을 생성.
+/// Transaction의 transactionDate는 해당 월의 dayOfMonth일로 설정됨.
+model FixedExpense {
+  id           String   @id @default(cuid())
+  userId       String
+  categoryId   String
+  amount       Int      // 원 단위
+  merchantName String   // 가맹점명
+  cardCompany  String?
+  memo         String?
+  dayOfMonth   Int      // Transaction에 기록될 지출 날짜 (1~31). 해당 월에 없는 날짜면 말일로 처리
+  isActive     Boolean  @default(true) // false면 스케줄러 실행 시 제외
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+}
