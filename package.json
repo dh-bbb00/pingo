@@ -12,7 +12,10 @@
     "infra:down": "docker compose down",
     "infra:build": "docker compose build",
     "infra:logs": "docker compose logs -f",
-    "infra:restart": "docker compose restart"
+    "infra:restart": "docker compose restart",
+    "db:migrate": "pnpm --filter @pingo/api prisma:migrate",
+    "db:generate": "pnpm --filter @pingo/api prisma:generate",
+    "db:seed": "pnpm --filter @pingo/api prisma:seed"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

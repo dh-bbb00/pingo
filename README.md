@@ -9,6 +9,14 @@
 
 ---
 
+## 아키텍처
+
+```
+React Native → HTTPS → Cloudflare Tunnel → Nginx → NestJS API → PostgreSQL
+```
+
+---
+
 ## 시작하기
 
 ### 요구 사항
@@ -31,16 +39,18 @@ pnpm install
 cp .env.example .env
 ```
 
-`.env` 파일을 열어 값 설정:
+`.env`를 열어 아래 항목 설정:
 
-```
-POSTGRES_USER=pingo
-POSTGRES_PASSWORD=your_password
-POSTGRES_DB=pingo
-DATABASE_URL=postgresql://pingo:your_password@localhost:5432/pingo
-JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_jwt_refresh_secret
-```
+| 항목 | 설명 |
+|------|------|
+| `POSTGRES_USER` | DB 사용자명 |
+| `POSTGRES_PASSWORD` | DB 비밀번호 |
+| `POSTGRES_DB` | DB 이름 |
+| `DATABASE_URL` | `postgresql://<USER>:<PASSWORD>@localhost:5432/<DB>` (로컬용, `postgres` 아님) |
+| `JWT_SECRET` | JWT 액세스 토큰 서명 키 |
+| `JWT_REFRESH_SECRET` | JWT 리프레시 토큰 서명 키 |
+| `ADMIN_EMAIL` | 초기 관리자 계정 이메일 |
+| `ADMIN_PASSWORD` | 초기 관리자 계정 비밀번호 |
 
 ### 3. 컨테이너 실행
 
@@ -55,17 +65,28 @@ pnpm infra:up
 컨테이너가 모두 healthy 상태가 된 후 실행:
 
 ```bash
-pnpm --filter @pingo/api prisma:migrate
+pnpm db:migrate
 ```
 
-### 5. 동작 확인
+### 5. Admin 계정 생성
 
-- API: http://localhost:3000/health
+```bash
+pnpm db:seed
+```
+
+`.env`의 `ADMIN_EMAIL` / `ADMIN_PASSWORD`로 관리자 계정이 생성됩니다.  
+이미 존재하는 계정이면 건너뜁니다.
+
+### 6. 동작 확인
+
+- API Health: http://localhost:3000/health
 - API 문서: http://localhost:3000/docs
 
 ---
 
 ## 주요 명령어
+
+### 인프라
 
 ```bash
 pnpm infra:up        # 컨테이너 백그라운드 실행
@@ -76,12 +97,20 @@ pnpm infra:logs      # 로그 스트리밍
 pnpm infra:restart   # 컨테이너 재시작
 ```
 
+### DB
+
+```bash
+pnpm db:migrate      # 마이그레이션 실행 (테이블 생성)
+pnpm db:seed         # Admin 계정 생성
+pnpm db:generate     # Prisma Client 재생성
+```
+
 ---
 
 ## Cloudflare Tunnel 설정
 
 React Native 앱에서 HTTPS로 접근하기 위한 외부 터널 설정입니다.  
-도메인이 준비되면 아래 순서로 진행합니다.
+Cloudflare에 등록된 도메인이 필요합니다.
 
 ### 1. cloudflared 설치
 
@@ -144,6 +173,18 @@ pnpm infra:down && pnpm infra:up
 ---
 
 ## Notes
+
+### `DATABASE_URL` — 로컬 vs Docker
+
+`.env`의 `DATABASE_URL`은 `localhost`를 사용한다.
+
+```
+DATABASE_URL=postgresql://pingo:password@localhost:5432/pingo
+```
+
+`prisma migrate`, `prisma seed` 같은 로컬 명령어는 Docker 외부에서 실행되므로 `localhost:5432`로 접근해야 한다. Docker api 컨테이너는 `docker-compose.yml`의 `environment`에서 `postgres:5432`로 덮어쓰므로 `.env`에 `localhost`로 설정해도 컨테이너 내부 동작에는 영향 없다.
+
+---
 
 ### `.npmrc` — `shamefully-hoist=true`
 
