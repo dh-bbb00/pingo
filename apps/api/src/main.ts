@@ -5,9 +5,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { AppLoggerService } from './logger/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // NestJS 내장 로거를 커스텀 AppLoggerService로 교체
+  const logger = app.get(AppLoggerService);
+  app.useLogger(logger);
 
   app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -40,6 +45,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
+  logger.log(`서버 실행 중 — http://localhost:${port}`, 'Bootstrap');
 }
 
 bootstrap();

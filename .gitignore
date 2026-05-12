@@ -40,3 +40,6 @@ yarn-error.log*
 # Cloudflared tunnel credentials (contain private keys)
 cloudflared/*.json
 
+# API server logs (production file rotation)
+apps/api/logs/
+
