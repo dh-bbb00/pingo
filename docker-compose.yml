@@ -23,8 +23,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    expose:
-      - "3000"
+    # expose:
+    #   - "3000"
+    ports:
+      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,18 +78,18 @@ services:
   #   networks:
   #     - pingo-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: pingo-cloudflared
-    restart: unless-stopped
-    command: tunnel --config /etc/cloudflared/config.yml run
-    volumes:
-      - ./cloudflared:/etc/cloudflared
-    depends_on:
-      nginx:
-        condition: service_started
-    networks:
-      - pingo-network
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: pingo-cloudflared
+  #   restart: unless-stopped
+  #   command: tunnel --config /etc/cloudflared/config.yml run
+  #   volumes:
+  #     - ./cloudflared:/etc/cloudflared
+  #   depends_on:
+  #     nginx:
+  #       condition: service_started
+  #   networks:
+  #     - pingo-network
 
 volumes:
   postgres-data:
