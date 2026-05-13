@@ -1,0 +1,7 @@
+// pnpm 모노레포: gradle-plugin은 루트 node_modules에 hoisting됨
+pluginManagement { includeBuild("../../../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+rootProject.name = 'Pingo'
+include ':app'
+includeBuild('../../../node_modules/@react-native/gradle-plugin')
