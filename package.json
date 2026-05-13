@@ -15,7 +15,9 @@
     "infra:restart": "docker compose restart",
     "db:migrate": "pnpm --filter @pingo/api prisma:migrate",
     "db:generate": "pnpm --filter @pingo/api prisma:generate",
-    "db:seed": "pnpm --filter @pingo/api prisma:seed"
+    "db:seed": "pnpm --filter @pingo/api prisma:seed",
+    "app:start": "pnpm --filter @pingo/app start",
+    "app:android": "pnpm --filter @pingo/app android"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
