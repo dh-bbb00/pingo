@@ -67,21 +67,21 @@ export const adminTabRoutes: TabRoute[] = [
 
 export const historyRoutes: StackRoute[] = [
   { name: 'HistoryMain',     component: HistoryScreen },
-  { name: 'TransactionEdit', component: TransactionEditScreen },
+  { name: 'TransactionEdit', component: TransactionEditScreen, options: backHeader },
 ]
 
 export const categoryRoutes: StackRoute[] = [
   { name: 'CategoryMain', component: CategoryScreen },
-  { name: 'CategoryEdit', component: CategoryEditScreen },
+  { name: 'CategoryEdit', component: CategoryEditScreen, options: backHeader },
 ]
 
 export const moreRoutes: StackRoute[] = [
   { name: 'MoreMain',           component: MoreScreen },
-  { name: 'FixedExpenses',      component: FixedExpensesScreen },
-  { name: 'FixedExpenseDetail', component: FixedExpenseDetailScreen },
-  { name: 'FixedExpenseEdit',   component: FixedExpenseEditScreen },
-  { name: 'MyInfo',             component: MyInfoScreen },
-  { name: 'PasswordChange',     component: PasswordChangeScreen },
+  { name: 'FixedExpenses',      component: FixedExpensesScreen,      options: backHeader },
+  { name: 'FixedExpenseDetail', component: FixedExpenseDetailScreen, options: backHeader },
+  { name: 'FixedExpenseEdit',   component: FixedExpenseEditScreen,   options: backHeader },
+  { name: 'MyInfo',             component: MyInfoScreen,             options: backHeader },
+  { name: 'PasswordChange',     component: PasswordChangeScreen,     options: backHeader },
 ]
 
 export const userTabRoutes: TabRoute[] = [
