@@ -14,6 +14,12 @@ export class LoggingInterceptor implements NestInterceptor {
     const { method, path, body } = req;
     const start = Date.now();
 
+    if (path.endsWith('/health')) {
+      return next.handle().pipe(
+        tap(() => this.logger.debug(`health check  (${Date.now() - start}ms)`)),
+      );
+    }
+
     return next.handle().pipe(
       tap((resBody) => {
         this.logger.api({
