@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import { styles } from './ApprovalRequestScreen.styles'
 
 export default function ApprovalRequestScreen() {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   async function handleRequest() {
@@ -17,9 +17,10 @@ export default function ApprovalRequestScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="아이디"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="이메일"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
         autoCapitalize="none"
       />
       <TextInput

@@ -12,9 +12,9 @@ export function AuthNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login"           component={LoginScreen} />
-      <Stack.Screen name="ApprovalRequest" component={ApprovalRequestScreen} />
-      <Stack.Screen name="ApprovalPending" component={ApprovalPendingScreen} />
-      <Stack.Screen name="DeviceChange"    component={DeviceChangeScreen} />
+      <Stack.Screen name="ApprovalRequest" component={ApprovalRequestScreen} options={{ headerShown: true, title: '', headerShadowVisible: false }} />
+      <Stack.Screen name="ApprovalPending" component={ApprovalPendingScreen} options={{ headerShown: true, title: '', headerShadowVisible: false }} />
+      <Stack.Screen name="DeviceChange"    component={DeviceChangeScreen}    options={{ headerShown: true, title: '', headerShadowVisible: false }} />
     </Stack.Navigator>
   )
 }

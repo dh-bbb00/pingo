@@ -44,13 +44,15 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      <View style={styles.row}>
-        <Text>이메일 저장</Text>
-        <Switch value={form.saveEmail} onValueChange={(v) => setField('saveEmail', v)} />
-      </View>
-      <View style={styles.row}>
-        <Text>자동 로그인</Text>
-        <Switch value={form.autoLogin} onValueChange={(v) => setField('autoLogin', v)} />
+      <View style={styles.options}>
+        <View style={styles.row}>
+          <Text>이메일 저장</Text>
+          <Switch value={form.saveEmail} onValueChange={(v) => setField('saveEmail', v)} />
+        </View>
+        <View style={styles.row}>
+          <Text>자동 로그인</Text>
+          <Switch value={form.autoLogin} onValueChange={(v) => setField('autoLogin', v)} />
+        </View>
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
