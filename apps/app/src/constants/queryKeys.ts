@@ -1,0 +1,19 @@
+export const queryKeys = {
+  transactions: {
+    all: ['transactions'] as const,
+    list: (filter?: unknown) => ['transactions', 'list', filter] as const,
+    detail: (id: string) => ['transactions', id] as const,
+  },
+  categories: {
+    all: ['categories'] as const,
+    list: () => ['categories', 'list'] as const,
+  },
+  fixedExpenses: {
+    all: ['fixed-expenses'] as const,
+    list: () => ['fixed-expenses', 'list'] as const,
+  },
+  stats: {
+    all: ['stats'] as const,
+    monthly: (year: number, month: number) => ['stats', year, month] as const,
+  },
+} as const

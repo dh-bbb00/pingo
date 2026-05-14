@@ -1,0 +1,39 @@
+import React from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import type { StatsDateTab } from './types'
+import { useStatsFilter } from './hooks/useStatsFilter'
+import { styles } from './StatsScreen.styles'
+
+const DATE_TABS: StatsDateTab[] = ['일', '월', '년']
+
+export default function StatsScreen() {
+  const { filter, setTab } = useStatsFilter()
+
+  // TODO: filter 값으로 통계 API 연동
+  // - 일: 시간대별 Line Chart, 카테고리 Pie Chart, TOP10, 전일 대비
+  // - 월: 날짜별 Line Chart, 카테고리 Pie Chart, TOP10, 전월 대비
+  // - 년: 최근 5년, 카테고리 Pie Chart, TOP10, 전년 대비
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>통계</Text>
+
+      <View style={styles.tabBar}>
+        {DATE_TABS.map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tab, filter.tab === tab && styles.tabActive]}
+            onPress={() => setTab(tab)}
+          >
+            <Text style={[styles.tabText, filter.tab === tab && styles.tabTextActive]}>{tab}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.placeholder}>{filter.tab} 통계 준비 중</Text>
+      </View>
+    </SafeAreaView>
+  )
+}

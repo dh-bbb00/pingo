@@ -1,5 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-permission android:name="android.permission.INTERNET" />
+  <!-- notifee: 알림 표시 (Android 13+) -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <!-- notifee: 알림 진동 -->
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <!-- react-native-android-notification-listener: 기기 부팅 후 서비스 재시작 -->
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <application
     android:name=".MainApplication"

@@ -21,6 +21,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.setGlobalPrefix('api/v1', { exclude: ['/docs', '/docs/json'] });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

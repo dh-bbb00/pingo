@@ -1,18 +1,20 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from '../screens/HomeScreen';
+import React from 'react'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import SplashScreen from '@/screens/splash/SplashScreen'
+import { AuthNavigator } from './AuthNavigator'
+import { AdminTabNavigator } from './AdminTabNavigator'
+import { UserTabNavigator } from './UserTabNavigator'
+import type { RootStackParamList } from '@/types/navigation'
 
-export type RootStackParamList = {
-  Home: undefined;
-};
+const Stack = createNativeStackNavigator<RootStackParamList>()
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-/** 앱 전체 스택 네비게이터. 새 화면은 여기에 추가 */
 export function RootNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
+      <Stack.Screen name="Splash"     component={SplashScreen} />
+      <Stack.Screen name="Auth"       component={AuthNavigator} />
+      <Stack.Screen name="AdminTabs"  component={AdminTabNavigator} />
+      <Stack.Screen name="UserTabs"   component={UserTabNavigator} />
     </Stack.Navigator>
-  );
+  )
 }
