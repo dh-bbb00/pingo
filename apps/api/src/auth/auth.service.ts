@@ -86,12 +86,29 @@ export class AuthService {
     if (user.status === 'PENDING') throw new ForbiddenException(MSG.auth.pendingApproval);
     if (user.status === 'REJECTED') throw new ForbiddenException(MSG.auth.rejected);
 
-    const device = await this.prisma.device.findFirst({
-      where: { userId: user.id, deviceUid: dto.deviceUid },
-    });
+    let device: Awaited<ReturnType<typeof this.prisma.device.findFirst>>;
 
-    if (!device) throw new ForbiddenException(MSG.auth.newDevice);
-    if (!device.isTrusted) throw new ForbiddenException(MSG.auth.devicePending);
+    if (user.role === 'ADMIN') {
+      device = await this.prisma.device.upsert({
+        where: { userId_deviceUid: { userId: user.id, deviceUid: dto.deviceUid } },
+        update: {},
+        create: {
+          userId: user.id,
+          deviceUid: dto.deviceUid,
+          deviceName: 'Admin',
+          phoneModel: 'Admin',
+          osVersion:  'Admin',
+          appVersion: dto.appVersion ?? '1.0.0',
+          isTrusted:  true,
+        },
+      });
+    } else {
+      device = await this.prisma.device.findFirst({
+        where: { userId: user.id, deviceUid: dto.deviceUid },
+      });
+      if (!device) throw new ForbiddenException(MSG.auth.newDevice);
+      if (!device.isTrusted) throw new ForbiddenException(MSG.auth.devicePending);
+    }
 
     if (dto.appVersion && device.appVersion !== dto.appVersion) {
       await this.prisma.device.update({
