@@ -1,0 +1,8 @@
+services:
+  api:
+    build:
+      target: development
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+    environment:
+      NODE_ENV: development

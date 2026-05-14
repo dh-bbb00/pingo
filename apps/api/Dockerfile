@@ -1,3 +1,20 @@
+FROM node:22-alpine AS development
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/api/package.json ./apps/api/package.json
+COPY apps/api/tsconfig*.json ./apps/api/
+COPY apps/api/nest-cli.json ./apps/api/
+COPY apps/api/prisma ./apps/api/prisma
+
+RUN pnpm install --frozen-lockfile --filter @pingo/api...
+RUN pnpm --filter @pingo/api exec prisma generate
+
+WORKDIR /app/apps/api
+CMD ["pnpm", "dev"]
+
+
 FROM node:22-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 WORKDIR /app

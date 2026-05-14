@@ -8,7 +8,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "infra:up-dev": "docker compose up",
-    "infra:up": "docker compose up -d",
+    "infra:up": "docker compose -f docker-compose.yml up -d",
     "infra:down": "docker compose down",
     "infra:build": "docker compose build",
     "infra:logs": "docker compose logs -f",
