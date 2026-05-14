@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { strings } from '@/constants/strings'
 import { styles } from './ApprovalRequestScreen.styles'
+
+const s = strings.approvalRequest
 
 export default function ApprovalRequestScreen() {
   const [email, setEmail] = useState('')
@@ -12,12 +15,12 @@ export default function ApprovalRequestScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>승인 요청</Text>
-      <Text style={styles.desc}>관리자 승인 후 사용 가능합니다.</Text>
+      <Text style={styles.title}>{s.title}</Text>
+      <Text style={styles.desc}>{s.desc}</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="이메일"
+        placeholder={s.email}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -25,14 +28,14 @@ export default function ApprovalRequestScreen() {
       />
       <TextInput
         style={styles.input}
-        placeholder="비밀번호"
+        placeholder={s.password}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
 
       <TouchableOpacity style={styles.button} onPress={handleRequest}>
-        <Text style={styles.buttonText}>신청</Text>
+        <Text style={styles.buttonText}>{s.submit}</Text>
       </TouchableOpacity>
     </View>
   )

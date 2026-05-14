@@ -8,7 +8,10 @@ import { useAuthStore } from '@/store/authStore'
 import { storage, StorageKeys } from '@/utils/storage'
 import { getDeviceId } from '@/utils/device'
 import type { RootStackParamList } from '@/types/navigation'
+import { strings } from '@/constants/strings'
 import { styles } from './SplashScreen.styles'
+
+const s = strings.splash
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Splash'>
 
@@ -64,8 +67,8 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>P</Text>
-      <Text style={styles.title}>Pingo</Text>
+      <Text style={styles.logo}>{s.logo}</Text>
+      <Text style={styles.title}>{s.title}</Text>
     </View>
   )
 }

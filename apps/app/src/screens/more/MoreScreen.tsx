@@ -4,13 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
+import { strings } from '@/constants/strings'
 import { styles } from './MoreScreen.styles'
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'MoreMain'>
 
+const s = strings.more
+
 const MENU_ITEMS: { label: string; screen: keyof MoreStackParamList }[] = [
-  { label: '고정 지출 관리', screen: 'FixedExpenses' },
-  { label: '내 정보',       screen: 'MyInfo' },
+  { label: s.fixedExpenses, screen: 'FixedExpenses' },
+  { label: s.myInfo,        screen: 'MyInfo' },
 ]
 
 export default function MoreScreen() {
@@ -18,7 +21,7 @@ export default function MoreScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>전체</Text>
+      <Text style={styles.header}>{s.header}</Text>
 
       {MENU_ITEMS.map((item) => (
         <TouchableOpacity

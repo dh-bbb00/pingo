@@ -70,7 +70,12 @@ export class AuthService {
    * - NEW_DEVICE: 신규 기기 → 클라이언트가 기기변경 화면으로 이동
    * - isTrusted false: 기기 승인 대기 중
    */
-  async login(dto: LoginDto): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(dto: LoginDto): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    role: string;
+    approvalStatus: string;
+  }> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
 
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
@@ -85,13 +90,9 @@ export class AuthService {
       where: { userId: user.id, deviceUid: dto.deviceUid },
     });
 
-    // 기기 미등록 → 기기변경 감지 (클라이언트가 이 메시지로 기기변경 화면 분기)
     if (!device) throw new ForbiddenException(MSG.auth.newDevice);
-
-    // 기기 미승인
     if (!device.isTrusted) throw new ForbiddenException(MSG.auth.devicePending);
 
-    // 앱 버전 변경 시 업데이트
     if (dto.appVersion && device.appVersion !== dto.appVersion) {
       await this.prisma.device.update({
         where: { id: device.id },
@@ -101,7 +102,7 @@ export class AuthService {
 
     const tokens = await this.issueTokens(user.id, user.email, user.role, device.id);
     this.logger.auth({ event: 'LOGIN_SUCCESS', email: user.email });
-    return tokens;
+    return { ...tokens, role: user.role, approvalStatus: user.status };
   }
 
   /** 토큰 재발급 — DB의 refresh token 검증 후 rotation */

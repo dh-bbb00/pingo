@@ -1,16 +1,21 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import HistoryScreen from '@/screens/history/HistoryScreen'
-import TransactionEditScreen from '@/screens/history/TransactionEditScreen'
 import type { HistoryStackParamList } from '@/types/navigation'
+import { historyRoutes } from './config'
 
 const Stack = createNativeStackNavigator<HistoryStackParamList>()
 
 export function HistoryNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="HistoryMain"     component={HistoryScreen} />
-      <Stack.Screen name="TransactionEdit" component={TransactionEditScreen} />
+      {historyRoutes.map(({ name, component, options }) => (
+        <Stack.Screen
+          key={name}
+          name={name as keyof HistoryStackParamList}
+          component={component}
+          options={options}
+        />
+      ))}
     </Stack.Navigator>
   )
 }

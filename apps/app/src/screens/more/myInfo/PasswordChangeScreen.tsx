@@ -1,7 +1,10 @@
 import React from 'react'
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import { usePasswordChangeForm } from './hooks/usePasswordChangeForm'
+import { strings } from '@/constants/strings'
 import { styles } from './PasswordChangeScreen.styles'
+
+const s = strings.passwordChange
 
 export default function PasswordChangeScreen() {
   const { form, setField, isValid } = usePasswordChangeForm()
@@ -13,32 +16,32 @@ export default function PasswordChangeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>비밀번호 변경</Text>
+      <Text style={styles.header}>{s.header}</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="현재 비밀번호"
+        placeholder={s.currentPassword}
         value={form.current}
         onChangeText={(v) => setField('current', v)}
         secureTextEntry
       />
       <TextInput
         style={styles.input}
-        placeholder="새 비밀번호"
+        placeholder={s.newPassword}
         value={form.next}
         onChangeText={(v) => setField('next', v)}
         secureTextEntry
       />
       <TextInput
         style={styles.input}
-        placeholder="새 비밀번호 확인"
+        placeholder={s.confirmPassword}
         value={form.confirm}
         onChangeText={(v) => setField('confirm', v)}
         secureTextEntry
       />
 
       <TouchableOpacity style={styles.button} onPress={handleChange}>
-        <Text style={styles.buttonText}>변경</Text>
+        <Text style={styles.buttonText}>{s.submit}</Text>
       </TouchableOpacity>
     </View>
   )

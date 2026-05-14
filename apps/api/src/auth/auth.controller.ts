@@ -39,9 +39,9 @@ export class AuthController {
   @ApiOperation({ summary: '로그인' })
   async login(
     @Body() dto: LoginDto,
-  ): Promise<BasicResponse<{ accessToken: string; refreshToken: string }>> {
-    const tokens = await this.authService.login(dto);
-    return { success: true, data: tokens };
+  ): Promise<BasicResponse<{ accessToken: string; refreshToken: string; role: string; approvalStatus: string }>> {
+    const result = await this.authService.login(dto);
+    return { success: true, data: result };
   }
 
   /** refresh token으로 access + refresh 재발급 (token rotation) */
