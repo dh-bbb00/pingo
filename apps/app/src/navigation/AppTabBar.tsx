@@ -1,6 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import type { NavigationState, PartialState } from '@react-navigation/native'
 import {
@@ -35,13 +34,13 @@ function isDeepNested(state: NavigationState | PartialState<NavigationState>): b
   return !!(nested && (nested.index ?? 0) > 0)
 }
 
-export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const insets = useSafeAreaInsets()
+const BOTTOM_PADDING = Platform.OS === 'ios' ? 20 : 4
 
+export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   if (isDeepNested(state)) return null
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 4) }]}>
+    <View style={[styles.container, { paddingBottom: BOTTOM_PADDING }]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key]
         const label = (options.title ?? route.name) as string
