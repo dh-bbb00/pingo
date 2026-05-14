@@ -11,6 +11,7 @@ import DeviceChangeScreen       from '@/screens/auth/DeviceChangeScreen'
 
 import UserManagementScreen     from '@/screens/admin/UserManagementScreen'
 import ApprovalManagementScreen from '@/screens/admin/ApprovalManagementScreen'
+import AdminMoreScreen          from '@/screens/admin/AdminMoreScreen'
 
 import HistoryScreen            from '@/screens/history/HistoryScreen'
 import TransactionEditScreen    from '@/screens/history/TransactionEditScreen'
@@ -63,6 +64,7 @@ export const authRoutes: StackRoute[] = [
 export const adminTabRoutes: TabRoute[] = [
   { name: 'UserManagement',     component: UserManagementScreen,     options: { title: strings.adminTabs.userManagement } },
   { name: 'ApprovalManagement', component: ApprovalManagementScreen, options: { title: strings.adminTabs.approvalManagement } },
+  { name: 'AdminMore',          component: AdminMoreScreen,          options: { title: strings.adminTabs.more } },
 ]
 
 export const historyRoutes: StackRoute[] = [

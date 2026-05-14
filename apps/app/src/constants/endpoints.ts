@@ -4,6 +4,7 @@ export const endpoints = {
   auth: {
     login:           `${V1}/auth/login`,
     refresh:         `${V1}/auth/refresh`,
+    logout:          `${V1}/auth/logout`,
     requestApproval: `${V1}/auth/approval-request`,
   },
   transactions: {

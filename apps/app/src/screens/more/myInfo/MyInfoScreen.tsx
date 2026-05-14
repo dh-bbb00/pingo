@@ -13,7 +13,7 @@ const s = strings.myInfo
 
 export default function MyInfoScreen() {
   const navigation = useNavigation<Nav>()
-  const { clearAuth } = useAuthStore()
+  const { logout } = useAuthStore()
 
   // TODO: 내 정보 API 연동 (이메일, 기기 정보)
 
@@ -36,7 +36,7 @@ export default function MyInfoScreen() {
 
       {/* TODO: 현재 기기 상태 표시 + 삭제 */}
 
-      <TouchableOpacity style={styles.logoutButton} onPress={clearAuth}>
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutText}>{s.logout}</Text>
       </TouchableOpacity>
     </View>

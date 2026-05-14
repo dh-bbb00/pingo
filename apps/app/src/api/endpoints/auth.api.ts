@@ -25,6 +25,9 @@ export const authApi = {
   login: (payload: LoginPayload) =>
     apiClient.post<BasicResponse<AuthTokens>>(endpoints.auth.login, payload),
 
+  logout: () =>
+    apiClient.delete(endpoints.auth.logout),
+
   requestApproval: (payload: { email: string; password: string; deviceUid: string; deviceName: string; phoneModel: string; osVersion: string; appVersion: string }) =>
     apiClient.post(endpoints.auth.requestApproval, payload),
 }

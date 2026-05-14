@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import BootSplash from 'react-native-bootsplash'
 import { RootNavigator } from './src/navigation/RootNavigator'
+import { navigationRef } from './src/navigation/navigationRef'
 import { AppProviders } from './src/providers'
 
 export default function App() {
@@ -13,7 +14,7 @@ export default function App() {
   return (
     <AppProviders>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <RootNavigator />
         </NavigationContainer>
       </SafeAreaProvider>

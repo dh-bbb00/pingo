@@ -25,6 +25,7 @@ const ICONS: Record<string, IconFn> = {
   More:               ({ color }) => <MoreIcon color={color} />,
   UserManagement:     ({ color }) => <UsersIcon color={color} />,
   ApprovalManagement: ({ color }) => <CheckCircleIcon color={color} />,
+  AdminMore:          ({ color }) => <MoreIcon color={color} />,
 }
 
 function isDeepNested(state: NavigationState | PartialState<NavigationState>): boolean {

@@ -60,6 +60,12 @@ export const strings = {
   adminTabs: {
     userManagement:     '유저 관리',
     approvalManagement: '승인 관리',
+    more:               '전체',
+  },
+
+  adminMore: {
+    header: '전체',
+    logout: '로그아웃',
   },
 
   userTabs: {

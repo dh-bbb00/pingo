@@ -26,6 +26,7 @@ export type AuthStackParamList = {
 export type AdminTabParamList = {
   UserManagement:     undefined
   ApprovalManagement: undefined
+  AdminMore:          undefined
 }
 
 // ────────────────────────────────────────────────
