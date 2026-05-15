@@ -8,6 +8,7 @@ import { AppLoggerService } from '../logger/logger.service';
 import { ApprovalRequestDto } from './dto/approval-request.dto';
 import { LoginDto } from './dto/login.dto';
 import { MSG } from '../common/constants/messages';
+import { ApiErrorCode } from '../common/constants/error-codes';
 import * as bcrypt from 'bcryptjs';
 
 /** 승인요청 rate limit: 10분 3회 */
@@ -28,7 +29,7 @@ export class AuthService {
 
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing?.status === 'APPROVED') {
-      throw new ConflictException(MSG.auth.alreadyApproved);
+      throw new ConflictException({ errorCode: ApiErrorCode.ALREADY_APPROVED, message: MSG.auth.alreadyApproved });
     }
 
     const hashed = await bcrypt.hash(dto.password, 10);
@@ -80,11 +81,11 @@ export class AuthService {
 
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       this.logger.auth({ event: 'LOGIN_FAIL', email: dto.email, reason: 'Invalid credentials' });
-      throw new UnauthorizedException(MSG.auth.invalidCredentials);
+      throw new UnauthorizedException({ errorCode: ApiErrorCode.INVALID_CREDENTIALS, message: MSG.auth.invalidCredentials });
     }
 
-    if (user.status === 'PENDING') throw new ForbiddenException(MSG.auth.pendingApproval);
-    if (user.status === 'REJECTED') throw new ForbiddenException(MSG.auth.rejected);
+    if (user.status === 'PENDING') throw new ForbiddenException({ errorCode: ApiErrorCode.PENDING_APPROVAL, message: MSG.auth.pendingApproval });
+    if (user.status === 'REJECTED') throw new ForbiddenException({ errorCode: ApiErrorCode.REJECTED, message: MSG.auth.rejected });
 
     let device: Awaited<ReturnType<typeof this.prisma.device.findFirst>>;
 
@@ -106,8 +107,8 @@ export class AuthService {
       device = await this.prisma.device.findFirst({
         where: { userId: user.id, deviceUid: dto.deviceUid },
       });
-      if (!device) throw new ForbiddenException(MSG.auth.newDevice);
-      if (!device.isTrusted) throw new ForbiddenException(MSG.auth.devicePending);
+      if (!device) throw new ForbiddenException({ errorCode: ApiErrorCode.NEW_DEVICE, message: MSG.auth.newDevice });
+      if (!device.isTrusted) throw new ForbiddenException({ errorCode: ApiErrorCode.DEVICE_PENDING, message: MSG.auth.devicePending });
     }
 
     if (dto.appVersion && device.appVersion !== dto.appVersion) {
@@ -131,7 +132,7 @@ export class AuthService {
     const stored = await this.prisma.refreshToken.findFirst({
       where: { userId, deviceId, token: rawRefreshToken, expiresAt: { gt: new Date() } },
     });
-    if (!stored) throw new UnauthorizedException(MSG.auth.invalidRefreshToken);
+    if (!stored) throw new UnauthorizedException({ errorCode: ApiErrorCode.INVALID_REFRESH_TOKEN, message: MSG.auth.invalidRefreshToken });
 
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
     const tokens = await this.issueTokens(userId, user.email, user.role, deviceId);
@@ -189,7 +190,7 @@ export class AuthService {
 
     if (record) {
       if (record.firstRequestAt > windowStart && record.requestCount >= RATE_LIMIT_MAX) {
-        throw new HttpException(MSG.auth.rateLimitExceeded, HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException({ errorCode: ApiErrorCode.RATE_LIMIT_EXCEEDED, message: MSG.auth.rateLimitExceeded }, HttpStatus.TOO_MANY_REQUESTS);
       }
       // 윈도우 만료 시 초기화, 아니면 카운트 증가
       await this.prisma.approvalRateLimit.update({

@@ -1,5 +1,6 @@
 import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import Toast from 'react-native-toast-message'
 import { ThemeProvider } from '@/theme'
 
 const queryClient = new QueryClient({
@@ -15,6 +16,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>{children}</ThemeProvider>
+      <Toast />
     </QueryClientProvider>
   )
 }

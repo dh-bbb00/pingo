@@ -1,9 +1,10 @@
 import React from 'react'
-import { View, Text, TextInput, TouchableOpacity, Switch, Alert } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Switch } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAuthStore } from '@/store/authStore'
 import { authApi } from '@/api/endpoints/auth.api'
+import { handleApiError } from '@/api/errorHandler'
 import { getDeviceId } from '@/utils/device'
 import { strings } from '@/constants/strings'
 import type { RootStackParamList, AuthStackParamList } from '@/types/navigation'
@@ -37,14 +38,7 @@ export default function LoginScreen() {
         rootNav?.replace('UserTabs', { screen: 'Home' })
       }
     } catch (error: unknown) {
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      if (message === strings.apiMessage.newDevice) {
-        navigation.navigate('DeviceChange')
-      } else if (message === strings.apiMessage.pendingApproval) {
-        navigation.navigate('ApprovalPending')
-      } else {
-        Alert.alert(s.errorTitle, message ?? s.errorFallback)
-      }
+      handleApiError(error)
     }
   }
 

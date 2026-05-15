@@ -76,9 +76,24 @@ export const strings = {
     more:     '전체',
   },
 
+  error: {
+    title:    '오류',
+    fallback: '오류가 발생했습니다.',
+  },
+
+  toast: {
+    unregisteredUser:   '등록되지 않은 사용자예요.',
+    pleaseRequestApproval: '처음 사용하신다면 승인 요청을 먼저 해주세요.',
+    rejected:           '승인이 거절된 계정이에요.',
+    alreadyApproved:    '이미 승인된 계정이에요.',
+    rateLimitExceeded:  '잠시 후 다시 시도해주세요. (10분 3회 제한)',
+    serverError:        '서버 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+  },
+
   /** 서버 응답 메시지 — 에러 분기 비교용 */
   apiMessage: {
-    newDevice:       'NEW_DEVICE',
-    pendingApproval: '승인 대기 중입니다.',
+    newDevice:          'NEW_DEVICE',
+    pendingApproval:    '승인 대기 중입니다.',
+    invalidCredentials: '이메일 또는 비밀번호가 올바르지 않습니다.',
   },
 } as const
