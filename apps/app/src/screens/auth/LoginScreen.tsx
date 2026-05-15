@@ -2,9 +2,11 @@ import React from 'react'
 import { View, Text, TextInput, TouchableOpacity, Switch } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import Toast from 'react-native-toast-message'
 import { useAuthStore } from '@/store/authStore'
 import { authApi } from '@/api/endpoints/auth.api'
 import { handleApiError } from '@/api/errorHandler'
+import { ApiErrorCode } from '@/api/errors'
 import { getDeviceId } from '@/utils/device'
 import { strings } from '@/constants/strings'
 import type { RootStackParamList, AuthStackParamList } from '@/types/navigation'
@@ -38,7 +40,14 @@ export default function LoginScreen() {
         rootNav?.replace('UserTabs', { screen: 'Home' })
       }
     } catch (error: unknown) {
-      handleApiError(error)
+      // 로그인에서는 유효성·자격증명 오류 모두 동일하게 generic 안내
+      const showGenericInputError = () =>
+        Toast.show({ type: 'error', text1: s.invalidInput })
+
+      handleApiError(error, {
+        [ApiErrorCode.INVALID_CREDENTIALS]: showGenericInputError,
+        [ApiErrorCode.VALIDATION_ERROR]:    showGenericInputError,
+      })
     }
   }
 

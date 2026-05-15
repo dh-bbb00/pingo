@@ -351,6 +351,21 @@ class-validator 기본 영어 메시지를 사용하지 않고 **한글로 관�
 
 에러 코드 목록 및 설명: `apps/api/src/common/constants/error-codes.ts`
 
+### 화면별 동작 override
+
+글로벌 동작 대신 화면 수준에서 특정 에러 코드의 처리를 바꿔야 할 때는 `handleApiError` 두 번째 인자로 `overrides` 를 전달한다.
+
+```ts
+handleApiError(error, {
+  [ApiErrorCode.VALIDATION_ERROR]: () =>
+    Toast.show({ type: 'error', text1: strings.login.invalidInput }),
+})
+```
+
+- override 에 없는 코드는 `errorHandler.ts` 의 기본 switch 가 처리한다.
+- override 용 문구는 `strings.ts` 에 추가한다 (UI 결정이므로 FE 관리).
+- 예시: 로그인 화면에서 유효성 오류와 자격증명 오류를 동일한 generic 메시지로 통합.
+
 ---
 
 ## Notes

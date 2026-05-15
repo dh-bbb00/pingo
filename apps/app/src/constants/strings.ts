@@ -16,13 +16,15 @@ export const strings = {
   },
 
   login: {
-    title:     '로그인',
-    email:     '이메일',
-    password:  '비밀번호',
-    saveEmail: '이메일 저장',
-    autoLogin: '자동 로그인',
-    submit:    '로그인',
-    noAccount: '계정이 없으신가요? 승인 요청',
+    title:        '로그인',
+    email:        '이메일',
+    password:     '비밀번호',
+    saveEmail:    '이메일 저장',
+    autoLogin:    '자동 로그인',
+    submit:       '로그인',
+    noAccount:    '계정이 없으신가요? 승인 요청',
+    /** 유효성 오류·잘못된 자격증명 — 상세 내용 노출 없이 통합 안내 */
+    invalidInput: '이메일 또는 비밀번호를 확인해주세요.',
   },
 
   approvalRequest: {

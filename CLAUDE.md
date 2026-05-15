@@ -55,7 +55,24 @@ catch (error)
 4. `FE errors.ts` — `ApiErrorCode` 동기화
 5. `FE errorHandler.ts` — switch 케이스 추가
 
----
+**화면별 override — 특정 에러 동작을 화면 수준에서 재정의할 때**
+
+글로벌 동작 대신 화면 전용 처리가 필요하면 `handleApiError` 두 번째 인자로 `overrides` 전달.
+BE 메시지 대신 화면 전용 generic 문구를 써야 하는 경우 등에 사용.
+
+```ts
+// 예: 로그인 화면에서 유효성·자격증명 오류를 상세 노출 없이 통합 안내
+const showGenericInputError = () =>
+  Toast.show({ type: 'error', text1: strings.login.invalidInput })
+
+handleApiError(error, {
+  [ApiErrorCode.INVALID_CREDENTIALS]: showGenericInputError,
+  [ApiErrorCode.VALIDATION_ERROR]:    showGenericInputError,
+})
+```
+
+- override 에 없는 코드는 `errorHandler.ts` 의 switch 가 그대로 처리.
+- override 용 문구는 `strings.ts` 에 추가 (에러 문구가 아닌 UI 결정이므로).
 
 ---
 

@@ -2,7 +2,7 @@ import { Alert } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { navigationRef } from '@/navigation/navigationRef'
 import { strings } from '@/constants/strings'
-import { parseApiError, ApiErrorCode } from './errors'
+import { parseApiError, ApiErrorCode, ParsedApiError } from './errors'
 
 const c = strings.common
 
@@ -12,9 +12,20 @@ const c = strings.common
  *
  * - 표시 문구는 백엔드 message 를 그대로 사용.
  * - 에러코드 추가 시 이 파일 switch 에만 케이스 추가.
+ * - 화면별로 특정 코드 동작을 바꿔야 할 때는 overrides 사용.
  */
-export function handleApiError(error: unknown): void {
-  const { errorCode, message } = parseApiError(error)
+export function handleApiError(
+  error: unknown,
+  overrides?: Partial<Record<ApiErrorCode, (parsed: ParsedApiError) => void>>,
+): void {
+  const parsed = parseApiError(error)
+  const { errorCode, message } = parsed
+
+  const override = errorCode ? overrides?.[errorCode] : undefined
+  if (override) {
+    override(parsed)
+    return
+  }
 
   switch (errorCode) {
     // 신규 기기 — 기기변경 화면으로 이동
