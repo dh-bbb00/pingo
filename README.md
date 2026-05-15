@@ -310,6 +310,49 @@ pnpm infra:down && pnpm infra:up
 
 ---
 
+## 문구 관리 원칙
+
+### 에러 메시지
+사용자에게 보여주는 에러 문구는 **백엔드에서 단독 관리**한다.
+
+- 정의 위치: `apps/api/src/common/constants/messages.ts`
+- 프론트는 서버 응답의 `message` 필드를 그대로 표시하며 별도로 재정의하지 않는다.
+
+### UI 문구
+레이블, 버튼, 플레이스홀더 등 화면 구성 문구는 **프론트에서 단독 관리**한다.
+
+- 정의 위치: `apps/app/src/constants/strings.ts`
+- 에러 메시지를 이 파일에 추가하지 않는다.
+
+### DTO 유효성 메시지
+class-validator 기본 영어 메시지를 사용하지 않고 **한글로 관리**한다.
+
+- 정의 위치: `apps/api/src/common/constants/validation-messages.ts`
+- 모든 DTO 데코레이터에 `{ message: VM.xxx }` 형태로 적용한다.
+
+---
+
+## 에러 처리 흐름
+
+```
+화면 catch (error)
+  └─ handleApiError(error)         apps/app/src/api/errorHandler.ts
+       ├─ parseApiError()           errorCode, message 추출
+       └─ switch(errorCode)
+            ├─ 화면 이동 케이스      navigationRef 사용 (DeviceChange, ApprovalPending 등)
+            ├─ 토스트 케이스         Toast.show({ text1: message })
+            └─ default              Alert.alert('오류', message)
+```
+
+서버 에러 응답 형태:
+```json
+{ "success": false, "errorCode": "INVALID_CREDENTIALS", "message": "이메일 또는 비밀번호가 올바르지 않습니다." }
+```
+
+에러 코드 목록 및 설명: `apps/api/src/common/constants/error-codes.ts`
+
+---
+
 ## Notes
 
 ### `DATABASE_URL` — 로컬 vs Docker

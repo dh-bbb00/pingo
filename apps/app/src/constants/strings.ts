@@ -1,19 +1,28 @@
+/**
+ * 화면 UI 문구 상수.
+ * 에러 메시지는 백엔드 messages.ts 에서 관리하며 프론트는 그대로 표시한다.
+ * 이 파일에는 레이블·플레이스홀더·버튼 텍스트 등 화면 구성 문구만 정의한다.
+ */
 export const strings = {
+  /** 에러 표시용 공통 — Alert 타이틀, 서버 응답 없을 때 폴백 */
+  common: {
+    errorTitle:    '오류',
+    errorFallback: '오류가 발생했습니다.',
+  },
+
   splash: {
     logo:  'P',
     title: 'Pingo',
   },
 
   login: {
-    title:      '로그인',
-    email:      '이메일',
-    password:   '비밀번호',
-    saveEmail:  '이메일 저장',
-    autoLogin:  '자동 로그인',
-    submit:     '로그인',
-    noAccount:  '계정이 없으신가요? 승인 요청',
-    errorTitle: '로그인 실패',
-    errorFallback: '오류가 발생했습니다.',
+    title:     '로그인',
+    email:     '이메일',
+    password:  '비밀번호',
+    saveEmail: '이메일 저장',
+    autoLogin: '자동 로그인',
+    submit:    '로그인',
+    noAccount: '계정이 없으신가요? 승인 요청',
   },
 
   approvalRequest: {
@@ -25,9 +34,9 @@ export const strings = {
   },
 
   approvalPending: {
-    title:  '승인 대기 중',
-    desc:   '관리자가 계정을 검토 중입니다.\n승인 후 이용 가능합니다.',
-    back:   '로그인으로 돌아가기',
+    title: '승인 대기 중',
+    desc:  '관리자가 계정을 검토 중입니다.\n승인 후 이용 가능합니다.',
+    back:  '로그인으로 돌아가기',
   },
 
   deviceChange: {
@@ -74,26 +83,5 @@ export const strings = {
     stats:    '통계',
     category: '카테고리',
     more:     '전체',
-  },
-
-  error: {
-    title:    '오류',
-    fallback: '오류가 발생했습니다.',
-  },
-
-  toast: {
-    unregisteredUser:   '등록되지 않은 사용자예요.',
-    pleaseRequestApproval: '처음 사용하신다면 승인 요청을 먼저 해주세요.',
-    rejected:           '승인이 거절된 계정이에요.',
-    alreadyApproved:    '이미 승인된 계정이에요.',
-    rateLimitExceeded:  '잠시 후 다시 시도해주세요. (10분 3회 제한)',
-    serverError:        '서버 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
-  },
-
-  /** 서버 응답 메시지 — 에러 분기 비교용 */
-  apiMessage: {
-    newDevice:          'NEW_DEVICE',
-    pendingApproval:    '승인 대기 중입니다.',
-    invalidCredentials: '이메일 또는 비밀번호가 올바르지 않습니다.',
   },
 } as const

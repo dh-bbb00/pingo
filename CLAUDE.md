@@ -8,6 +8,57 @@
 
 ---
 
+## 문구 관리 원칙
+
+### 에러 메시지 — 백엔드 단독 관리
+- 모든 에러 문구는 `apps/api/src/common/constants/messages.ts` 에서 정의.
+- 프론트는 서버가 내려준 `message` 를 그대로 표시하며 별도로 정의하지 않는다.
+- 새 에러 추가 시 BE `messages.ts` → `error-codes.ts` → FE `errors.ts` (코드 동기화) → `errorHandler.ts` (케이스 추가) 순서.
+
+### UI 문구 — 프론트 단독 관리
+- 레이블·플레이스홀더·버튼 텍스트·화면 제목 등 UI 구성 문구는 `apps/app/src/constants/strings.ts` 에서 정의.
+- `strings.ts` 에는 에러 문구를 넣지 않는다. (`common.errorTitle`, `common.errorFallback` 예외 — UI 폴백용).
+
+### DTO 유효성 메시지 — 백엔드 단독 관리
+- class-validator 메시지는 `apps/api/src/common/constants/validation-messages.ts` 의 `VM` 상수를 사용.
+- 데코레이터에 `{ message: VM.xxx }` 형태로 적용, 영어 기본 메시지 사용 금지.
+
+---
+
+## 에러 처리 구조 (FE)
+
+```
+catch (error)
+  └─ handleApiError(error)            src/api/errorHandler.ts
+       └─ parseApiError(error)         src/api/errors.ts
+            ├─ errorCode 추출          BE가 { errorCode, message } 형태로 응답
+            └─ message 추출            BE message 를 그대로 사용 (FE 재정의 금지)
+       └─ switch(errorCode)
+            ├─ 네비게이션 케이스         navigationRef 사용
+            ├─ 토스트 케이스            Toast.show({ text1: message })
+            └─ default                 Alert.alert(title, message)
+```
+
+**관련 파일**
+
+| 파일 | 역할 |
+|------|------|
+| `api/errors.ts` | `ApiErrorCode` 상수 + `parseApiError` 유틸 |
+| `api/errorHandler.ts` | errorCode → 동작 매핑 (유일한 에러 처리 진입점) |
+| `common/constants/error-codes.ts` (BE) | errorCode 원본 정의 + 각 코드 상세 설명 |
+| `common/constants/messages.ts` (BE) | 사용자에게 보여줄 에러 문구 |
+
+**새 에러 추가 체크리스트**
+1. `BE error-codes.ts` — `ApiErrorCode` 에 새 코드 추가
+2. `BE messages.ts` — 표시할 한글 메시지 추가
+3. `BE *.service.ts` — `throw new XxxException({ errorCode, message })` 형태로 던지기
+4. `FE errors.ts` — `ApiErrorCode` 동기화
+5. `FE errorHandler.ts` — switch 케이스 추가
+
+---
+
+---
+
 ## 모노레포 구조
 
 ```

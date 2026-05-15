@@ -4,14 +4,14 @@ import { navigationRef } from '@/navigation/navigationRef'
 import { strings } from '@/constants/strings'
 import { parseApiError, ApiErrorCode } from './errors'
 
-const s = strings.toast
-const e = strings.error
+const c = strings.common
 
 /**
  * API 에러를 errorCode 기준으로 중앙 처리.
  * 모든 화면에서 catch 블록 대신 이 함수 하나만 호출.
  *
- * 에러코드 추가 시 이 파일 switch에만 케이스 추가하면 됨.
+ * - 표시 문구는 백엔드 message 를 그대로 사용.
+ * - 에러코드 추가 시 이 파일 switch 에만 케이스 추가.
  */
 export function handleApiError(error: unknown): void {
   const { errorCode, message } = parseApiError(error)
@@ -28,38 +28,18 @@ export function handleApiError(error: unknown): void {
       navigationRef.navigate('Auth', { screen: 'ApprovalPending' })
       break
 
-    // 잘못된 자격증명 — 미등록 사용자 안내 토스트
+    // 네비게이션 없이 메시지만 표시하는 케이스 — 토스트
     case ApiErrorCode.INVALID_CREDENTIALS:
-      Toast.show({ type: 'error', text1: s.unregisteredUser, text2: s.pleaseRequestApproval })
-      break
-
-    // 승인 거절
     case ApiErrorCode.REJECTED:
-      Toast.show({ type: 'error', text1: s.rejected })
-      break
-
-    // 이미 승인된 계정 (승인요청 중복)
     case ApiErrorCode.ALREADY_APPROVED:
-      Toast.show({ type: 'error', text1: s.alreadyApproved })
-      break
-
-    // 요청 횟수 초과
     case ApiErrorCode.RATE_LIMIT_EXCEEDED:
-      Toast.show({ type: 'error', text1: s.rateLimitExceeded })
-      break
-
-    // 서버 내부 오류
     case ApiErrorCode.INTERNAL_ERROR:
-      Toast.show({ type: 'error', text1: s.serverError })
-      break
-
-    // 유효성 오류 (class-validator) — 서버 메시지 그대로 토스트
     case ApiErrorCode.VALIDATION_ERROR:
-      Toast.show({ type: 'error', text1: message ?? e.fallback })
+      Toast.show({ type: 'error', text1: message ?? c.errorFallback })
       break
 
     // 그 외 알 수 없는 오류 — Alert
     default:
-      Alert.alert(e.title, message ?? e.fallback)
+      Alert.alert(c.errorTitle, message ?? c.errorFallback)
   }
 }
