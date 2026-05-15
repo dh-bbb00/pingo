@@ -53,7 +53,12 @@ export function handleApiError(error: unknown): void {
       Toast.show({ type: 'error', text1: s.serverError })
       break
 
-    // 그 외 (유효성 오류 등) — 서버 메시지 그대로 Alert
+    // 유효성 오류 (class-validator) — 서버 메시지 그대로 토스트
+    case ApiErrorCode.VALIDATION_ERROR:
+      Toast.show({ type: 'error', text1: message ?? e.fallback })
+      break
+
+    // 그 외 알 수 없는 오류 — Alert
     default:
       Alert.alert(e.title, message ?? e.fallback)
   }
