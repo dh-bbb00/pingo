@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { RouteProp } from '@react-navigation/native'
 import type { MoreStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import { styles } from './FixedExpenseDetailScreen.styles'
 
 type Nav   = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenseDetail'>
@@ -16,7 +17,7 @@ export default function FixedExpenseDetailScreen() {
   // TODO: params.id로 고정 지출 상세 API 연동
 
   function handleEdit() {
-    navigation.navigate('FixedExpenseEdit', { id: params.id })
+    navigation.navigate(Screens.More.FixedExpenseEdit, { id: params.id })
   }
 
   function handleDelete() {

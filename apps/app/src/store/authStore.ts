@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { storage, StorageKeys } from '@/utils/storage'
 import { authApi } from '@/api/endpoints/auth.api'
 import { navigationRef } from '@/navigation/navigationRef'
+import { Screens } from '@/constants/screens'
 
 export type UserRole         = 'USER' | 'ADMIN'
 export type ApprovalStatus   = 'PENDING' | 'APPROVED' | 'REJECTED'
@@ -42,7 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       clearLocal()
       set({ accessToken: null, role: null, approvalStatus: null })
-      navigationRef.reset({ index: 0, routes: [{ name: 'Auth', params: { screen: 'Login' } }] })
+      navigationRef.reset({ index: 0, routes: [{ name: Screens.Root.Auth, params: { screen: Screens.Auth.Login } }] })
     }
   },
 

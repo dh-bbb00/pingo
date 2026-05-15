@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 import { storage, StorageKeys } from '@/utils/storage'
 import { getDeviceId } from '@/utils/device'
 import type { RootStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { styles } from './SplashScreen.styles'
 
@@ -28,7 +29,7 @@ export default function SplashScreen() {
     const autoLogin    = storage.getBoolean(StorageKeys.AUTO_LOGIN)
 
     if (!refreshToken || !autoLogin) {
-      navigation.replace('Auth', { screen: 'Login' })
+      navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.Login })
       return
     }
 
@@ -46,22 +47,22 @@ export default function SplashScreen() {
 
       const currentDeviceId = await getDeviceId()
       if (data.deviceId && data.deviceId !== currentDeviceId) {
-        navigation.replace('Auth', { screen: 'DeviceChange' })
+        navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.DeviceChange })
         return
       }
 
       if (data.approvalStatus === 'PENDING') {
-        navigation.replace('Auth', { screen: 'ApprovalPending' })
+        navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.ApprovalPending })
         return
       }
 
       if (data.role === 'ADMIN') {
-        navigation.replace('AdminTabs', { screen: 'UserManagement' })
+        navigation.replace(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
       } else {
-        navigation.replace('UserTabs', { screen: 'Home' })
+        navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
       }
     } catch {
-      navigation.replace('Auth', { screen: 'Login' })
+      navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.Login })
     }
   }
 

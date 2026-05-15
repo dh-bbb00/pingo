@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAuthStore } from '@/store/authStore'
 import type { MoreStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { styles } from './MyInfoScreen.styles'
 
@@ -28,7 +29,7 @@ export default function MyInfoScreen() {
 
       <TouchableOpacity
         style={styles.menuItem}
-        onPress={() => navigation.navigate('PasswordChange')}
+        onPress={() => navigation.navigate(Screens.More.PasswordChange)}
       >
         <Text style={styles.menuLabel}>{s.changePassword}</Text>
         <Text style={styles.chevron}>›</Text>

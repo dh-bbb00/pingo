@@ -142,6 +142,7 @@ src/
 ├── constants/
 │   ├── endpoints.ts           # API 엔드포인트 상수
 │   ├── queryKeys.ts           # TanStack Query 키 상수
+│   ├── screens.ts             # 네비게이션 스크린 이름 상수
 │   └── strings.ts             # UI 문구 상수 (하드코딩 대신 여기서 참조)
 ├── hooks/
 │   └── queries/               # 전역 공유 Query/Mutation 훅
@@ -167,6 +168,19 @@ src/
 ```
 
 ### 코드 패턴
+
+#### 스크린 이름
+```ts
+// 네비게이션 이동 시 스크린 이름 하드코딩 금지 — constants/screens.ts 의 Screens 상수 사용
+import { Screens } from '@/constants/screens'
+
+navigation.navigate(Screens.Auth.ApprovalPending)
+navigationRef.navigate(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
+navigationRef.dispatch(StackActions.replace(Screens.Auth.ApprovalPending))
+```
+
+- `Screens` 는 `navigation.ts` 의 ParamList 타입과 `satisfies` 로 연동 — 오탈자 시 즉시 타입 에러
+- 스크린 이름 변경 시 `constants/screens.ts` 한 곳만 수정하면 전체 반영
 
 #### 화면 (Screen)
 ```tsx

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { CategoryStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import type { CategoryListItem } from './types'
 import { styles } from './CategoryScreen.styles'
 
@@ -20,7 +21,7 @@ export default function CategoryScreen() {
         <Text style={styles.header}>카테고리</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('CategoryEdit', {})}
+          onPress={() => navigation.navigate(Screens.Category.CategoryEdit, {})}
         >
           <Text style={styles.addButtonText}>+ 추가</Text>
         </TouchableOpacity>

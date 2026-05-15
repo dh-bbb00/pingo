@@ -1,6 +1,7 @@
 import { Alert } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { navigationRef } from '@/navigation/navigationRef'
+import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { parseApiError, ApiErrorCode, ParsedApiError } from './errors'
 
@@ -30,13 +31,13 @@ export function handleApiError(
   switch (errorCode) {
     // 신규 기기 — 기기변경 화면으로 이동
     case ApiErrorCode.NEW_DEVICE:
-      navigationRef.navigate('Auth', { screen: 'DeviceChange' })
+      navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.DeviceChange })
       break
 
     // 계정 or 기기 승인 대기 — 승인 대기 화면으로 이동
     case ApiErrorCode.PENDING_APPROVAL:
     case ApiErrorCode.DEVICE_PENDING:
-      navigationRef.navigate('Auth', { screen: 'ApprovalPending' })
+      navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.ApprovalPending })
       break
 
     // 네비게이션 없이 메시지만 표시하는 케이스 — 토스트

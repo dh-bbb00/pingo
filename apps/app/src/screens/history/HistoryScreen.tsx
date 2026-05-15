@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { HistoryStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import type { HistoryDateTab } from './types'
 import { useHistoryFilter } from './hooks/useHistoryFilter'
 import { styles } from './HistoryScreen.styles'
@@ -24,7 +25,7 @@ export default function HistoryScreen() {
         <Text style={styles.header}>내역</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('TransactionEdit', {})}
+          onPress={() => navigation.navigate(Screens.History.TransactionEdit, {})}
         >
           <Text style={styles.addButtonText}>+ 추가</Text>
         </TouchableOpacity>

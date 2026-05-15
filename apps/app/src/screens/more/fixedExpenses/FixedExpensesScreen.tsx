@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import type { FixedExpensesViewTab, FixedExpenseDetail } from './types'
 import { useFixedExpensesView } from './hooks/useFixedExpensesView'
 import { styles } from './FixedExpensesScreen.styles'
@@ -23,7 +24,7 @@ export default function FixedExpensesScreen() {
         <Text style={styles.header}>고정 지출 관리</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('FixedExpenseEdit', {})}
+          onPress={() => navigation.navigate(Screens.More.FixedExpenseEdit, {})}
         >
           <Text style={styles.addButtonText}>+ 추가</Text>
         </TouchableOpacity>

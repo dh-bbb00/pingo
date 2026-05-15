@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { AuthStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { styles } from './DeviceChangeScreen.styles'
 
@@ -15,7 +16,7 @@ export default function DeviceChangeScreen() {
 
   async function handleApprovalRequest() {
     // TODO: 새 기기 승인 요청 API 연동
-    navigation.navigate('ApprovalPending')
+    navigation.navigate(Screens.Auth.ApprovalPending)
   }
 
   return (

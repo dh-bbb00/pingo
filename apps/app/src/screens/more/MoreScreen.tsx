@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
+import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { styles } from './MoreScreen.styles'
 
@@ -12,8 +13,8 @@ type Nav = NativeStackNavigationProp<MoreStackParamList, 'MoreMain'>
 const s = strings.more
 
 const MENU_ITEMS: { label: string; screen: keyof MoreStackParamList }[] = [
-  { label: s.fixedExpenses, screen: 'FixedExpenses' },
-  { label: s.myInfo,        screen: 'MyInfo' },
+  { label: s.fixedExpenses, screen: Screens.More.FixedExpenses },
+  { label: s.myInfo,        screen: Screens.More.MyInfo },
 ]
 
 export default function MoreScreen() {
