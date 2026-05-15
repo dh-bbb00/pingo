@@ -1,34 +1,35 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsDateString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { VM } from '../../common/constants/validation-messages';
 
 /** 내역 추가 DTO */
 export class CreateTransactionDto {
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: VM.string })
+  @IsNotEmpty({ message: VM.notEmpty })
   categoryId: string;
 
   @ApiProperty({ description: '원 단위' })
-  @IsNumber()
-  @Min(0)
+  @IsNumber({}, { message: VM.number })
+  @Min(0, { message: VM.min(0) })
   amount: number;
 
   @ApiProperty({ description: '가맹점명' })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: VM.string })
+  @IsNotEmpty({ message: VM.notEmpty })
   merchantName: string;
 
   @ApiProperty({ required: false, description: '카드사 예: 신한, 국민' })
   @IsOptional()
-  @IsString()
+  @IsString({ message: VM.string })
   cardCompany?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsString({ message: VM.string })
   memo?: string;
 
   @ApiProperty({ description: '실제 거래 일시 (ISO 8601)' })
-  @IsDateString()
+  @IsDateString({}, { message: VM.dateString })
   transactionDate: string;
 }
