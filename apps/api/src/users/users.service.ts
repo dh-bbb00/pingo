@@ -38,6 +38,36 @@ export class UsersService {
     return device;
   }
 
+  /** 승인된 유저 목록 — 관리자 전용, 이메일 검색·페이지네이션 */
+  async findAllAdmin(params: { search?: string; page: number; pageSize: number }) {
+    const { search, page, pageSize } = params
+    const where = {
+      status: 'APPROVED' as const,
+      role:   'USER'     as const,
+      ...(search ? { email: { contains: search, mode: 'insensitive' as const } } : {}),
+    }
+    const [total, users] = await this.prisma.$transaction([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true, email: true, createdAt: true,
+          devices: {
+            select: {
+              id: true, deviceName: true, phoneModel: true,
+              osVersion: true, appVersion: true, isTrusted: true, createdAt: true,
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+      }),
+    ])
+    return { users, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
+  }
+
   /** 기기 삭제 — 연결된 refresh token 함께 삭제 */
   async removeDevice(userId: string, deviceId: string): Promise<void> {
     await this.prisma.refreshToken.deleteMany({ where: { userId, deviceId } });

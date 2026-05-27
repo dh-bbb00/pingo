@@ -23,7 +23,8 @@ export const endpoints = {
     base: `${V1}/stats`,
   },
   users: {
-    password: `${V1}/users/password`,
+    base:     `${V1}/users`,
+    password: `${V1}/users/me/password`,
   },
   devices: {
     base: `${V1}/devices`,

@@ -5,6 +5,23 @@ export interface AdminUser {
   createdAt: string
 }
 
+export interface AdminUserDevice {
+  id:         string
+  deviceName: string
+  phoneModel: string
+  osVersion:  string
+  appVersion: string
+  isTrusted:  boolean
+  createdAt:  string
+}
+
+export interface AdminUserDetail {
+  id:        string
+  email:     string
+  createdAt: string
+  devices:   AdminUserDevice[]
+}
+
 export interface ApprovalRequest {
   id:        string
   status:    'PENDING' | 'APPROVED' | 'REJECTED'

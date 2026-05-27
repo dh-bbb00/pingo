@@ -1,24 +1,116 @@
-import React, { useMemo } from 'react'
-import { View, Text, FlatList } from 'react-native'
+import React, { useMemo, useState, useCallback } from 'react'
+import { View, Text, FlatList, TextInput, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native'
 import { useTheme } from '@/theme'
-import type { AdminUser } from '../types'
+import { strings } from '@/constants/strings'
+import type { AdminUserDetail } from '../types'
+import { useAdminUsers } from './hooks/useAdminUsers'
+import UserListItem from './components/UserListItem'
+import UserListSkeleton from './components/UserListSkeleton'
+import PaginationBar from './components/PaginationBar'
 import { makeStyles } from './UserManagementScreen.styles'
+
+if (Platform.OS === 'android') {
+  UIManager.setLayoutAnimationEnabledExperimental?.(true)
+}
+
+const PAGE_SIZE = 20
+const s = strings.userManagement
 
 export default function UserManagementScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  // TODO: 유저 목록 API 연동
+  const [search,          setSearch]    = useState('')
+  const [debouncedSearch, setDebounced] = useState('')
+  const [page,            setPage]      = useState(1)
+  const [expandedId,      setExpandedId] = useState<string | null>(null)
+
+  // 검색 디바운스 — 입력 후 400ms 대기
+  const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleSearch = useCallback((text: string) => {
+    setSearch(text)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => {
+      setDebounced(text)
+      setPage(1)
+    }, 400)
+  }, [])
+
+  const clearSearch = useCallback(() => {
+    setSearch('')
+    setDebounced('')
+    setPage(1)
+  }, [])
+
+  const { data, isLoading } = useAdminUsers({
+    search:   debouncedSearch || undefined,
+    page,
+    pageSize: PAGE_SIZE,
+  })
+
+  const users      = data?.data ?? []
+  const pagination = data?.pagination
+
+  const handleToggle = useCallback((id: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setExpandedId(prev => prev === id ? null : id)
+  }, [])
+
+  const emptyText = debouncedSearch ? s.emptySearch : s.empty
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>유저 관리</Text>
-      <FlatList<AdminUser>
-        data={[]}
-        keyExtractor={(item) => item.id}
-        renderItem={() => null}
-        ListEmptyComponent={<Text style={styles.empty}>사용 중인 유저가 없습니다.</Text>}
-      />
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>{s.header}</Text>
+        {!isLoading && pagination && (
+          <Text style={styles.count}>{s.totalCount(pagination.total)}</Text>
+        )}
+      </View>
+
+      <View style={styles.searchWrap}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder={s.searchPlaceholder}
+          placeholderTextColor={theme.colors.text.disabled}
+          value={search}
+          onChangeText={handleSearch}
+          autoCapitalize="none"
+          returnKeyType="search"
+        />
+        {search.length > 0 && (
+          <TouchableOpacity style={styles.searchClear} onPress={clearSearch}>
+            <Text style={styles.searchClearText}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {isLoading ? (
+        <UserListSkeleton />
+      ) : (
+        <FlatList<AdminUserDetail>
+          data={users}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <UserListItem
+              item={item}
+              expanded={expandedId === item.id}
+              onToggle={handleToggle}
+            />
+          )}
+          ListEmptyComponent={<Text style={styles.empty}>{emptyText}</Text>}
+          contentContainerStyle={styles.list}
+          ListFooterComponent={
+            pagination ? (
+              <PaginationBar
+                page={page}
+                totalPages={pagination.totalPages}
+                onPageChange={setPage}
+              />
+            ) : null
+          }
+        />
+      )}
     </View>
   )
 }
+

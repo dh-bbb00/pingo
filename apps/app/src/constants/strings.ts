@@ -110,6 +110,15 @@ export const strings = {
     },
   },
 
+  userManagement: {
+    header:      '유저 관리',
+    searchPlaceholder: '이메일 검색',
+    totalCount:  (n: number) => `총 ${n}명`,
+    empty:       '승인된 유저가 없습니다.',
+    emptySearch: '검색 결과가 없습니다.',
+    deviceLabel: (n: number) => `기기 ${n}`,
+  },
+
   userTabs: {
     home:     '홈',
     history:  '내역',

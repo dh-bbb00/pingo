@@ -16,6 +16,10 @@ export const queryKeys = {
     all: ['stats'] as const,
     monthly: (year: number, month: number) => ['stats', year, month] as const,
   },
+  adminUsers: {
+    all:  ['admin-users'] as const,
+    list: (params?: unknown) => ['admin-users', 'list', params] as const,
+  },
   approvals: {
     all:  ['approvals'] as const,
     list: (status?: string) => ['approvals', 'list', status] as const,
