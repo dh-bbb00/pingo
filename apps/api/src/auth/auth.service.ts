@@ -1,5 +1,5 @@
 import {
-  Injectable, ConflictException, UnauthorizedException,
+  Injectable, UnauthorizedException,
   ForbiddenException, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -28,9 +28,35 @@ export class AuthService {
     await this.checkRateLimit(ip, dto.deviceUid);
 
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+
+    // 이미 승인된 유저 — 비밀번호 검증 후 새 기기 추가 요청으로 처리
     if (existing?.status === 'APPROVED') {
-      throw new ConflictException({ errorCode: ApiErrorCode.ALREADY_APPROVED, message: MSG.auth.alreadyApproved });
+      if (!(await bcrypt.compare(dto.password, existing.password))) {
+        throw new UnauthorizedException({ errorCode: ApiErrorCode.INVALID_CREDENTIALS, message: MSG.auth.invalidCredentials });
+      }
+
+      const device = await this.prisma.device.upsert({
+        where: { userId_deviceUid: { userId: existing.id, deviceUid: dto.deviceUid } },
+        update: { deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion, isTrusted: false },
+        create: { userId: existing.id, deviceUid: dto.deviceUid, deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion },
+      });
+
+      // 같은 기기에 이미 대기 중인 요청이 있으면 중복 방지
+      const pending = await this.prisma.approvalRequest.findFirst({
+        where: { deviceId: device.id, status: 'PENDING' },
+      });
+      if (pending) {
+        throw new ForbiddenException({ errorCode: ApiErrorCode.DEVICE_PENDING, message: MSG.auth.devicePending });
+      }
+
+      await this.prisma.approvalRequest.create({
+        data: { userId: existing.id, deviceId: device.id, type: 'NEW_DEVICE' },
+      });
+
+      this.logger.auth({ event: 'DEVICE_APPROVAL_REQUESTED', email: dto.email });
+      return;
     }
+
     if (existing?.status === 'REJECTED') {
       throw new ForbiddenException({ errorCode: ApiErrorCode.REJECTED_ACCOUNT, message: MSG.auth.rejectedAccount });
     }
@@ -48,25 +74,12 @@ export class AuthService {
 
     const device = await this.prisma.device.upsert({
       where: { userId_deviceUid: { userId: user.id, deviceUid: dto.deviceUid } },
-      update: {
-        deviceName: dto.deviceName,
-        phoneModel: dto.phoneModel,
-        osVersion: dto.osVersion,
-        appVersion: dto.appVersion,
-        isTrusted: false,
-      },
-      create: {
-        userId: user.id,
-        deviceUid: dto.deviceUid,
-        deviceName: dto.deviceName,
-        phoneModel: dto.phoneModel,
-        osVersion: dto.osVersion,
-        appVersion: dto.appVersion,
-      },
+      update: { deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion, isTrusted: false },
+      create: { userId: user.id, deviceUid: dto.deviceUid, deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion },
     });
 
     await this.prisma.approvalRequest.create({
-      data: { userId: user.id, deviceId: device.id },
+      data: { userId: user.id, deviceId: device.id, type: 'NEW_USER' },
     });
 
     this.logger.auth({ event: 'REGISTER_SUCCESS', email: dto.email });

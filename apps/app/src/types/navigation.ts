@@ -17,7 +17,7 @@ export type AuthStackParamList = {
   Login:              undefined
   ApprovalRequest:    undefined
   ApprovalPending:    undefined
-  DeviceChange:       undefined
+  DeviceChange:       { email: string; password: string }
   RejectedAccount:    undefined
 }
 

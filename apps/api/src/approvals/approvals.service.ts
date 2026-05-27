@@ -21,32 +21,32 @@ export class ApprovalsService {
   }
 
   /**
-   * 승인/거절 처리 — 트랜잭션으로 ApprovalRequest, Device, User 동시 업데이트
-   * 승인 시 Device.isTrusted = true, User.status = APPROVED
-   * 거절 시 Device.isTrusted = false, User.status = REJECTED
+   * 승인/거절 처리
+   * - NEW_USER:   Device.isTrusted + User.status 모두 업데이트
+   * - NEW_DEVICE: Device.isTrusted만 업데이트 (User는 이미 APPROVED 상태 유지)
    */
   async review(id: string, status: 'APPROVED' | 'REJECTED', adminId: string) {
-    const request = await this.prisma.approvalRequest.findUnique({
-      where: { id },
-    });
+    const request = await this.prisma.approvalRequest.findUnique({ where: { id } });
     if (!request) throw new NotFoundException();
 
-    const [approval] = await this.prisma.$transaction([
-      this.prisma.approvalRequest.update({
+    await this.prisma.$transaction(async (tx) => {
+      await tx.approvalRequest.update({
         where: { id },
         data: { status, reviewedById: adminId, reviewedAt: new Date() },
-      }),
-      this.prisma.device.update({
+      });
+      await tx.device.update({
         where: { id: request.deviceId },
         data: { isTrusted: status === 'APPROVED' },
-      }),
-      this.prisma.user.update({
-        where: { id: request.userId },
-        data: { status: status === 'APPROVED' ? 'APPROVED' : 'REJECTED' },
-      }),
-    ]);
+      });
+      if (request.type === 'NEW_USER') {
+        await tx.user.update({
+          where: { id: request.userId },
+          data: { status: status === 'APPROVED' ? 'APPROVED' : 'REJECTED' },
+        });
+      }
+    });
 
-    return approval;
+    return this.prisma.approvalRequest.findUnique({ where: { id } });
   }
 
   /**

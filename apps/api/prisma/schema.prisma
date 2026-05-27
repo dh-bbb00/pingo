@@ -65,6 +65,7 @@ model ApprovalRequest {
   id           String         @id @default(cuid())
   userId       String
   deviceId     String
+  type         RequestType    @default(NEW_USER)
   status       ApprovalStatus @default(PENDING)
   reviewedById String?        // 승인·거절한 관리자 ID
   reviewedAt   DateTime?      // 승인·거절 처리 시각
@@ -81,6 +82,11 @@ enum ApprovalStatus {
   PENDING  // 대기
   APPROVED // 승인
   REJECTED // 거절
+}
+
+enum RequestType {
+  NEW_USER    // 신규 가입 승인 요청
+  NEW_DEVICE  // 기존 승인 유저의 새 기기 추가 요청
 }
 
 /// 승인요청 rate limit. IP + deviceUid 기준 10분간 3회 초과 시 차단.

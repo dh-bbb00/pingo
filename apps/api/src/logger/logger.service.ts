@@ -7,7 +7,7 @@ import * as fs from 'fs';
 type AuthEvent =
   | 'LOGIN_SUCCESS' | 'LOGIN_FAIL' | 'LOGOUT' | 'TOKEN_REFRESH'
   | 'SESSION_EXPIRED' | 'UNAUTHORIZED' | 'FORBIDDEN'
-  | 'REGISTER_SUCCESS' | 'REGISTER_FAIL';
+  | 'REGISTER_SUCCESS' | 'REGISTER_FAIL' | 'DEVICE_APPROVAL_REQUESTED';
 
 export type ApiLogOptions = {
   method: string;

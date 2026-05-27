@@ -30,9 +30,15 @@ export function useLogin() {
         navigationRef.navigate(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
       }
     },
-    onError: (error) => handleApiError(error, {
+    onError: (error, variables) => handleApiError(error, {
       [ApiErrorCode.INVALID_CREDENTIALS]: showGenericInputError,
       [ApiErrorCode.VALIDATION_ERROR]:    showGenericInputError,
+      // 미등록 기기 — email/password를 params로 넘겨 DeviceChangeScreen에서 승인요청에 재사용
+      [ApiErrorCode.NEW_DEVICE]: () =>
+        navigationRef.navigate(Screens.Root.Auth, {
+          screen: Screens.Auth.DeviceChange,
+          params: { email: variables.email, password: variables.password },
+        }),
     }),
   })
 }

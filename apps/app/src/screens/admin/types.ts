@@ -24,6 +24,7 @@ export interface AdminUserDetail {
 
 export interface ApprovalRequest {
   id:        string
+  type:      'NEW_USER' | 'NEW_DEVICE'
   status:    'PENDING' | 'APPROVED' | 'REJECTED'
   createdAt: string
   user:   { id: string; email: string; createdAt: string }

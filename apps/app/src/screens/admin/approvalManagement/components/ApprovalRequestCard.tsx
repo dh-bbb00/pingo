@@ -24,7 +24,14 @@ export default function ApprovalRequestCard({ item, tab, disabled, onApprove, on
 
   return (
     <View style={styles.card}>
-      <Text style={styles.email}>{item.user.email}</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.email}>{item.user.email}</Text>
+        <View style={[styles.badge, item.type === 'NEW_DEVICE' ? styles.badgeDevice : styles.badgeNew]}>
+          <Text style={[styles.badgeText, item.type === 'NEW_DEVICE' ? styles.badgeDeviceText : styles.badgeNewText]}>
+            {item.type === 'NEW_DEVICE' ? s.badgeNewDevice : s.badgeNewUser}
+          </Text>
+        </View>
+      </View>
       <Text style={styles.meta}>{item.device.phoneModel} · {item.device.osVersion}</Text>
       <Text style={styles.meta}>{new Date(item.createdAt).toLocaleDateString('ko-KR')}</Text>
       <View style={styles.actions}>

@@ -48,8 +48,8 @@ export const strings = {
   },
 
   deviceChange: {
-    title:  '새로운 기기 감지',
-    desc:   '새로운 기기입니다.\n관리자 승인이 필요합니다.',
+    title:  '기기가 변경되었습니다',
+    desc:   '현재 기기는 관리자 승인이 필요합니다.\n기존 기기는 정상적으로 사용 가능합니다.',
     submit: '승인 요청하기',
   },
 
@@ -92,19 +92,21 @@ export const strings = {
     tabRejected:     '거절',
     emptyPending:    '대기 중인 승인 요청이 없습니다.',
     emptyRejected:   '거절된 승인 요청이 없습니다.',
+    badgeNewUser:    '신규',
+    badgeNewDevice:  '기기 추가',
     approve:         '승인',
     reject:          '거절',
     accept:          '수락',
     delete:          '삭제',
     confirmAccept: {
       title:   '수락 확인',
-      message: '거절된 사용자를 수락하시겠습니까?',
+      message: '거절된 요청을 수락하시겠습니까?',
       ok:      '수락',
       cancel:  '취소',
     },
     confirmDelete: {
-      title:   '계정 삭제',
-      message: '삭제 시 사용자가 재신청 가능합니다.\n정말 삭제하시겠습니까?',
+      title:   '삭제 확인',
+      message: '삭제하시겠습니까?',
       ok:      '삭제',
       cancel:  '취소',
     },

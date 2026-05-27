@@ -29,12 +29,8 @@ export function handleApiError(
   }
 
   switch (errorCode) {
-    // 신규 기기 — 기기변경 화면으로 이동
-    case ApiErrorCode.NEW_DEVICE:
-      navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.DeviceChange })
-      break
-
     // 계정 or 기기 승인 대기 — 승인 대기 화면으로 이동
+    // NEW_DEVICE는 useLogin에서 override로 처리 (email/password params 전달 필요)
     case ApiErrorCode.PENDING_APPROVAL:
     case ApiErrorCode.DEVICE_PENDING:
       navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.ApprovalPending })
