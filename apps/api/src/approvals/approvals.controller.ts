@@ -1,4 +1,5 @@
-import { Controller, Get, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApprovalStatus } from '@prisma/client';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ApprovalsService } from './approvals.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
@@ -17,9 +18,9 @@ export class ApprovalsController {
   constructor(private readonly approvalsService: ApprovalsService) {}
 
   @Get()
-  @ApiOperation({ summary: '승인 요청 목록 (PENDING)' })
-  async findAll(): Promise<ListResponse<unknown>> {
-    const data = await this.approvalsService.findAll();
+  @ApiOperation({ summary: '승인 요청 목록 (status: PENDING | REJECTED)' })
+  async findAll(@Query('status') status: ApprovalStatus = 'PENDING'): Promise<ListResponse<unknown>> {
+    const data = await this.approvalsService.findAll(status);
     return { success: true, data };
   }
 
@@ -41,5 +42,12 @@ export class ApprovalsController {
   ): Promise<BasicResponse<unknown>> {
     const data = await this.approvalsService.review(id, 'REJECTED', user.id);
     return { success: true, data };
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '거절된 계정 삭제 (User·Device 포함 전체 삭제 — 재신청 가능 상태로 초기화)' })
+  async deleteRequest(@Param('id') id: string): Promise<void> {
+    await this.approvalsService.deleteRequest(id);
   }
 }

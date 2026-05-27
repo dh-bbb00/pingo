@@ -8,10 +8,11 @@ import LoginScreen              from '@/screens/auth/LoginScreen'
 import ApprovalRequestScreen    from '@/screens/auth/ApprovalRequestScreen'
 import ApprovalPendingScreen    from '@/screens/auth/ApprovalPendingScreen'
 import DeviceChangeScreen       from '@/screens/auth/DeviceChangeScreen'
+import RejectedAccountScreen    from '@/screens/auth/RejectedAccountScreen'
 
-import UserManagementScreen     from '@/screens/admin/UserManagementScreen'
-import ApprovalManagementScreen from '@/screens/admin/ApprovalManagementScreen'
-import AdminMoreScreen          from '@/screens/admin/AdminMoreScreen'
+import UserManagementScreen     from '@/screens/admin/userManagement/UserManagementScreen'
+import ApprovalManagementScreen from '@/screens/admin/approvalManagement/ApprovalManagementScreen'
+import AdminMoreScreen          from '@/screens/admin/adminMore/AdminMoreScreen'
 
 import HistoryScreen            from '@/screens/history/HistoryScreen'
 import TransactionEditScreen    from '@/screens/history/TransactionEditScreen'
@@ -59,6 +60,7 @@ export const authRoutes: StackRoute[] = [
   { name: 'ApprovalRequest', component: ApprovalRequestScreen, options: backHeader },
   { name: 'ApprovalPending', component: ApprovalPendingScreen, options: backHeader },
   { name: 'DeviceChange',    component: DeviceChangeScreen,    options: backHeader },
+  { name: 'RejectedAccount', component: RejectedAccountScreen, options: backHeader },
 ]
 
 export const adminTabRoutes: TabRoute[] = [

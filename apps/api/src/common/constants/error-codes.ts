@@ -63,6 +63,14 @@ export const ApiErrorCode = {
   ALREADY_APPROVED: 'ALREADY_APPROVED',
 
   /**
+   * 거절된 계정으로 승인요청 시도.
+   * - 발생: user.status === 'REJECTED'인 이메일로 requestApproval 재시도
+   * - HTTP: 403
+   * - FE: 거절된 계정 화면으로 이동
+   */
+  REJECTED_ACCOUNT: 'REJECTED_ACCOUNT',
+
+  /**
    * 유효하지 않은 refresh token.
    * - 발생: DB에 없거나 만료된 refresh token으로 재발급 시도
    * - HTTP: 401

@@ -32,5 +32,6 @@ export const endpoints = {
     base:    `${V1}/approvals`,
     approve: (id: string) => `${V1}/approvals/${id}/approve`,
     reject:  (id: string) => `${V1}/approvals/${id}/reject`,
+    delete:  (id: string) => `${V1}/approvals/${id}`,
   },
 } as const

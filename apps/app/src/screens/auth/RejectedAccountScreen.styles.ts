@@ -1,0 +1,11 @@
+import { StyleSheet } from 'react-native'
+import type { Theme } from '@/theme'
+
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  container:  { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: t.colors.background },
+  emoji:      { fontSize: 64, marginBottom: 16 },
+  title:      { fontSize: t.fontSize.xxl, fontWeight: t.fontWeight.bold, marginBottom: 12, color: t.colors.text.primary },
+  desc:       { fontSize: t.fontSize.md, color: t.colors.text.secondary, textAlign: 'center', lineHeight: 22, marginBottom: 40 },
+  button:     { borderWidth: 1, borderColor: t.colors.border, padding: 14, borderRadius: t.radius.md },
+  buttonText: { color: t.colors.text.primary, fontWeight: t.fontWeight.medium },
+})

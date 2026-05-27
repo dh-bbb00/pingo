@@ -1,14 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ApprovalStatus } from '@prisma/client';
 
 @Injectable()
 export class ApprovalsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** 승인 대기 목록 — 관리자 화면에서 사용 */
-  findAll() {
+  /** 승인 요청 목록 — status 기준 (PENDING: 대기, REJECTED: 거절) */
+  findAll(status: ApprovalStatus) {
     return this.prisma.approvalRequest.findMany({
-      where: { status: 'PENDING' },
+      where: { status },
       include: {
         user: { select: { id: true, email: true, createdAt: true } },
         device: {
@@ -46,5 +47,22 @@ export class ApprovalsService {
     ]);
 
     return approval;
+  }
+
+  /**
+   * 거절된 계정 삭제 — User·Device·관련 레코드를 모두 제거해 재신청 가능 상태로 만든다.
+   * 삭제 순서: RefreshToken → ApprovalRequest → Device → User (외래키 제약 순서)
+   */
+  async deleteRequest(id: string): Promise<void> {
+    const request = await this.prisma.approvalRequest.findUnique({ where: { id } });
+    if (!request) throw new NotFoundException();
+
+    const { userId } = request;
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.deleteMany({ where: { userId } }),
+      this.prisma.approvalRequest.deleteMany({ where: { userId } }),
+      this.prisma.device.deleteMany({ where: { userId } }),
+      this.prisma.user.delete({ where: { id: userId } }),
+    ]);
   }
 }

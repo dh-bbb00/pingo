@@ -22,6 +22,7 @@ export const Screens = {
     ApprovalRequest: 'ApprovalRequest',
     ApprovalPending: 'ApprovalPending',
     DeviceChange:    'DeviceChange',
+    RejectedAccount: 'RejectedAccount',
   } satisfies Record<string, keyof AuthStackParamList>,
 
   AdminTab: {

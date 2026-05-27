@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { View, Text, FlatList } from 'react-native'
 import { useTheme } from '@/theme'
-import type { AdminUser } from './types'
+import type { AdminUser } from '../types'
 import { makeStyles } from './UserManagementScreen.styles'
 
 export default function UserManagementScreen() {

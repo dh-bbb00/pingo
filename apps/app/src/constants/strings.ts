@@ -41,6 +41,12 @@ export const strings = {
     back:  '로그인으로 돌아가기',
   },
 
+  rejectedAccount: {
+    title: '승인이 거절되었습니다',
+    desc:  '계정 사용이 거절되었습니다.\n자세한 문의는 관리자에게 연락해주세요.',
+    back:  '로그인으로 돌아가기',
+  },
+
   deviceChange: {
     title:  '새로운 기기 감지',
     desc:   '새로운 기기입니다.\n관리자 승인이 필요합니다.',
@@ -80,11 +86,28 @@ export const strings = {
   },
 
   approvalManagement: {
-    header:      '승인 관리',
-    totalCount:  (n: number) => `총 ${n}건`,
-    empty:       '대기 중인 승인 요청이 없습니다.',
-    approve:     '승인',
-    reject:      '거절',
+    header:          '승인 관리',
+    totalCount:      (n: number) => `총 ${n}건`,
+    tabPending:      '대기',
+    tabRejected:     '거절',
+    emptyPending:    '대기 중인 승인 요청이 없습니다.',
+    emptyRejected:   '거절된 승인 요청이 없습니다.',
+    approve:         '승인',
+    reject:          '거절',
+    accept:          '수락',
+    delete:          '삭제',
+    confirmAccept: {
+      title:   '수락 확인',
+      message: '거절된 사용자를 수락하시겠습니까?',
+      ok:      '수락',
+      cancel:  '취소',
+    },
+    confirmDelete: {
+      title:   '계정 삭제',
+      message: '삭제 시 사용자가 재신청 가능합니다.\n정말 삭제하시겠습니까?',
+      ok:      '삭제',
+      cancel:  '취소',
+    },
   },
 
   userTabs: {

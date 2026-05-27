@@ -40,6 +40,11 @@ export function handleApiError(
       navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.ApprovalPending })
       break
 
+    // 거절된 계정 — 거절 안내 화면으로 이동
+    case ApiErrorCode.REJECTED_ACCOUNT:
+      navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.RejectedAccount })
+      break
+
     // 네비게이션 없이 메시지만 표시하는 케이스 — 토스트
     case ApiErrorCode.INVALID_CREDENTIALS:
     case ApiErrorCode.REJECTED:

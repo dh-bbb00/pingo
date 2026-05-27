@@ -18,6 +18,6 @@ export const queryKeys = {
   },
   approvals: {
     all:  ['approvals'] as const,
-    list: () => ['approvals', 'list'] as const,
+    list: (status?: string) => ['approvals', 'list', status] as const,
   },
 } as const
