@@ -50,5 +50,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth: () => {
     clearLocal()
     set({ accessToken: null, role: null, approvalStatus: null })
+    navigationRef.reset({ index: 0, routes: [{ name: Screens.Root.Auth, params: { screen: Screens.Auth.Login } }] })
   },
 }))
