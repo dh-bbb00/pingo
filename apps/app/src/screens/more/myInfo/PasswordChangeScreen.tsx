@@ -1,12 +1,16 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { useTheme } from '@/theme'
 import { usePasswordChangeForm } from './hooks/usePasswordChangeForm'
 import { strings } from '@/constants/strings'
-import { styles } from './PasswordChangeScreen.styles'
+import { makeStyles } from './PasswordChangeScreen.styles'
 
 const s = strings.passwordChange
 
 export default function PasswordChangeScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { form, setField, isValid } = usePasswordChangeForm()
 
   async function handleChange() {

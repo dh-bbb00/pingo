@@ -28,4 +28,9 @@ export const endpoints = {
   devices: {
     base: `${V1}/devices`,
   },
+  approvals: {
+    base:    `${V1}/approvals`,
+    approve: (id: string) => `${V1}/approvals/${id}/approve`,
+    reject:  (id: string) => `${V1}/approvals/${id}/reject`,
+  },
 } as const

@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { styles } from './HomeScreen.styles'
+import { useTheme } from '@/theme'
+import { makeStyles } from './HomeScreen.styles'
 
 export default function HomeScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   // TODO: 홈 화면 구현
 
   return (

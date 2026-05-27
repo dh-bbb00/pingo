@@ -1,18 +1,22 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAuthStore } from '@/store/authStore'
 import type { MoreStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
-import { styles } from './MyInfoScreen.styles'
+import { makeStyles } from './MyInfoScreen.styles'
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'MyInfo'>
 
 const s = strings.myInfo
 
 export default function MyInfoScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
   const { logout } = useAuthStore()
 

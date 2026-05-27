@@ -1,17 +1,21 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { AuthStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
-import { styles } from './DeviceChangeScreen.styles'
+import { makeStyles } from './DeviceChangeScreen.styles'
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'DeviceChange'>
 
 const s = strings.deviceChange
 
 export default function DeviceChangeScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
 
   async function handleApprovalRequest() {

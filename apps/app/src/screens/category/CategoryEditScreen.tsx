@@ -1,14 +1,18 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { CategoryStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { useCategoryForm } from './hooks/useCategoryForm'
-import { styles } from './CategoryEditScreen.styles'
+import { makeStyles } from './CategoryEditScreen.styles'
 
 type Route = RouteProp<CategoryStackParamList, 'CategoryEdit'>
 
 export default function CategoryEditScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { params } = useRoute<Route>()
   const isEdit = !!params?.id
   const title  = isEdit ? '카테고리 수정' : '카테고리 등록'

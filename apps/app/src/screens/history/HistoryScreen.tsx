@@ -1,19 +1,23 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity, FlatList } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { HistoryStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import type { HistoryDateTab } from './types'
 import { useHistoryFilter } from './hooks/useHistoryFilter'
-import { styles } from './HistoryScreen.styles'
+import { makeStyles } from './HistoryScreen.styles'
 
 type Nav = NativeStackNavigationProp<HistoryStackParamList, 'HistoryMain'>
 
 const DATE_TABS: HistoryDateTab[] = ['일', '월', '년']
 
 export default function HistoryScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
   const { filter, setTab } = useHistoryFilter()
 

@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useTheme } from '@/theme'
 import type { StatsDateTab } from './types'
 import { useStatsFilter } from './hooks/useStatsFilter'
-import { styles } from './StatsScreen.styles'
+import { makeStyles } from './StatsScreen.styles'
 
 const DATE_TABS: StatsDateTab[] = ['일', '월', '년']
 
 export default function StatsScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { filter, setTab } = useStatsFilter()
 
   // TODO: filter 값으로 통계 API 연동

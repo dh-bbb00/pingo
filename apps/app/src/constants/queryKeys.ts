@@ -16,4 +16,8 @@ export const queryKeys = {
     all: ['stats'] as const,
     monthly: (year: number, month: number) => ['stats', year, month] as const,
   },
+  approvals: {
+    all:  ['approvals'] as const,
+    list: () => ['approvals', 'list'] as const,
+  },
 } as const

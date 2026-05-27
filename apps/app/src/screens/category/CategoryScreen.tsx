@@ -1,16 +1,20 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { CategoryStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import type { CategoryListItem } from './types'
-import { styles } from './CategoryScreen.styles'
+import { makeStyles } from './CategoryScreen.styles'
 
 type Nav = NativeStackNavigationProp<CategoryStackParamList, 'CategoryMain'>
 
 export default function CategoryScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
 
   // TODO: 카테고리 목록 API 연동

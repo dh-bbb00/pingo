@@ -368,6 +368,67 @@ handleApiError(error, {
 
 ---
 
+## 테마 시스템 (FE)
+
+라이트/다크 모드를 지원하기 위해 모든 색상·폰트·간격 값은 테마 토큰을 통해 참조한다.  
+`palette`(원시값)는 `theme/tokens/colors.ts`에만 존재하며 스타일 코드에서 직접 import하지 않는다.
+
+### 스타일 작성 규칙
+
+```ts
+// [Screen].styles.ts — makeStyles(t: Theme) 함수로 export
+import { StyleSheet } from 'react-native'
+import type { Theme } from '@/theme'
+
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  container:  { flex: 1, backgroundColor: t.colors.background },
+  button:     { backgroundColor: t.colors.primary, borderRadius: t.radius.md },
+  buttonText: { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold },
+})
+```
+
+```tsx
+// [Screen].tsx — useTheme + useMemo로 스타일 생성
+import { useMemo } from 'react'
+import { useTheme } from '@/theme'
+import { makeStyles } from './FooScreen.styles'
+
+export default function FooScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+  // ...
+}
+```
+
+- 색상 하드코딩(`'#FFFFFF'`, `'#4F6CF7'` 등) 금지 — 다크모드 대응 불가.
+- 스타일 파일 내에서 `useTheme` 직접 호출 불가 (Hook 규칙 위반) — 반드시 `makeStyles` 함수 형태.
+
+### 주요 토큰
+
+| 토큰 | light | dark | 용도 |
+|------|-------|------|------|
+| `colors.background` | white | gray900 | 화면 배경 |
+| `colors.surface` | gray50 | gray800 | 카드 배경 |
+| `colors.surfaceVariant` | gray100 | gray700 | 리스트 아이템, 중첩 카드 |
+| `colors.border` | gray200 | gray700 | 입력 필드·외곽선 |
+| `colors.divider` | gray100 | gray800 | 항목 구분선 |
+| `colors.primary` | blue500 | blue500 | 주요 버튼·액센트 |
+| `colors.text.primary` | gray900 | white | 본문 텍스트 |
+| `colors.text.secondary` | gray500 | gray400 | 보조 텍스트 |
+| `colors.text.disabled` | gray400 | gray500 | 비활성·힌트 텍스트 |
+| `colors.text.inverse` | white | gray900 | 버튼 위 텍스트 |
+| `colors.semantic.error` | red500 | red400 | UI 오류·파괴적 동작 |
+| `colors.semantic.errorBackground` | red100 | red900 | 오류 tint 배경 |
+| `colors.semantic.success` | green500 | green500 | UI 성공 피드백 |
+| `colors.semantic.successBackground` | green100 | green900 | 성공 tint 배경 |
+| `colors.semantic.income` | green500 | green500 | 수입 (도메인) |
+| `colors.semantic.expense` | red500 | red400 | 지출 (도메인) |
+
+> `semantic.success/error`는 폼 검증·토스트 등 UI 피드백용,  
+> `semantic.income/expense`는 가계부 금액 표시 전용으로 구분한다.
+
+---
+
 ## Notes
 
 ### `DATABASE_URL` — 로컬 vs Docker

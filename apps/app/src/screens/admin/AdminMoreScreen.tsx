@@ -1,11 +1,16 @@
-import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useMemo } from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { useAuthStore } from '@/store/authStore'
+import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
+import { makeStyles } from './AdminMoreScreen.styles'
 
 const s = strings.adminMore
 
 export default function AdminMoreScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { logout } = useAuthStore()
 
   return (
@@ -18,28 +23,3 @@ export default function AdminMoreScreen() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 24,
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 32,
-  },
-  logoutButton: {
-    paddingVertical: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E5E7EB',
-  },
-  logoutText: {
-    fontSize: 16,
-    color: '#EF4444',
-  },
-})

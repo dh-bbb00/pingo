@@ -1,17 +1,21 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TextInput, TouchableOpacity, Switch, ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useLogin } from '@/hooks/queries/useLogin'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import type { AuthStackParamList } from '@/types/navigation'
 import { useLoginForm } from './hooks/useLoginForm'
-import { styles } from './LoginScreen.styles'
+import { makeStyles } from './LoginScreen.styles'
 
 const s = strings.login
 
 export default function LoginScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Login'>>()
   const { form, setField, persistPreferences } = useLoginForm()
   const { mutate: login, isPending } = useLogin()
@@ -54,7 +58,7 @@ export default function LoginScreen() {
 
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isPending}>
         {isPending
-          ? <ActivityIndicator color="#FFFFFF" />
+          ? <ActivityIndicator color={theme.colors.text.inverse} />
           : <Text style={styles.buttonText}>{s.submit}</Text>
         }
       </TouchableOpacity>

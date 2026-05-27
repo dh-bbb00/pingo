@@ -1,14 +1,18 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { MoreStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { useFixedExpenseForm } from './hooks/useFixedExpenseForm'
-import { styles } from './FixedExpenseEditScreen.styles'
+import { makeStyles } from './FixedExpenseEditScreen.styles'
 
 type Route = RouteProp<MoreStackParamList, 'FixedExpenseEdit'>
 
 export default function FixedExpenseEditScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { params } = useRoute<Route>()
   const isEdit = !!params?.id
   const title  = isEdit ? '고정 지출 수정' : '고정 지출 추가'

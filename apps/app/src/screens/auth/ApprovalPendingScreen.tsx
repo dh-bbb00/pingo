@@ -1,12 +1,16 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useAuthStore } from '@/store/authStore'
+import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import { styles } from './ApprovalPendingScreen.styles'
+import { makeStyles } from './ApprovalPendingScreen.styles'
 
 const s = strings.approvalPending
 
 export default function ApprovalPendingScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { clearAuth } = useAuthStore()
 
   return (

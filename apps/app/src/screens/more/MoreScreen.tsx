@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
-import { styles } from './MoreScreen.styles'
+import { makeStyles } from './MoreScreen.styles'
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'MoreMain'>
 
@@ -18,6 +19,9 @@ const MENU_ITEMS: { label: string; screen: keyof MoreStackParamList }[] = [
 ]
 
 export default function MoreScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
 
   return (

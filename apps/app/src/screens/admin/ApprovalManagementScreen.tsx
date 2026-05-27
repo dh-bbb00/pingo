@@ -1,20 +1,67 @@
-import React from 'react'
-import { View, Text, FlatList } from 'react-native'
+import React, { useMemo } from 'react'
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { useApprovals, useApproveRequest, useRejectRequest } from '@/hooks/queries/useApprovals'
+import { useTheme } from '@/theme'
+import { strings } from '@/constants/strings'
 import type { ApprovalRequest } from './types'
-import { styles } from './ApprovalManagementScreen.styles'
+import { makeStyles } from './ApprovalManagementScreen.styles'
+
+const s = strings.approvalManagement
 
 export default function ApprovalManagementScreen() {
-  // TODO: 승인 요청 목록 API 연동 + 승인/거절 처리
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
+  const { data = [], isLoading } = useApprovals()
+  const { mutate: approve, isPending: isApproving } = useApproveRequest()
+  const { mutate: reject,  isPending: isRejecting  } = useRejectRequest()
+
+  const isMutating = isApproving || isRejecting
+
+  function renderItem({ item }: { item: ApprovalRequest }) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.email}>{item.user.email}</Text>
+        <Text style={styles.meta}>{item.device.phoneModel} · {item.device.osVersion}</Text>
+        <Text style={styles.meta}>{new Date(item.createdAt).toLocaleDateString('ko-KR')}</Text>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[styles.button, styles.approveButton]}
+            onPress={() => approve(item.id)}
+            disabled={isMutating}
+          >
+            <Text style={styles.buttonText}>{s.approve}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.rejectButton]}
+            onPress={() => reject(item.id)}
+            disabled={isMutating}
+          >
+            <Text style={styles.buttonText}>{s.reject}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>승인 관리</Text>
-      <FlatList<ApprovalRequest>
-        data={[]}
-        keyExtractor={(item) => item.id}
-        renderItem={() => null}
-        ListEmptyComponent={<Text style={styles.empty}>대기 중인 승인 요청이 없습니다.</Text>}
-      />
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>{s.header}</Text>
+        {!isLoading && <Text style={styles.count}>{s.totalCount(data.length)}</Text>}
+      </View>
+      {isLoading
+        ? <ActivityIndicator style={styles.loader} />
+        : (
+          <FlatList<ApprovalRequest>
+            data={data}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            ListEmptyComponent={<Text style={styles.empty}>{s.empty}</Text>}
+            contentContainerStyle={styles.list}
+          />
+        )
+      }
     </View>
   )
 }

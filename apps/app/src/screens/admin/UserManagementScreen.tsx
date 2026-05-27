@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, FlatList } from 'react-native'
+import { useTheme } from '@/theme'
 import type { AdminUser } from './types'
-import { styles } from './UserManagementScreen.styles'
+import { makeStyles } from './UserManagementScreen.styles'
 
 export default function UserManagementScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   // TODO: 유저 목록 API 연동
 
   return (

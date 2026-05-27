@@ -1,14 +1,18 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { HistoryStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { useTransactionForm } from './hooks/useTransactionForm'
-import { styles } from './TransactionEditScreen.styles'
+import { makeStyles } from './TransactionEditScreen.styles'
 
 type Route = RouteProp<HistoryStackParamList, 'TransactionEdit'>
 
 export default function TransactionEditScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { params } = useRoute<Route>()
   const isEdit = !!params?.id
   const title  = isEdit ? '내역 수정' : '내역 추가'

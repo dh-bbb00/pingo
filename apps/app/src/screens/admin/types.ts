@@ -6,9 +6,9 @@ export interface AdminUser {
 }
 
 export interface ApprovalRequest {
-  id:          string
-  email:       string
-  deviceModel: string
-  requestedAt: string
-  status:      'PENDING' | 'APPROVED' | 'REJECTED'
+  id:        string
+  status:    'PENDING' | 'APPROVED' | 'REJECTED'
+  createdAt: string
+  user:   { id: string; email: string; createdAt: string }
+  device: { deviceName: string; phoneModel: string; osVersion: string; appVersion: string }
 }

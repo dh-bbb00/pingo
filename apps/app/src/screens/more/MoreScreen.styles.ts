@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native'
+import type { Theme } from '@/theme'
 
-export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  header:    { fontSize: 22, fontWeight: '700', padding: 20 },
-  menuItem:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
-  menuLabel: { fontSize: 16 },
-  chevron:   { fontSize: 20, color: '#9CA3AF' },
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: t.colors.background },
+  header:    { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, padding: 20, color: t.colors.text.primary },
+  menuItem:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: t.colors.divider },
+  menuLabel: { fontSize: t.fontSize.md, color: t.colors.text.primary },
+  chevron:   { fontSize: t.fontSize.xl, color: t.colors.text.disabled },
 })

@@ -186,6 +186,9 @@ navigationRef.dispatch(StackActions.replace(Screens.Auth.ApprovalPending))
 ```tsx
 // [Screen].tsx — 로직은 hooks/로 분리, 스타일은 .styles.ts로 분리
 export default function FooScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { data, setTab } = useFooFilter()   // 화면 전용 훅
   return <SafeAreaView style={styles.container}>...</SafeAreaView>
 }
@@ -193,9 +196,60 @@ export default function FooScreen() {
 
 #### 스타일
 ```ts
-// [Screen].styles.ts — StyleSheet.create 단일 export
-export const styles = StyleSheet.create({ ... })
+// [Screen].styles.ts — makeStyles(t: Theme) 함수 export (색상 하드코딩 금지)
+import type { Theme } from '@/theme'
+
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  container:  { flex: 1, backgroundColor: t.colors.background },
+  title:      { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
+  button:     { backgroundColor: t.colors.primary, borderRadius: t.radius.md },
+  buttonText: { color: t.colors.text.inverse },
+})
 ```
+
+- 색상·폰트·radius 값은 반드시 `t.colors.*`, `t.fontSize.*`, `t.fontWeight.*`, `t.radius.*` 토큰 사용.
+- 하드코딩(`'#FFFFFF'`, `16`, `'700'` 등) 금지 — 다크모드 대응 불가.
+- 스타일 파일에서 직접 `useTheme` 호출 불가 (Hook 규칙 위반) — 반드시 `makeStyles` 함수 형태로.
+
+#### 테마 시스템
+```
+theme/
+├── tokens/
+│   ├── colors.ts      # palette (원시 색상값 — 직접 참조 금지)
+│   ├── spacing.ts     # spacing, radius
+│   └── typography.ts  # fontSize, fontWeight
+├── themes/
+│   ├── light.ts       # 라이트 테마 (palette 조합)
+│   └── dark.ts        # 다크 테마 (palette 조합)
+├── types.ts           # Theme, ThemeColors 인터페이스
+├── ThemeContext.tsx    # ThemeProvider + useTheme
+└── index.ts           # useTheme export
+```
+
+**주요 토큰**
+
+| 토큰 | 용도 |
+|------|------|
+| `t.colors.background` | 화면 배경 |
+| `t.colors.surface` | 카드 배경 |
+| `t.colors.surfaceVariant` | 리스트 아이템, 중첩 카드 등 2차 서페이스 |
+| `t.colors.border` | 입력 필드·외곽선 |
+| `t.colors.divider` | 항목 구분선 |
+| `t.colors.primary` | 주요 버튼·액센트 |
+| `t.colors.primaryLight` | 주요 색 연한 배경 |
+| `t.colors.text.primary` | 본문 텍스트 |
+| `t.colors.text.secondary` | 보조 텍스트 |
+| `t.colors.text.disabled` | 비활성·힌트 텍스트 |
+| `t.colors.text.inverse` | 버튼 위 텍스트 (배경색 반전) |
+| `t.colors.semantic.success` | UI 성공 피드백 |
+| `t.colors.semantic.successBackground` | 성공 tint 배경 |
+| `t.colors.semantic.error` | UI 오류 피드백 (파괴적 동작 버튼 등) |
+| `t.colors.semantic.errorBackground` | 오류 tint 배경 |
+| `t.colors.semantic.income` | 수입 (도메인 색상) |
+| `t.colors.semantic.expense` | 지출 (도메인 색상) |
+
+> `semantic.success/error` 는 UI 피드백용, `semantic.income/expense` 는 가계부 도메인 개념으로 분리.
+> `palette` 는 원시값 보관용이며 스타일 코드에서 직접 import 금지 — 항상 테마 토큰을 통해 참조.
 
 #### API 엔드포인트
 ```ts

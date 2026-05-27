@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native'
+import type { Theme } from '@/theme'
 
-export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF', paddingTop: 60 },
-  header:    { fontSize: 22, fontWeight: '700', padding: 20 },
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: t.colors.background, paddingTop: 60 },
+  header:    { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, padding: 20, color: t.colors.text.primary },
 })

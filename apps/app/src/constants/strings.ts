@@ -79,6 +79,14 @@ export const strings = {
     logout: '로그아웃',
   },
 
+  approvalManagement: {
+    header:      '승인 관리',
+    totalCount:  (n: number) => `총 ${n}건`,
+    empty:       '대기 중인 승인 요청이 없습니다.',
+    approve:     '승인',
+    reject:      '거절',
+  },
+
   userTabs: {
     home:     '홈',
     history:  '내역',

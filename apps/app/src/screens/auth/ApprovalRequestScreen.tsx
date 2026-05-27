@@ -1,12 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { useApprovalRequest } from '@/hooks/queries/useApprovalRequest'
+import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import { styles } from './ApprovalRequestScreen.styles'
+import { makeStyles } from './ApprovalRequestScreen.styles'
 
 const s = strings.approvalRequest
 
 export default function ApprovalRequestScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const { mutate: requestApproval, isPending } = useApprovalRequest()
@@ -38,7 +42,7 @@ export default function ApprovalRequestScreen() {
         disabled={isPending}
       >
         {isPending
-          ? <ActivityIndicator color="#FFFFFF" />
+          ? <ActivityIndicator color={theme.colors.text.inverse} />
           : <Text style={styles.buttonText}>{s.submit}</Text>
         }
       </TouchableOpacity>

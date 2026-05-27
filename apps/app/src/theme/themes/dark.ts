@@ -5,11 +5,13 @@ import type { Theme } from '../types'
 
 export const darkTheme: Theme = {
   colors: {
-    primary:      palette.blue500,
-    primaryLight: palette.blue700,
-    background:   palette.gray900,
-    surface:      palette.gray800,
-    border:       palette.gray700,
+    primary:        palette.blue500,
+    primaryLight:   palette.blue700,
+    background:     palette.gray900,
+    surface:        palette.gray800,
+    surfaceVariant: palette.gray700,
+    border:         palette.gray700,
+    divider:        palette.gray800,
     text: {
       primary:   palette.white,
       secondary: palette.gray400,
@@ -17,9 +19,13 @@ export const darkTheme: Theme = {
       inverse:   palette.gray900,
     },
     semantic: {
-      income:  palette.green500,
-      expense: palette.red400,
-      warning: palette.yellow500,
+      income:            palette.green500,
+      expense:           palette.red400,
+      warning:           palette.yellow500,
+      success:           palette.green500,
+      successBackground: palette.green900,
+      error:             palette.red400,
+      errorBackground:   palette.red900,
     },
   },
   spacing,

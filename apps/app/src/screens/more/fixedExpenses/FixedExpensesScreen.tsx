@@ -1,18 +1,22 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import type { FixedExpensesViewTab, FixedExpenseDetail } from './types'
 import { useFixedExpensesView } from './hooks/useFixedExpensesView'
-import { styles } from './FixedExpensesScreen.styles'
+import { makeStyles } from './FixedExpensesScreen.styles'
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenses'>
 
 const VIEW_TABS: FixedExpensesViewTab[] = ['리스트', '달력']
 
 export default function FixedExpensesScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
   const { activeTab, setActiveTab } = useFixedExpensesView()
 

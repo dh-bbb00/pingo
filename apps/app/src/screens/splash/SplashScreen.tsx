@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { View, Text } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -8,15 +8,19 @@ import { useAuthStore } from '@/store/authStore'
 import { storage, StorageKeys } from '@/utils/storage'
 import { getDeviceId } from '@/utils/device'
 import type { RootStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
-import { styles } from './SplashScreen.styles'
+import { makeStyles } from './SplashScreen.styles'
 
 const s = strings.splash
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Splash'>
 
 export default function SplashScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
   const { setTokens, setUserInfo } = useAuthStore()
 

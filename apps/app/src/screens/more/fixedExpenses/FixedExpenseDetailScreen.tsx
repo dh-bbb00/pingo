@@ -1,16 +1,20 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { RouteProp } from '@react-navigation/native'
 import type { MoreStackParamList } from '@/types/navigation'
+import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
-import { styles } from './FixedExpenseDetailScreen.styles'
+import { makeStyles } from './FixedExpenseDetailScreen.styles'
 
 type Nav   = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenseDetail'>
 type Route = RouteProp<MoreStackParamList, 'FixedExpenseDetail'>
 
 export default function FixedExpenseDetailScreen() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const navigation = useNavigation<Nav>()
   const { params } = useRoute<Route>()
 

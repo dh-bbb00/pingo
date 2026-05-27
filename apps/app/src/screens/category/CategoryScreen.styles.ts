@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native'
+import type { Theme } from '@/theme'
 
-export const styles = StyleSheet.create({
-  container:     { flex: 1, backgroundColor: '#FFFFFF' },
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  container:     { flex: 1, backgroundColor: t.colors.background },
   headerRow:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20 },
-  header:        { fontSize: 22, fontWeight: '700' },
-  addButton:     { backgroundColor: '#4F6CF7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
-  addButtonText: { color: '#FFFFFF', fontWeight: '600' },
-  empty:         { textAlign: 'center', color: '#9CA3AF', marginTop: 80 },
+  header:        { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
+  addButton:     { backgroundColor: t.colors.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: t.radius.md },
+  addButtonText: { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold },
+  empty:         { textAlign: 'center', color: t.colors.text.disabled, marginTop: 80 },
 })
