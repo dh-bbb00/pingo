@@ -18,12 +18,17 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
+// 앱 사용 중 accessToken(1h) 만료 시 자동 갱신.
+// 401 응답을 받으면 refresh token으로 새 토큰 쌍을 발급받고 원래 요청을 재시도한다.
+// 재발급 성공 시 refresh token 만료도 30일 연장된다 (rolling).
+// 재발급 실패(refresh token 만료 등)는 clearAuth()로 로컬 토큰만 삭제하며,
+// 화면 이동은 하지 않는다 — 이후 네비게이션 흐름에서 자연스럽게 로그인 화면으로 유도된다.
 apiClient.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config
     if (error.response?.status === 401 && !original._retry) {
-      original._retry = true
+      original._retry = true // 무한 루프 방지
       const refreshToken = storage.getString(StorageKeys.REFRESH_TOKEN)
       if (refreshToken) {
         try {

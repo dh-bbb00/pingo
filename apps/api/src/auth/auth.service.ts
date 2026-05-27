@@ -147,7 +147,14 @@ export class AuthService {
     this.logger.auth({ event: 'LOGOUT', email: user?.email });
   }
 
-  /** access(1h) + refresh(30d) 토큰 발급, 기존 refresh token 교체 */
+  /**
+   * access(1h) + refresh(30d) 토큰 발급, 기존 refresh token 교체 (rotation)
+   *
+   * refresh token은 로그인 또는 앱 재시작(자동 로그인) 시마다 새로 발급되며,
+   * 발급 시점으로부터 30일간 유효하다 (rolling 방식).
+   * 즉, 30일 내에 앱을 한 번이라도 켜면 만료가 30일 연장되고,
+   * 30일 동안 앱을 켜지 않으면 자동 로그인이 해제된다.
+   */
   private async issueTokens(
     userId: string,
     email: string,
