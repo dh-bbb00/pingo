@@ -136,6 +136,7 @@ src/
 │       └── [domain].api.ts    # 인터페이스 + apiClient 호출
 ├── assets/                    # 이미지·스플래시 등 정적 파일
 ├── components/                # 공유 컴포넌트
+│   ├── containers/            # 레이아웃 컨테이너
 │   └── icons/
 ├── config/
 │   └── env.ts                 # 환경변수 래퍼
@@ -201,6 +202,30 @@ export default function FooScreen() {
   return <SafeAreaView style={styles.container}>...</SafeAreaView>
 }
 ```
+
+#### FullScreenContainer — 헤더 있는 화면의 루트 컨테이너
+
+뒤로가기 헤더가 있는 화면에서 중앙정렬이 필요한 경우, 루트 `<View>` 대신 반드시 `<FullScreenContainer>`로 감싼다.
+
+React Navigation은 기본적으로 화면 콘텐츠 영역을 헤더 아래로 제한하기 때문에, `justifyContent: 'center'`를 써도 헤더 높이만큼 아래로 치우친다. `config.ts`의 `backHeaderTransparent` 옵션(`headerTransparent: true`)과 함께 사용하면 콘텐츠가 화면 최상단부터 시작하므로 정중앙 배치가 보장된다.
+
+```tsx
+import FullScreenContainer from '@/components/containers/FullScreenContainer'
+
+export default function SomeScreen() {
+  return (
+    <FullScreenContainer style={styles.container}>
+      {/* 콘텐츠 */}
+    </FullScreenContainer>
+  )
+}
+
+// .styles.ts — justifyContent: 'center', padding: 24는 기본 내장. backgroundColor와 필요 시 alignItems만 추가
+container: { alignItems: 'center', backgroundColor: t.colors.background }
+```
+
+- 헤더 없는 화면(Login, Splash 등)은 기존대로 `<View style={{ flex: 1 }}>` 사용.
+- 헤더 있는 화면 중 스크롤·리스트 위주인 화면은 굳이 `FullScreenContainer`를 쓰지 않아도 된다 (중앙정렬이 필요 없으므로).
 
 #### 스타일
 ```ts

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
+import FullScreenContainer from '@/components/containers/FullScreenContainer'
 import { useApprovalRequest } from './hooks/useApprovalRequest'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
@@ -16,7 +17,7 @@ export default function ApprovalRequestScreen() {
   const { mutate: requestApproval, isPending } = useApprovalRequest()
 
   return (
-    <View style={styles.container}>
+    <FullScreenContainer style={styles.container}>
       <Text style={styles.title}>{s.title}</Text>
       <Text style={styles.desc}>{s.desc}</Text>
 
@@ -46,6 +47,6 @@ export default function ApprovalRequestScreen() {
           : <Text style={styles.buttonText}>{s.submit}</Text>
         }
       </TouchableOpacity>
-    </View>
+    </FullScreenContainer>
   )
 }

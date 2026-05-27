@@ -375,6 +375,25 @@ handleApiError(error, {
 
 ---
 
+## FullScreenContainer (FE)
+
+뒤로가기 헤더가 있는 화면에서 콘텐츠를 전체 화면 기준으로 중앙정렬할 때 사용하는 컨테이너 컴포넌트.
+
+- 위치: `apps/app/src/components/containers/FullScreenContainer.tsx`
+- React Navigation은 헤더 아래 영역만 화면으로 취급하므로 `flex: 1` + `justifyContent: 'center'`를 써도 헤더 높이만큼 시각적으로 아래로 치우친다.
+- `FullScreenContainer`는 `position: 'absolute'`로 헤더를 포함한 전체 뷰포트를 커버해 정중앙 배치를 보장한다.
+- **헤더(`headerShown: true`)가 있고 중앙정렬이 필요한 화면은 반드시 이 컴포넌트로 루트를 감싼다.**
+
+```tsx
+import FullScreenContainer from '@/components/containers/FullScreenContainer'
+
+<FullScreenContainer style={styles.container}>
+  {/* 콘텐츠 */}
+</FullScreenContainer>
+```
+
+---
+
 ## 테마 시스템 (FE)
 
 라이트/다크 모드를 지원하기 위해 모든 색상·폰트·간격 값은 테마 토큰을 통해 참조한다.  

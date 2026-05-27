@@ -55,12 +55,18 @@ const backHeader: NativeStackNavigationOptions = {
   headerShadowVisible: false,
 }
 
+/** FullScreenContainer 사용 화면 전용 — 콘텐츠가 헤더 아래가 아닌 화면 최상단부터 시작 */
+const backHeaderTransparent: NativeStackNavigationOptions = {
+  ...backHeader,
+  headerTransparent: true,
+}
+
 export const authRoutes: StackRoute[] = [
   { name: 'Login',           component: LoginScreen },
-  { name: 'ApprovalRequest', component: ApprovalRequestScreen, options: backHeader },
-  { name: 'ApprovalPending', component: ApprovalPendingScreen, options: backHeader },
-  { name: 'DeviceChange',    component: DeviceChangeScreen,    options: backHeader },
-  { name: 'RejectedAccount', component: RejectedAccountScreen, options: backHeader },
+  { name: 'ApprovalRequest', component: ApprovalRequestScreen, options: backHeaderTransparent },
+  { name: 'ApprovalPending', component: ApprovalPendingScreen, options: backHeaderTransparent },
+  { name: 'DeviceChange',    component: DeviceChangeScreen,    options: backHeaderTransparent },
+  { name: 'RejectedAccount', component: RejectedAccountScreen, options: backHeaderTransparent },
 ]
 
 export const adminTabRoutes: TabRoute[] = [
