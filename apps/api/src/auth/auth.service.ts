@@ -34,6 +34,9 @@ export class AuthService {
     if (existing?.status === 'REJECTED') {
       throw new ForbiddenException({ errorCode: ApiErrorCode.REJECTED_ACCOUNT, message: MSG.auth.rejectedAccount });
     }
+    if (existing?.status === 'PENDING') {
+      throw new ForbiddenException({ errorCode: ApiErrorCode.PENDING_APPROVAL, message: MSG.auth.pendingApproval });
+    }
 
     const hashed = await bcrypt.hash(dto.password, 10);
 
@@ -62,10 +65,6 @@ export class AuthService {
       },
     });
 
-    // 동일 유저+기기의 기존 PENDING 요청을 삭제 후 새로 생성 (중복 방지)
-    await this.prisma.approvalRequest.deleteMany({
-      where: { userId: user.id, deviceId: device.id, status: 'PENDING' },
-    });
     await this.prisma.approvalRequest.create({
       data: { userId: user.id, deviceId: device.id },
     });
