@@ -145,15 +145,23 @@ src/
 │   ├── screens.ts             # 네비게이션 스크린 이름 상수
 │   └── strings.ts             # UI 문구 상수 (하드코딩 대신 여기서 참조)
 ├── hooks/
-│   └── queries/               # 전역 공유 Query/Mutation 훅
+│   └── queries/               # 전역 공유 Query/Mutation 훅 (여러 화면에서 공통 사용)
 ├── navigation/                # 네비게이터 정의 + navigationRef
 ├── providers/                 # 전역 Provider 조합 (index.tsx)
 ├── screens/                   # 화면 단위 폴더
-│   └── [domain]/
-│       ├── [Screen].tsx            # 화면 컴포넌트
-│       ├── [Screen].styles.ts      # StyleSheet (항상 분리)
-│       ├── types.ts                # 해당 도메인 타입
-│       └── hooks/                  # 화면 전용 훅
+│   ├── [domain]/
+│   │   ├── [Screen].tsx            # 화면 컴포넌트
+│   │   ├── [Screen].styles.ts      # StyleSheet (항상 분리)
+│   │   ├── types.ts                # 해당 도메인 타입
+│   │   ├── hooks/                  # 해당 도메인 전용 훅
+│   │   └── components/             # 해당 도메인 전용 컴포넌트
+│   └── admin/                      # 어드민 화면 — 기능별 서브폴더로 구분
+│       ├── types.ts                # 어드민 공유 타입 (AdminUser, ApprovalRequest 등)
+│       ├── approvalManagement/     # 승인 관리
+│       │   ├── hooks/
+│       │   └── components/
+│       ├── userManagement/         # 유저 관리
+│       └── adminMore/              # 어드민 전체 탭
 ├── store/
 │   └── authStore.ts           # Zustand 전역 인증 상태
 ├── theme/
@@ -264,9 +272,15 @@ export const fooApi = {
 }
 ```
 
-#### Query 훅
+#### Query 훅 배치 규칙
+
+- **`src/hooks/queries/`** — 여러 도메인·화면에서 공통으로 사용하는 훅만 위치.  
+  현재: `useCategories`, `useTransactions`
+- **`screens/[domain]/hooks/`** — 특정 화면(도메인) 전용 훅은 해당 화면 폴더 안 `hooks/`에 위치.  
+  현재: `screens/auth/hooks/` (`useLogin`, `useApprovalRequest`, `useLoginForm`), `screens/admin/approvalManagement/hooks/` (`useApprovals`)
+
 ```ts
-// hooks/queries/useFoo.ts
+// 공통 훅 — src/hooks/queries/useFoo.ts
 export function useFoos(filter?: FooFilter) {
   return useQuery({
     queryKey: queryKeys.foo.list(filter),

@@ -12,12 +12,13 @@ pingo/
 │   │       ├── config/               # 환경 변수 (react-native-config)
 │   │       ├── constants/            # API 엔드포인트 상수, Query Key
 │   │       ├── hooks/
-│   │       │   └── queries/          # 공용 TanStack Query 훅
+│   │       │   └── queries/          # 공용 TanStack Query 훅 (여러 화면 공통)
 │   │       ├── navigation/           # Root / Auth / Tab / Stack 네비게이터
 │   │       ├── providers/            # QueryClient, ThemeProvider 래퍼
 │   │       ├── screens/
 │   │       │   ├── splash/
-│   │       │   ├── auth/             # Login, ApprovalRequest, ApprovalPending, DeviceChange
+│   │       │   ├── auth/             # Login, ApprovalRequest, ApprovalPending, DeviceChange, RejectedAccount
+│   │       │   │   └── hooks/        # 화면 전용 훅 (useLogin, useApprovalRequest, useLoginForm)
 │   │       │   ├── home/
 │   │       │   ├── history/          # HistoryScreen, TransactionEditScreen
 │   │       │   ├── stats/
@@ -25,7 +26,13 @@ pingo/
 │   │       │   ├── more/
 │   │       │   │   ├── fixedExpenses/
 │   │       │   │   └── myInfo/
-│   │       │   └── admin/            # UserManagement, ApprovalManagement
+│   │       │   └── admin/            # 어드민 전용 — 기능별 서브폴더
+│   │       │       ├── types.ts      # 어드민 공유 타입
+│   │       │       ├── approvalManagement/
+│   │       │       │   ├── hooks/    # useApprovals
+│   │       │       │   └── components/  # ApprovalRequestCard
+│   │       │       ├── userManagement/
+│   │       │       └── adminMore/
 │   │       ├── store/                # Zustand 전역 상태 (authStore)
 │   │       ├── theme/                # 토큰(colors, spacing, typography), 라이트/다크 테마
 │   │       ├── types/                # 네비게이션 타입

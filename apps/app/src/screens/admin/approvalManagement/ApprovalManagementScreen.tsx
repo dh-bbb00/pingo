@@ -6,7 +6,7 @@ import {
   useRejectRequest,
   useAcceptRequest,
   useDeleteApprovalRequest,
-} from '@/hooks/queries/useApprovals'
+} from './hooks/useApprovals'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { ApprovalRequest } from '../types'

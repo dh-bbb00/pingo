@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
-import { useApprovalRequest } from '@/hooks/queries/useApprovalRequest'
+import { useApprovalRequest } from './hooks/useApprovalRequest'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { makeStyles } from './ApprovalRequestScreen.styles'
