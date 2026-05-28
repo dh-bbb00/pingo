@@ -24,15 +24,7 @@ export default function FixedExpensesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.header}>고정 지출 관리</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate(Screens.More.FixedExpenseEdit, {})}
-        >
-          <Text style={styles.addButtonText}>+ 추가</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.header}>고정 지출 관리</Text>
 
       <View style={styles.tabBar}>
         {VIEW_TABS.map((tab) => (
@@ -52,6 +44,14 @@ export default function FixedExpensesScreen() {
         renderItem={() => null}
         ListEmptyComponent={<Text style={styles.empty}>등록된 고정 지출이 없습니다.</Text>}
       />
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate(Screens.More.FixedExpenseEdit, {})}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   )
 }

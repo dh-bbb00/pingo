@@ -25,15 +25,7 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.header}>내역</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate(Screens.History.TransactionEdit, {})}
-        >
-          <Text style={styles.addButtonText}>+ 추가</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.header}>내역</Text>
 
       <View style={styles.tabBar}>
         {DATE_TABS.map((tab) => (
@@ -52,6 +44,14 @@ export default function HistoryScreen() {
         renderItem={() => null}
         ListEmptyComponent={<Text style={styles.empty}>내역이 없습니다.</Text>}
       />
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate(Screens.History.TransactionEdit, {})}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   )
 }

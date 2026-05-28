@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, FlatList, TouchableOpacity } from 'react-native'
+import { Text, FlatList, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -21,15 +21,7 @@ export default function CategoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.header}>카테고리</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate(Screens.Category.CategoryEdit, {})}
-        >
-          <Text style={styles.addButtonText}>+ 추가</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.header}>카테고리</Text>
 
       <FlatList<CategoryListItem>
         data={[]}
@@ -37,6 +29,14 @@ export default function CategoryScreen() {
         renderItem={() => null}
         ListEmptyComponent={<Text style={styles.empty}>카테고리가 없습니다.</Text>}
       />
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate(Screens.Category.CategoryEdit, {})}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   )
 }
