@@ -61,7 +61,6 @@ export const strings = {
     header:        '전체',
     fixedExpenses: '고정 지출 관리',
     myInfo:        '내 정보',
-    logout:        '로그아웃',
   },
 
   myInfo: {
@@ -77,6 +76,11 @@ export const strings = {
     newPassword:     '새 비밀번호',
     confirmPassword: '새 비밀번호 확인',
     submit:          '변경',
+    errCurrentEmpty: '현재 비밀번호를 입력해주세요.',
+    errNextEmpty:    '새 비밀번호를 입력해주세요.',
+    errNextShort:    '비밀번호는 8자 이상이어야 합니다.',
+    errConfirmEmpty: '비밀번호 확인을 입력해주세요.',
+    errConfirmMismatch: '새 비밀번호가 일치하지 않습니다.',
   },
 
   adminTabs: {

@@ -33,12 +33,13 @@ apiClient.interceptors.response.use(
       const refreshToken = storage.getString(StorageKeys.REFRESH_TOKEN)
       if (refreshToken) {
         try {
-          const { data } = await axios.post(
+          const { data: resp } = await axios.post(
             `${ENV.API_URL}${endpoints.auth.refresh}`,
             { refreshToken },
           )
-          useAuthStore.getState().setTokens(data.accessToken, data.refreshToken)
-          original.headers.Authorization = `Bearer ${data.accessToken}`
+          const { accessToken, refreshToken: newRefreshToken } = resp.data
+          useAuthStore.getState().setTokens(accessToken, newRefreshToken)
+          original.headers.Authorization = `Bearer ${accessToken}`
           return apiClient(original)
         } catch {
           useAuthStore.getState().clearAuth()

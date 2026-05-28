@@ -25,6 +25,7 @@ export const endpoints = {
   },
   users: {
     base:     `${V1}/users`,
+    me:       `${V1}/users/me`,
     password: `${V1}/users/me/password`,
   },
   devices: {

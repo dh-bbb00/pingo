@@ -14,7 +14,21 @@ export interface AdminUsersParams {
   pageSize?: number
 }
 
+export interface MyInfo {
+  id:        string
+  email:     string
+  role:      string
+  status:    string
+  createdAt: string
+}
+
 export const usersApi = {
   getAdminList: (params?: AdminUsersParams) =>
     apiClient.get<PageResponse<AdminUserDetail>>(endpoints.users.base, { params }),
+
+  getMe: () =>
+    apiClient.get<{ success: boolean; data: MyInfo }>(endpoints.users.me),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    apiClient.patch(endpoints.users.password, { currentPassword, newPassword }),
 }
