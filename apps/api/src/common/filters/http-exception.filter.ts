@@ -30,12 +30,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let errorCode: ApiErrorCode | undefined;
     let message: string;
 
+    let extra: Record<string, unknown> = {};
+
     if (exception instanceof HttpException) {
-      const body = exception.getResponse() as { errorCode?: ApiErrorCode; message?: string | string[] }
+      const body = exception.getResponse() as { errorCode?: ApiErrorCode; message?: string | string[]; [key: string]: unknown }
       errorCode = body.errorCode ?? STATUS_DEFAULT_CODE[status]
       const raw = body.message ?? exception.message
       // class-validator 배열 메시지는 첫 번째 값만 사용
       message = Array.isArray(raw) ? raw[0] : raw
+      // errorCode·message·success 외 추가 필드(deviceAccessToken 등)를 그대로 전달
+      const { errorCode: _ec, message: _msg, ...rest } = body
+      extra = rest
     } else {
       errorCode = ApiErrorCode.INTERNAL_ERROR
       message = MSG.common.internalError
@@ -45,6 +50,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       this.logger.error(`${req.method} ${req.path}`, exception);
     }
 
-    res.status(status).json({ success: false, errorCode, message });
+    res.status(status).json({ success: false, errorCode, message, ...extra });
   }
 }

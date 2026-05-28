@@ -11,9 +11,10 @@ export const apiClient = axios.create({
 })
 
 apiClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  // 호출 측에서 Authorization을 명시한 경우(deviceAccessToken 등) 덮어쓰지 않는다
+  if (!config.headers.Authorization) {
+    const token = useAuthStore.getState().accessToken
+    if (token) config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
