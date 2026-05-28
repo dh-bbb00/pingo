@@ -5,7 +5,10 @@ import { queryKeys } from '@/constants/queryKeys'
 export function useTransactions(filter?: TransactionFilter) {
   return useQuery({
     queryKey: queryKeys.transactions.list(filter),
-    queryFn: () => transactionsApi.getList(filter).then((r) => r.data),
+    queryFn: async () => {
+      const res = await transactionsApi.getList(filter)
+      return res.data
+    },
   })
 }
 

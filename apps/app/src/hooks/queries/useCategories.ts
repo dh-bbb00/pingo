@@ -5,6 +5,9 @@ import { queryKeys } from '@/constants/queryKeys'
 export function useCategories() {
   return useQuery({
     queryKey: queryKeys.categories.list(),
-    queryFn: () => categoriesApi.getList().then((r) => r.data),
+    queryFn: async () => {
+      const res = await categoriesApi.getList()
+      return res.data
+    },
   })
 }

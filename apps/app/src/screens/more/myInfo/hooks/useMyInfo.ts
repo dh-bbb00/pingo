@@ -5,6 +5,9 @@ import { queryKeys } from '@/constants/queryKeys'
 export function useMyInfo() {
   return useQuery({
     queryKey: queryKeys.users.me,
-    queryFn:  () => usersApi.getMe().then((r) => r.data.data),
+    queryFn:  async () => {
+      const res = await usersApi.getMe()
+      return res.data.data
+    },
   })
 }

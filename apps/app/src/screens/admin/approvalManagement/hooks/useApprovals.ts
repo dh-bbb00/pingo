@@ -6,7 +6,10 @@ import { queryKeys } from '@/constants/queryKeys'
 export function useApprovals(status: ApprovalStatus) {
   return useQuery({
     queryKey: queryKeys.approvals.list(status),
-    queryFn:  () => approvalsApi.getList(status).then((r) => r.data.data),
+    queryFn:  async () => {
+      const res = await approvalsApi.getList(status)
+      return res.data.data
+    },
   })
 }
 

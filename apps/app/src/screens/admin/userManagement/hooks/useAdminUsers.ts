@@ -5,6 +5,9 @@ import { queryKeys } from '@/constants/queryKeys'
 export function useAdminUsers(params: AdminUsersParams) {
   return useQuery({
     queryKey: queryKeys.adminUsers.list(params),
-    queryFn:  () => usersApi.getAdminList(params).then((r) => r.data),
+    queryFn:  async () => {
+      const res = await usersApi.getAdminList(params)
+      return res.data
+    },
   })
 }
