@@ -40,30 +40,35 @@ export default function SplashScreen() {
       }
 
       try {
-        const { data } = await apiClient.post<{
-          accessToken:    string
-          refreshToken:   string
-          role:           'USER' | 'ADMIN'
-          approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
-          deviceId:       string
+        const { data: resp } = await apiClient.post<{
+          success: boolean
+          data: {
+            accessToken:    string
+            refreshToken:   string
+            role:           'USER' | 'ADMIN'
+            approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
+            deviceUid:      string
+          }
         }>(endpoints.auth.refresh, { refreshToken })
 
-        setTokens(data.accessToken, data.refreshToken)
-        setUserInfo(data.role, data.approvalStatus)
+        const { accessToken, refreshToken: newRefreshToken, role, approvalStatus, deviceUid: storedDeviceUid } = resp.data
 
-        const currentDeviceId = await getDeviceId()
-        if (data.deviceId && data.deviceId !== currentDeviceId) {
+        setTokens(accessToken, newRefreshToken)
+        setUserInfo(role, approvalStatus)
+
+        const currentDeviceUid = await getDeviceId()
+        if (storedDeviceUid && storedDeviceUid !== currentDeviceUid) {
           // 기기 불일치 — access token은 이미 저장됐으므로 DeviceChange에서 그대로 사용
           navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.DeviceChange })
           return
         }
 
-        if (data.approvalStatus === 'PENDING') {
+        if (approvalStatus === 'PENDING') {
           navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.ApprovalPending })
           return
         }
 
-        if (data.role === 'ADMIN') {
+        if (role === 'ADMIN') {
           navigation.replace(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
         } else {
           navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })

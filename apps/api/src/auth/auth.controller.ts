@@ -53,7 +53,7 @@ export class AuthController {
   async refresh(
     @CurrentUser() user: { id: string; deviceId: string },
     @Body() dto: RefreshTokenDto,
-  ): Promise<BasicResponse<{ accessToken: string; refreshToken: string }>> {
+  ): Promise<BasicResponse<{ accessToken: string; refreshToken: string; role: string; approvalStatus: string; deviceUid: string }>> {
     const tokens = await this.authService.refresh(user.id, user.deviceId, dto.refreshToken);
     return { success: true, data: tokens };
   }

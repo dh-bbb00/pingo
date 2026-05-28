@@ -156,16 +156,19 @@ export class AuthService {
     userId: string,
     deviceId: string,
     rawRefreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; role: string; approvalStatus: string; deviceUid: string }> {
     const stored = await this.prisma.refreshToken.findFirst({
       where: { userId, deviceId, token: rawRefreshToken, expiresAt: { gt: new Date() } },
     });
     if (!stored) throw new UnauthorizedException({ errorCode: ApiErrorCode.INVALID_REFRESH_TOKEN, message: MSG.auth.invalidRefreshToken });
 
-    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const [user, device] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+      this.prisma.device.findUniqueOrThrow({ where: { id: deviceId } }),
+    ]);
     const tokens = await this.issueTokens(userId, user.email, user.role, deviceId);
     this.logger.auth({ event: 'TOKEN_REFRESH', email: user.email });
-    return tokens;
+    return { ...tokens, role: user.role, approvalStatus: user.status, deviceUid: device.deviceUid };
   }
 
   /** 로그아웃 — 해당 기기의 refresh token 삭제 */
