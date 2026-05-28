@@ -9,7 +9,8 @@ interface Props {
   onPageChange: (page: number) => void
 }
 
-export default memo(function PaginationBar({ page, totalPages, onPageChange }: Props) {
+export default memo(function PaginationBar({ page, totalPages: rawTotalPages, onPageChange }: Props) {
+  const totalPages = Math.max(1, rawTotalPages)
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
