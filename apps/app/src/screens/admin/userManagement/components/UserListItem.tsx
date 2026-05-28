@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   deviceInfo: { flex: 1 },
   deviceName: { marginBottom: 2 },
   deviceMeta: {},
-  actionRow:  { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 10, alignItems: 'flex-start' },
+  actionRow:  { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 10, alignItems: 'flex-end' },
   actionBtn:  { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 8 },
   actionBtnText: {},
 })
