@@ -1,11 +1,12 @@
 import {
-  Injectable, UnauthorizedException,
+  Injectable, ConflictException, UnauthorizedException,
   ForbiddenException, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { AppLoggerService } from '../logger/logger.service';
 import { ApprovalRequestDto } from './dto/approval-request.dto';
+import { DeviceApprovalRequestDto } from './dto/device-approval-request.dto';
 import { LoginDto } from './dto/login.dto';
 import { MSG } from '../common/constants/messages';
 import { ApiErrorCode } from '../common/constants/error-codes';
@@ -23,40 +24,14 @@ export class AuthService {
     private readonly logger: AppLoggerService,
   ) {}
 
-  /** 사용 승인 요청 — 유저/기기 upsert 후 ApprovalRequest 생성 */
+  /** 최초 사용 승인 요청 — 신규 유저 전용. 승인된 유저의 기기 추가는 requestDeviceApproval 사용 */
   async requestApproval(dto: ApprovalRequestDto, ip: string): Promise<void> {
     await this.checkRateLimit(ip, dto.deviceUid);
 
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
-
-    // 이미 승인된 유저 — 비밀번호 검증 후 새 기기 추가 요청으로 처리
     if (existing?.status === 'APPROVED') {
-      if (!(await bcrypt.compare(dto.password, existing.password))) {
-        throw new UnauthorizedException({ errorCode: ApiErrorCode.INVALID_CREDENTIALS, message: MSG.auth.invalidCredentials });
-      }
-
-      const device = await this.prisma.device.upsert({
-        where: { userId_deviceUid: { userId: existing.id, deviceUid: dto.deviceUid } },
-        update: { deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion, isTrusted: false },
-        create: { userId: existing.id, deviceUid: dto.deviceUid, deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion },
-      });
-
-      // 같은 기기에 이미 대기 중인 요청이 있으면 중복 방지
-      const pending = await this.prisma.approvalRequest.findFirst({
-        where: { deviceId: device.id, status: 'PENDING' },
-      });
-      if (pending) {
-        throw new ForbiddenException({ errorCode: ApiErrorCode.DEVICE_PENDING, message: MSG.auth.devicePending });
-      }
-
-      await this.prisma.approvalRequest.create({
-        data: { userId: existing.id, deviceId: device.id, type: 'NEW_DEVICE' },
-      });
-
-      this.logger.auth({ event: 'DEVICE_APPROVAL_REQUESTED', email: dto.email });
-      return;
+      throw new ConflictException({ errorCode: ApiErrorCode.ALREADY_APPROVED, message: MSG.auth.alreadyApproved });
     }
-
     if (existing?.status === 'REJECTED') {
       throw new ForbiddenException({ errorCode: ApiErrorCode.REJECTED_ACCOUNT, message: MSG.auth.rejectedAccount });
     }
@@ -86,8 +61,33 @@ export class AuthService {
   }
 
   /**
+   * JWT 인증된 유저의 새 기기 승인 요청
+   * 로그인 시 NEW_DEVICE 에러로 받은 토큰 또는 자동 로그인 토큰으로 호출
+   */
+  async requestDeviceApproval(userId: string, email: string, dto: DeviceApprovalRequestDto): Promise<void> {
+    const device = await this.prisma.device.upsert({
+      where: { userId_deviceUid: { userId, deviceUid: dto.deviceUid } },
+      update: { deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion, isTrusted: false },
+      create: { userId, deviceUid: dto.deviceUid, deviceName: dto.deviceName, phoneModel: dto.phoneModel, osVersion: dto.osVersion, appVersion: dto.appVersion },
+    });
+
+    const pending = await this.prisma.approvalRequest.findFirst({
+      where: { deviceId: device.id, status: 'PENDING' },
+    });
+    if (pending) {
+      throw new ForbiddenException({ errorCode: ApiErrorCode.DEVICE_PENDING, message: MSG.auth.devicePending });
+    }
+
+    await this.prisma.approvalRequest.create({
+      data: { userId, deviceId: device.id, type: 'NEW_DEVICE' },
+    });
+
+    this.logger.auth({ event: 'DEVICE_APPROVAL_REQUESTED', email });
+  }
+
+  /**
    * 로그인 — 자격증명 확인 후 기기 상태 체크
-   * - NEW_DEVICE: 신규 기기 → 클라이언트가 기기변경 화면으로 이동
+   * - NEW_DEVICE: 미등록 기기 → deviceRegistrationToken 포함해 반환, FE가 기기 승인 요청 화면으로 이동
    * - isTrusted false: 기기 승인 대기 중
    */
   async login(dto: LoginDto): Promise<{
@@ -126,7 +126,16 @@ export class AuthService {
       device = await this.prisma.device.findFirst({
         where: { userId: user.id, deviceUid: dto.deviceUid },
       });
-      if (!device) throw new ForbiddenException({ errorCode: ApiErrorCode.NEW_DEVICE, message: MSG.auth.newDevice });
+
+      if (!device) {
+        // 자격증명은 확인됨 — 기기 미등록만 문제이므로 access token 발급 후 기기 승인 요청 화면으로 유도
+        const accessToken = this.jwtService.sign(
+          { sub: user.id, email: user.email, role: user.role },
+          { secret: process.env['JWT_SECRET'], expiresIn: '1h' },
+        );
+        throw new ForbiddenException({ errorCode: ApiErrorCode.NEW_DEVICE, message: MSG.auth.newDevice, deviceAccessToken: accessToken });
+      }
+
       if (!device.isTrusted) throw new ForbiddenException({ errorCode: ApiErrorCode.DEVICE_PENDING, message: MSG.auth.devicePending });
     }
 
@@ -218,7 +227,6 @@ export class AuthService {
       if (record.firstRequestAt > windowStart && record.requestCount >= RATE_LIMIT_MAX) {
         throw new HttpException({ errorCode: ApiErrorCode.RATE_LIMIT_EXCEEDED, message: MSG.auth.rateLimitExceeded }, HttpStatus.TOO_MANY_REQUESTS);
       }
-      // 윈도우 만료 시 초기화, 아니면 카운트 증가
       await this.prisma.approvalRateLimit.update({
         where: { ip_deviceUid: { ip, deviceUid } },
         data:

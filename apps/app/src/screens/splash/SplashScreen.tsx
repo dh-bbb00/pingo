@@ -53,6 +53,7 @@ export default function SplashScreen() {
 
         const currentDeviceId = await getDeviceId()
         if (data.deviceId && data.deviceId !== currentDeviceId) {
+          // 기기 불일치 — access token은 이미 저장됐으므로 DeviceChange에서 그대로 사용
           navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.DeviceChange })
           return
         }

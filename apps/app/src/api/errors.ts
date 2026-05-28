@@ -19,18 +19,21 @@ export const ApiErrorCode = {
 export type ApiErrorCode = (typeof ApiErrorCode)[keyof typeof ApiErrorCode]
 
 export interface ParsedApiError {
-  errorCode: ApiErrorCode | undefined
-  message: string | undefined
-  status: number | undefined
+  errorCode:         ApiErrorCode | undefined
+  message:           string | undefined
+  status:            number | undefined
+  /** NEW_DEVICE 에러 시 포함 — 기기 승인 요청에만 사용하는 임시 토큰 */
+  deviceAccessToken: string | undefined
 }
 
-/** Axios 에러에서 errorCode·message·status를 추출 */
+/** Axios 에러에서 errorCode·message·status·deviceAccessToken을 추출 */
 export function parseApiError(error: unknown): ParsedApiError {
-  const res = (error as { response?: { data?: { errorCode?: string; message?: string | string[] }; status?: number } })?.response
+  const res = (error as { response?: { data?: { errorCode?: string; message?: string | string[]; deviceAccessToken?: string }; status?: number } })?.response
   const raw = res?.data?.message
   return {
-    errorCode: res?.data?.errorCode as ApiErrorCode | undefined,
-    message:   Array.isArray(raw) ? raw[0] : raw,
-    status:    res?.status,
+    errorCode:         res?.data?.errorCode as ApiErrorCode | undefined,
+    message:           Array.isArray(raw) ? raw[0] : raw,
+    status:            res?.status,
+    deviceAccessToken: res?.data?.deviceAccessToken,
   }
 }

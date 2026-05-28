@@ -2,7 +2,7 @@ import Toast from 'react-native-toast-message'
 import { useMutation } from '@tanstack/react-query'
 import { authApi } from '@/api/endpoints/auth.api'
 import { handleApiError } from '@/api/errorHandler'
-import { ApiErrorCode } from '@/api/errors'
+import { ApiErrorCode, parseApiError } from '@/api/errors'
 import { getDeviceId } from '@/utils/device'
 import { useAuthStore } from '@/store/authStore'
 import { navigationRef } from '@/navigation/navigationRef'
@@ -10,7 +10,7 @@ import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 
 export function useLogin() {
-  const { setTokens, setUserInfo } = useAuthStore()
+  const { setTokens, setUserInfo, setDeviceAccessToken } = useAuthStore()
 
   const showGenericInputError = () =>
     Toast.show({ type: 'error', text1: strings.login.invalidInput })
@@ -30,15 +30,14 @@ export function useLogin() {
         navigationRef.navigate(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
       }
     },
-    onError: (error, variables) => handleApiError(error, {
+    onError: (error) => handleApiError(error, {
       [ApiErrorCode.INVALID_CREDENTIALS]: showGenericInputError,
       [ApiErrorCode.VALIDATION_ERROR]:    showGenericInputError,
-      // 미등록 기기 — email/password를 params로 넘겨 DeviceChangeScreen에서 승인요청에 재사용
-      [ApiErrorCode.NEW_DEVICE]: () =>
-        navigationRef.navigate(Screens.Root.Auth, {
-          screen: Screens.Auth.DeviceChange,
-          params: { email: variables.email, password: variables.password },
-        }),
+      [ApiErrorCode.NEW_DEVICE]: () => {
+        const { deviceAccessToken } = parseApiError(error)
+        if (deviceAccessToken) setDeviceAccessToken(deviceAccessToken)
+        navigationRef.navigate(Screens.Root.Auth, { screen: Screens.Auth.DeviceChange })
+      },
     }),
   })
 }

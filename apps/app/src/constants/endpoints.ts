@@ -2,10 +2,11 @@ const V1 = '/api/v1'
 
 export const endpoints = {
   auth: {
-    login:           `${V1}/auth/login`,
-    refresh:         `${V1}/auth/refresh`,
-    logout:          `${V1}/auth/logout`,
-    requestApproval: `${V1}/auth/approval-request`,
+    login:                  `${V1}/auth/login`,
+    refresh:                `${V1}/auth/refresh`,
+    logout:                 `${V1}/auth/logout`,
+    requestApproval:        `${V1}/auth/approval-request`,
+    requestDeviceApproval:  `${V1}/auth/request-device-approval`,
   },
   transactions: {
     base:   `${V1}/transactions`,

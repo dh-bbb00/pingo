@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { ApprovalRequestDto } from './dto/approval-request.dto';
+import { DeviceApprovalRequestDto } from './dto/device-approval-request.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtGuard } from './guards/jwt.guard';
@@ -55,6 +56,20 @@ export class AuthController {
   ): Promise<BasicResponse<{ accessToken: string; refreshToken: string }>> {
     const tokens = await this.authService.refresh(user.id, user.deviceId, dto.refreshToken);
     return { success: true, data: tokens };
+  }
+
+  /** JWT 인증된 유저의 새 기기 승인 요청 — 로그인 NEW_DEVICE 토큰 또는 자동 로그인 토큰으로 호출 */
+  @Post('request-device-approval')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '새 기기 승인 요청' })
+  async requestDeviceApproval(
+    @CurrentUser() user: { id: string; email: string },
+    @Body() dto: DeviceApprovalRequestDto,
+  ): Promise<BasicResponse<null>> {
+    await this.authService.requestDeviceApproval(user.id, user.email, dto);
+    return { success: true, data: null, message: MSG.auth.approvalSubmitted };
   }
 
   /** 로그아웃 — 현재 기기의 refresh token 삭제 */

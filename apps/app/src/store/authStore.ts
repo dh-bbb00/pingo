@@ -8,14 +8,18 @@ export type UserRole         = 'USER' | 'ADMIN'
 export type ApprovalStatus   = 'PENDING' | 'APPROVED' | 'REJECTED'
 
 interface AuthState {
-  accessToken:    string | null
-  role:           UserRole | null
-  approvalStatus: ApprovalStatus | null
+  accessToken:          string | null
+  role:                 UserRole | null
+  approvalStatus:       ApprovalStatus | null
+  /** NEW_DEVICE 에러 시 수신한 임시 토큰 — 기기 승인 요청에만 사용, 앱 재시작 시 소멸 */
+  deviceAccessToken:    string | null
 
-  setTokens:    (accessToken: string, refreshToken: string) => void
-  setUserInfo:  (role: UserRole, approvalStatus: ApprovalStatus) => void
-  logout:       () => Promise<void>
-  clearAuth:    () => void
+  setTokens:            (accessToken: string, refreshToken: string) => void
+  setDeviceAccessToken: (token: string) => void
+  clearDeviceAccessToken: () => void
+  setUserInfo:          (role: UserRole, approvalStatus: ApprovalStatus) => void
+  logout:               () => Promise<void>
+  clearAuth:            () => void
 }
 
 function clearLocal() {
@@ -24,14 +28,18 @@ function clearLocal() {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken:    null,
-  role:           null,
-  approvalStatus: null,
+  accessToken:       null,
+  role:              null,
+  approvalStatus:    null,
+  deviceAccessToken: null,
 
   setTokens: (accessToken, refreshToken) => {
     storage.set(StorageKeys.REFRESH_TOKEN, refreshToken)
     set({ accessToken })
   },
+
+  setDeviceAccessToken:   (token) => set({ deviceAccessToken: token }),
+  clearDeviceAccessToken: ()      => set({ deviceAccessToken: null }),
 
   setUserInfo: (role, approvalStatus) => set({ role, approvalStatus }),
 

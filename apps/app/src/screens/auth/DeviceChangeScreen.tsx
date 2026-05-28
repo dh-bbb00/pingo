@@ -1,15 +1,10 @@
 import React, { useMemo } from 'react'
 import { Text, TouchableOpacity, ActivityIndicator } from 'react-native'
 import FullScreenContainer from '@/components/containers/FullScreenContainer'
-import { useRoute } from '@react-navigation/native'
-import type { RouteProp } from '@react-navigation/native'
-import type { AuthStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import { useApprovalRequest } from './hooks/useApprovalRequest'
+import { useDeviceApprovalRequest } from './hooks/useDeviceApprovalRequest'
 import { makeStyles } from './DeviceChangeScreen.styles'
-
-type Route = RouteProp<AuthStackParamList, 'DeviceChange'>
 
 const s = strings.deviceChange
 
@@ -17,8 +12,7 @@ export default function DeviceChangeScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const { params } = useRoute<Route>()
-  const { mutate: requestApproval, isPending } = useApprovalRequest()
+  const { mutate: requestApproval, isPending } = useDeviceApprovalRequest()
 
   return (
     <FullScreenContainer style={styles.container}>
@@ -28,7 +22,7 @@ export default function DeviceChangeScreen() {
 
       <TouchableOpacity
         style={[styles.button, isPending && styles.buttonDisabled]}
-        onPress={() => requestApproval({ email: params.email, password: params.password })}
+        onPress={() => requestApproval()}
         disabled={isPending}
       >
         {isPending
