@@ -128,6 +128,26 @@ export const strings = {
     },
   },
 
+  categoryEdit: {
+    headerCreate:     '카테고리 등록',
+    headerEdit:       '카테고리 수정',
+    iconLabel:        '아이콘',
+    colorLabel:       '색상',
+    nameLabel:        '카테고리명',
+    namePlaceholder:  '예: 식비, 교통비',
+    budgetLabel:      '월 예산',
+    budgetPlaceholder: '미입력 시 예산 없음',
+    budgetUnit:       '원',
+    fixedBudget:      '매달 예산 고정',
+    fixedBudgetDesc:  '매달 동일한 예산을 자동 적용합니다.',
+    submit:           '등록하기',
+    update:           '수정하기',
+    errNameEmpty:     '카테고리명을 입력해주세요.',
+    colorPickerTitle: '색상 선택',
+    colorPickerConfirm: '선택',
+    emojiPickerTitle: '아이콘 선택',
+  },
+
   userManagement: {
     header:      '유저 관리',
     searchPlaceholder: '이메일 검색',
