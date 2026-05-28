@@ -6,8 +6,12 @@
 export const strings = {
   /** 에러 표시용 공통 — Alert 타이틀, 서버 응답 없을 때 폴백 */
   common: {
-    errorTitle:    '오류',
-    errorFallback: '오류가 발생했습니다.',
+    errorTitle:       '오류',
+    errorFallback:    '오류가 발생했습니다.',
+    logoutConfirmTitle: '로그아웃',
+    logoutConfirmMsg:   '로그아웃 하시겠습니까?',
+    confirm:            '확인',
+    cancel:             '취소',
   },
 
   splash: {
@@ -57,6 +61,7 @@ export const strings = {
     header:        '전체',
     fixedExpenses: '고정 지출 관리',
     myInfo:        '내 정보',
+    logout:        '로그아웃',
   },
 
   myInfo: {
