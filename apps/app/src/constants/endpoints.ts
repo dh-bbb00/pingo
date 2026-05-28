@@ -24,9 +24,11 @@ export const endpoints = {
     base: `${V1}/stats`,
   },
   users: {
-    base:     `${V1}/users`,
-    me:       `${V1}/users/me`,
-    password: `${V1}/users/me/password`,
+    base:      `${V1}/users`,
+    me:        `${V1}/users/me`,
+    password:  `${V1}/users/me/password`,
+    myDevices: `${V1}/users/me/devices`,
+    device:    (id: string) => `${V1}/users/me/devices/${id}`,
   },
   devices: {
     base: `${V1}/devices`,

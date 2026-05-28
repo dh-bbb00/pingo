@@ -22,6 +22,15 @@ export interface MyInfo {
   createdAt: string
 }
 
+export interface MyDevice {
+  id:          string
+  deviceName:  string
+  phoneModel:  string
+  isTrusted:   boolean
+  isCurrent:   boolean
+  createdAt:   string
+}
+
 export const usersApi = {
   getAdminList: (params?: AdminUsersParams) =>
     apiClient.get<PageResponse<AdminUserDetail>>(endpoints.users.base, { params }),
@@ -31,4 +40,10 @@ export const usersApi = {
 
   changePassword: (currentPassword: string, newPassword: string) =>
     apiClient.patch(endpoints.users.password, { currentPassword, newPassword }),
+
+  getMyDevices: () =>
+    apiClient.get<{ success: boolean; data: MyDevice[] }>(endpoints.users.myDevices),
+
+  deleteDevice: (id: string) =>
+    apiClient.delete(endpoints.users.device(id)),
 }

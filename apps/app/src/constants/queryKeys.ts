@@ -25,6 +25,7 @@ export const queryKeys = {
     list: (status?: string) => ['approvals', 'list', status] as const,
   },
   users: {
-    me: ['users', 'me'] as const,
+    me:      ['users', 'me'] as const,
+    devices: ['users', 'devices'] as const,
   },
 } as const

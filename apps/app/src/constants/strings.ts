@@ -64,10 +64,17 @@ export const strings = {
   },
 
   myInfo: {
-    header:         '내 정보',
-    emailLabel:     '이메일',
-    changePassword: '비밀번호 변경',
-    logout:         '로그아웃',
+    header:                  '내 정보',
+    emailLabel:              '이메일',
+    changePassword:          '비밀번호 변경',
+    logout:                  '로그아웃',
+    devicesHeader:           '내 기기',
+    currentDeviceBadge:      '현재 기기',
+    deleteDevice:            '삭제',
+    confirmDeleteOtherTitle: '기기 삭제',
+    confirmDeleteOtherMsg:   '삭제하면 해당 기기에서 다시 로그인 시 승인 요청이 필요합니다. 계속하시겠습니까?',
+    confirmDeleteCurrentTitle: '현재 기기 삭제',
+    confirmDeleteCurrentMsg:   '삭제하면 승인 요청이 필요하고 로그아웃 처리됩니다. 계속하시겠습니까?',
   },
 
   passwordChange: {

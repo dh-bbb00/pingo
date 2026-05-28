@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -60,6 +60,27 @@ export class UsersController {
   ): Promise<BasicResponse<null>> {
     await this.usersService.updatePassword(user.id, dto);
     return { success: true, data: null, message: MSG.user.passwordChanged };
+  }
+
+  /** 내 전체 기기 목록 */
+  @Get('me/devices')
+  @ApiOperation({ summary: '내 기기 목록' })
+  async getMyDevices(
+    @CurrentUser() user: { id: string; deviceId: string },
+  ): Promise<BasicResponse<unknown>> {
+    const data = await this.usersService.getMyDevices(user.id, user.deviceId);
+    return { success: true, data };
+  }
+
+  /** 특정 기기 삭제 */
+  @Delete('me/devices/:id')
+  @ApiOperation({ summary: '기기 삭제' })
+  async removeDeviceById(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ): Promise<BasicResponse<null>> {
+    await this.usersService.removeDeviceById(user.id, id);
+    return { success: true, data: null };
   }
 
   /** 현재 로그인한 기기 정보 — JWT payload의 deviceId 기준 */

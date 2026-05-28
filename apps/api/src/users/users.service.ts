@@ -25,6 +25,22 @@ export class UsersService {
     await this.prisma.user.update({ where: { id: userId }, data: { password: hashed } });
   }
 
+  /** 내 전체 기기 목록 — isCurrent로 현재 기기 구분 */
+  async getMyDevices(userId: string, currentDeviceId: string) {
+    const devices = await this.prisma.device.findMany({
+      where: { userId },
+      select: { id: true, deviceName: true, phoneModel: true, isTrusted: true, createdAt: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    return devices.map((d) => ({ ...d, isCurrent: d.id === currentDeviceId }));
+  }
+
+  /** 특정 기기 삭제 — 연결된 refresh token 함께 삭제 */
+  async removeDeviceById(userId: string, targetDeviceId: string): Promise<void> {
+    await this.prisma.refreshToken.deleteMany({ where: { userId, deviceId: targetDeviceId } });
+    await this.prisma.device.delete({ where: { id: targetDeviceId, userId } });
+  }
+
   /** 현재 JWT에 담긴 deviceId 기준으로 기기 정보 반환 */
   async getDevice(userId: string, deviceId: string) {
     const device = await this.prisma.device.findFirst({
