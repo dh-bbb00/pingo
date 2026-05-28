@@ -44,6 +44,7 @@ export function handleApiError(
     // 네비게이션 없이 메시지만 표시하는 케이스 — 토스트
     case ApiErrorCode.INVALID_CREDENTIALS:
     case ApiErrorCode.REJECTED:
+    case ApiErrorCode.SUSPENDED:
     case ApiErrorCode.ALREADY_APPROVED:
     case ApiErrorCode.RATE_LIMIT_EXCEEDED:
     case ApiErrorCode.INTERNAL_ERROR:

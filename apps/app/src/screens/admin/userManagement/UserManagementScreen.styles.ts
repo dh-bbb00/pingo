@@ -7,7 +7,12 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   header:       { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
   count:        { fontSize: t.fontSize.sm, color: t.colors.text.secondary },
 
-  searchWrap:   { marginHorizontal: 20, marginBottom: 12, borderRadius: t.radius.md, backgroundColor: t.colors.surface, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 },
+  tabBar:       { flexDirection: 'row', borderBottomWidth: 1 },
+  tab:          { flex: 1, paddingVertical: 12, alignItems: 'center' },
+  tabActive:    { borderBottomWidth: 2 },
+  tabText:      {},
+
+  searchWrap:   { marginHorizontal: 20, marginTop: 12, marginBottom: 12, borderRadius: t.radius.md, backgroundColor: t.colors.surface, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 },
   searchInput:  { flex: 1, paddingVertical: 10, fontSize: t.fontSize.sm, color: t.colors.text.primary },
   searchClear:  { padding: 4 },
   searchClearText: { fontSize: t.fontSize.sm, color: t.colors.text.disabled },

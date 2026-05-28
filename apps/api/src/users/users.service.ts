@@ -54,12 +54,25 @@ export class UsersService {
     return device;
   }
 
-  /** 승인된 유저 목록 — 관리자 전용, 이메일 검색·페이지네이션 */
-  async findAllAdmin(params: { search?: string; page: number; pageSize: number }) {
-    const { search, page, pageSize } = params
+  /** 사용 정지 — refresh token 일괄 삭제로 즉시 강제 로그아웃 */
+  async suspend(targetUserId: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.deleteMany({ where: { userId: targetUserId } }),
+      this.prisma.user.update({ where: { id: targetUserId }, data: { status: 'SUSPENDED' } }),
+    ]);
+  }
+
+  /** 사용 정지 해제 — APPROVED 상태로 복원 */
+  async unsuspend(targetUserId: string): Promise<void> {
+    await this.prisma.user.update({ where: { id: targetUserId }, data: { status: 'APPROVED' } });
+  }
+
+  /** 유저 목록 — 관리자 전용, 상태 필터·이메일 검색·페이지네이션 */
+  async findAllAdmin(params: { search?: string; page: number; pageSize: number; status?: 'APPROVED' | 'SUSPENDED' }) {
+    const { search, page, pageSize, status = 'APPROVED' } = params
     const where = {
-      status: 'APPROVED' as const,
-      role:   'USER'     as const,
+      status,
+      role:   'USER' as const,
       ...(search ? { email: { contains: search, mode: 'insensitive' as const } } : {}),
     }
     const [total, users] = await this.prisma.$transaction([
@@ -70,7 +83,7 @@ export class UsersService {
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: {
-          id: true, email: true, createdAt: true,
+          id: true, email: true, status: true, createdAt: true,
           devices: {
             select: {
               id: true, deviceName: true, phoneModel: true,

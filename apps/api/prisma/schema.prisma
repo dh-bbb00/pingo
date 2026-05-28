@@ -34,9 +34,10 @@ enum Role {
 }
 
 enum UserStatus {
-  PENDING  // 승인 대기
-  APPROVED // 승인 완료, 로그인 가능
-  REJECTED // 거절
+  PENDING   // 승인 대기
+  APPROVED  // 승인 완료, 로그인 가능
+  REJECTED  // 거절
+  SUSPENDED // 관리자 사용 정지
 }
 
 /// 사용자의 기기 정보. isTrusted 기기만 로그인 허용. deviceUid 변경 감지 시 재승인 필요.

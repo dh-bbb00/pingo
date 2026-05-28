@@ -18,6 +18,7 @@ export interface AdminUserDevice {
 export interface AdminUserDetail {
   id:        string
   email:     string
+  status:    'APPROVED' | 'SUSPENDED'
   createdAt: string
   devices:   AdminUserDevice[]
 }

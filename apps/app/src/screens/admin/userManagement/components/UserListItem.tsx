@@ -1,7 +1,9 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import { useTheme } from '@/theme'
+import { strings } from '@/constants/strings'
 import type { AdminUserDetail } from '../../types'
+import { useSuspendUser, useUnsuspendUser } from '../hooks/useSuspendUser'
 
 interface Props {
   item:     AdminUserDetail
@@ -9,8 +11,28 @@ interface Props {
   onToggle: (id: string) => void
 }
 
+const s = strings.userManagement
+
 export default function UserListItem({ item, expanded, onToggle }: Props) {
   const { theme: t } = useTheme()
+  const { mutate: suspend }   = useSuspendUser()
+  const { mutate: unsuspend } = useUnsuspendUser()
+
+  const isSuspended = item.status === 'SUSPENDED'
+
+  const handleSuspendPress = () => {
+    if (isSuspended) {
+      Alert.alert(s.confirmUnsuspendTitle, s.confirmUnsuspendMsg, [
+        { text: strings.common.cancel, style: 'cancel' },
+        { text: s.unsuspend, onPress: () => unsuspend(item.id) },
+      ])
+    } else {
+      Alert.alert(s.confirmSuspendTitle, s.confirmSuspendMsg, [
+        { text: strings.common.cancel, style: 'cancel' },
+        { text: s.suspend, style: 'destructive', onPress: () => suspend(item.id) },
+      ])
+    }
+  }
 
   return (
     <View style={[styles.card, { backgroundColor: t.colors.surface, borderRadius: t.radius.lg }]}>
@@ -46,6 +68,24 @@ export default function UserListItem({ item, expanded, onToggle }: Props) {
               </View>
             ))
           )}
+
+          <View style={[styles.actionRow, { borderTopColor: t.colors.divider }]}>
+            <TouchableOpacity
+              style={[
+                styles.actionBtn,
+                { backgroundColor: isSuspended ? t.colors.primaryLight : t.colors.semantic.errorBackground },
+              ]}
+              onPress={handleSuspendPress}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.actionBtnText,
+                { color: isSuspended ? t.colors.primary : t.colors.semantic.error, fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold },
+              ]}>
+                {isSuspended ? s.unsuspend : s.suspend}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
@@ -64,4 +104,7 @@ const styles = StyleSheet.create({
   deviceInfo: { flex: 1 },
   deviceName: { marginBottom: 2 },
   deviceMeta: {},
+  actionRow:  { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 10, alignItems: 'flex-start' },
+  actionBtn:  { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 8 },
+  actionBtnText: {},
 })

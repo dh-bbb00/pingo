@@ -16,14 +16,17 @@ if (Platform.OS === 'android') {
 const PAGE_SIZE = 20
 const s = strings.userManagement
 
+type Tab = 'APPROVED' | 'SUSPENDED'
+
 export default function UserManagementScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const [search,          setSearch]    = useState('')
-  const [debouncedSearch, setDebounced] = useState('')
-  const [page,            setPage]      = useState(1)
-  const [expandedId,      setExpandedId] = useState<string | null>(null)
+  const [activeTab,       setActiveTab]   = useState<Tab>('APPROVED')
+  const [search,          setSearch]      = useState('')
+  const [debouncedSearch, setDebounced]   = useState('')
+  const [page,            setPage]        = useState(1)
+  const [expandedId,      setExpandedId]  = useState<string | null>(null)
 
   // 검색 디바운스 — 입력 후 400ms 대기
   const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -42,10 +45,19 @@ export default function UserManagementScreen() {
     setPage(1)
   }, [])
 
+  const handleTabChange = useCallback((tab: Tab) => {
+    setActiveTab(tab)
+    setSearch('')
+    setDebounced('')
+    setPage(1)
+    setExpandedId(null)
+  }, [])
+
   const { data, isLoading } = useAdminUsers({
     search:   debouncedSearch || undefined,
     page,
     pageSize: PAGE_SIZE,
+    status:   activeTab,
   })
 
   const users      = data?.data ?? []
@@ -65,6 +77,28 @@ export default function UserManagementScreen() {
         {!isLoading && pagination && (
           <Text style={styles.count}>{s.totalCount(pagination.total)}</Text>
         )}
+      </View>
+
+      <View style={[styles.tabBar, { borderBottomColor: theme.colors.divider }]}>
+        {(['APPROVED', 'SUSPENDED'] as Tab[]).map((tab) => {
+          const isActive = activeTab === tab
+          return (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tab, isActive && [styles.tabActive, { borderBottomColor: theme.colors.primary }]]}
+              onPress={() => handleTabChange(tab)}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.tabText,
+                { color: isActive ? theme.colors.primary : theme.colors.text.disabled,
+                  fontWeight: isActive ? theme.fontWeight.bold : theme.fontWeight.medium },
+              ]}>
+                {tab === 'APPROVED' ? s.tabActive : s.tabSuspended}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
       </View>
 
       <View style={styles.searchWrap}>
@@ -113,4 +147,3 @@ export default function UserManagementScreen() {
     </View>
   )
 }
-

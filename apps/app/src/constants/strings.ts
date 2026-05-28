@@ -132,9 +132,17 @@ export const strings = {
     header:      '유저 관리',
     searchPlaceholder: '이메일 검색',
     totalCount:  (n: number) => `총 ${n}명`,
-    empty:       '승인된 유저가 없습니다.',
+    tabActive:   '활성',
+    tabSuspended: '정지',
+    empty:       '유저가 없습니다.',
     emptySearch: '검색 결과가 없습니다.',
     deviceLabel: (n: number) => `기기 ${n}`,
+    suspend:     '사용 정지',
+    unsuspend:   '정지 해제',
+    confirmSuspendTitle:   '사용 정지',
+    confirmSuspendMsg:     '해당 유저를 사용 정지하면 즉시 강제 로그아웃 처리됩니다. 계속하시겠습니까?',
+    confirmUnsuspendTitle: '정지 해제',
+    confirmUnsuspendMsg:   '해당 유저의 정지를 해제하시겠습니까?',
   },
 
   userTabs: {

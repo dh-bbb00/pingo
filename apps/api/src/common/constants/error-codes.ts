@@ -39,6 +39,14 @@ export const ApiErrorCode = {
   REJECTED: 'REJECTED',
 
   /**
+   * 계정 사용 정지.
+   * - 발생: 로그인 시 user.status === 'SUSPENDED'
+   * - HTTP: 403
+   * - FE: 사용 정지 안내 토스트 (화면 이동 없음)
+   */
+  SUSPENDED: 'SUSPENDED',
+
+  /**
    * 미등록 기기에서 로그인 시도.
    * - 발생: 해당 deviceUid로 등록된 기기 레코드 없음
    * - HTTP: 403

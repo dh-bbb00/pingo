@@ -29,6 +29,8 @@ export const endpoints = {
     password:  `${V1}/users/me/password`,
     myDevices: `${V1}/users/me/devices`,
     device:    (id: string) => `${V1}/users/me/devices/${id}`,
+    suspend:   (id: string) => `${V1}/users/${id}/suspend`,
+    unsuspend: (id: string) => `${V1}/users/${id}/unsuspend`,
   },
   devices: {
     base: `${V1}/devices`,

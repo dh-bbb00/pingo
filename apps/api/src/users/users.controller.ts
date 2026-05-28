@@ -16,20 +16,22 @@ import { BasicResponse, PageResponse } from '../common/types/response.type';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  /** 승인된 유저 목록 — ADMIN 전용 */
+  /** 유저 목록 — ADMIN 전용 (status 필터: APPROVED | SUSPENDED) */
   @Get()
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
-  @ApiOperation({ summary: '승인 유저 목록 (ADMIN, 검색·페이지네이션)' })
+  @ApiOperation({ summary: '유저 목록 (ADMIN, 상태 필터·검색·페이지네이션)' })
   async findAll(
     @Query('search')   search?: string,
     @Query('page')     page     = '1',
     @Query('pageSize') pageSize = '20',
+    @Query('status')   status:  'APPROVED' | 'SUSPENDED' = 'APPROVED',
   ): Promise<PageResponse<unknown>> {
     const result = await this.usersService.findAllAdmin({
       search,
       page:     parseInt(page,     10),
       pageSize: parseInt(pageSize, 10),
+      status,
     });
     return {
       success: true,
@@ -100,6 +102,30 @@ export class UsersController {
     @CurrentUser() user: { id: string; deviceId: string },
   ): Promise<BasicResponse<null>> {
     await this.usersService.removeDevice(user.id, user.deviceId);
+    return { success: true, data: null };
+  }
+
+  /** 사용 정지 — ADMIN 전용, refresh token 삭제로 즉시 강제 로그아웃 */
+  @Patch(':id/suspend')
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: '유저 사용 정지 (ADMIN)' })
+  async suspend(
+    @Param('id') id: string,
+  ): Promise<BasicResponse<null>> {
+    await this.usersService.suspend(id);
+    return { success: true, data: null };
+  }
+
+  /** 사용 정지 해제 — ADMIN 전용 */
+  @Patch(':id/unsuspend')
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: '유저 사용 정지 해제 (ADMIN)' })
+  async unsuspend(
+    @Param('id') id: string,
+  ): Promise<BasicResponse<null>> {
+    await this.usersService.unsuspend(id);
     return { success: true, data: null };
   }
 }

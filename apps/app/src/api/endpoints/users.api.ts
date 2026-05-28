@@ -12,6 +12,7 @@ export interface AdminUsersParams {
   search?:   string
   page?:     number
   pageSize?: number
+  status?:   'APPROVED' | 'SUSPENDED'
 }
 
 export interface MyInfo {
@@ -46,4 +47,10 @@ export const usersApi = {
 
   deleteDevice: (id: string) =>
     apiClient.delete(endpoints.users.device(id)),
+
+  suspend: (id: string) =>
+    apiClient.patch(endpoints.users.suspend(id)),
+
+  unsuspend: (id: string) =>
+    apiClient.patch(endpoints.users.unsuspend(id)),
 }

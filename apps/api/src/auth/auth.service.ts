@@ -103,8 +103,9 @@ export class AuthService {
       throw new UnauthorizedException({ errorCode: ApiErrorCode.INVALID_CREDENTIALS, message: MSG.auth.invalidCredentials });
     }
 
-    if (user.status === 'PENDING') throw new ForbiddenException({ errorCode: ApiErrorCode.PENDING_APPROVAL, message: MSG.auth.pendingApproval });
-    if (user.status === 'REJECTED') throw new ForbiddenException({ errorCode: ApiErrorCode.REJECTED, message: MSG.auth.rejected });
+    if (user.status === 'PENDING')   throw new ForbiddenException({ errorCode: ApiErrorCode.PENDING_APPROVAL, message: MSG.auth.pendingApproval });
+    if (user.status === 'REJECTED')  throw new ForbiddenException({ errorCode: ApiErrorCode.REJECTED,          message: MSG.auth.rejected });
+    if (user.status === 'SUSPENDED') throw new ForbiddenException({ errorCode: ApiErrorCode.SUSPENDED,         message: MSG.auth.suspended });
 
     let device: Awaited<ReturnType<typeof this.prisma.device.findFirst>>;
 

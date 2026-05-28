@@ -6,6 +6,7 @@ export const MSG = {
     invalidCredentials:  '이메일 또는 비밀번호가 올바르지 않습니다.',
     pendingApproval:     '승인 대기 중입니다.',
     rejected:            '승인이 거절된 계정입니다.',
+    suspended:           '사용이 정지된 계정입니다. 관리자에게 문의해주세요.',
     /** errorCode NEW_DEVICE 와 함께 전송 — 클라이언트가 errorCode 기준으로 분기 */
     newDevice:           'NEW_DEVICE',
     devicePending:       '기기 승인 대기 중입니다.',
