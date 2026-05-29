@@ -34,7 +34,7 @@ export class TransactionsService {
       };
     }
 
-    const [data, total] = await this.prisma.$transaction([
+    const [data, total, amountAgg] = await Promise.all([
       this.prisma.transaction.findMany({
         where,
         include: { category: { select: { id: true, name: true, icon: true, color: true } } },
@@ -43,9 +43,24 @@ export class TransactionsService {
         take: pageSize,
       }),
       this.prisma.transaction.count({ where }),
+      this.prisma.transaction.aggregate({ where, _sum: { amount: true } }),
     ]);
 
-    return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+    return {
+      data, page, pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      totalAmount: amountAgg._sum.amount ?? 0,
+    };
+  }
+
+  async findOne(userId: string, id: string) {
+    const tx = await this.prisma.transaction.findFirst({
+      where: { id, userId },
+      include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+    });
+    if (!tx) throw new NotFoundException(MSG.common.notFound);
+    return tx;
   }
 
   create(userId: string, dto: CreateTransactionDto) {

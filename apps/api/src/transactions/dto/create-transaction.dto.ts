@@ -1,13 +1,14 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsDateString, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsDateString, Min, ValidateIf } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { VM } from '../../common/constants/validation-messages';
 
 /** 내역 추가 DTO */
 export class CreateTransactionDto {
-  @ApiProperty()
+  @ApiProperty({ required: false, nullable: true, description: 'null이면 기타(미분류)로 처리' })
+  @IsOptional()
+  @ValidateIf((o) => o.categoryId !== null)
   @IsString({ message: VM.string })
-  @IsNotEmpty({ message: VM.notEmpty })
-  categoryId: string;
+  categoryId?: string | null;
 
   @ApiProperty({ description: '원 단위' })
   @IsNumber({}, { message: VM.number })

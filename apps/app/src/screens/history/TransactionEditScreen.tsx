@@ -1,14 +1,30 @@
-import React, { useMemo } from 'react'
-import { View, Text } from 'react-native'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  View, Text, TextInput, TouchableOpacity,
+  ScrollView, KeyboardAvoidingView, Platform, Alert,
+} from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { HistoryStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useTransactionForm } from './hooks/useTransactionForm'
+import {
+  useTransactionById,
+  useCreateTransaction,
+  useUpdateTransaction,
+  useDeleteTransaction,
+} from './hooks/useTransactionEdit'
+import CategoryPickerModal from './components/CategoryPickerModal'
 import { makeStyles } from './TransactionEditScreen.styles'
 
 type Route = RouteProp<HistoryStackParamList, 'TransactionEdit'>
+
+const s = strings.transactionEdit
+
+function formatDate(d: Date) {
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`
+}
 
 export default function TransactionEditScreen() {
   const { theme } = useTheme()
@@ -16,15 +32,184 @@ export default function TransactionEditScreen() {
 
   const { params } = useRoute<Route>()
   const isEdit = !!params?.id
-  const title  = isEdit ? strings.transactionEdit.headerEdit : strings.transactionEdit.headerCreate
+  const title  = isEdit ? s.headerEdit : s.headerCreate
 
-  const { form, setField, isValid } = useTransactionForm()
-  // TODO: isEdit이면 params.id로 데이터 조회 후 useTransactionForm(defaultData) 전달
+  const { data: txData } = useTransactionById(isEdit ? params?.id : undefined)
+  const { form, setField, setForm, isValid } = useTransactionForm()
+  const { mutate: create,  isPending: creating  } = useCreateTransaction()
+  const { mutate: update,  isPending: updating  } = useUpdateTransaction(params?.id ?? '')
+  const { mutate: deleteTx, isPending: deleting } = useDeleteTransaction(params?.id ?? '')
+
+  // edit 모드에서 기존 데이터를 폼에 1회 세팅
+  const initialized = useRef(false)
+  useEffect(() => {
+    if (isEdit && txData && !initialized.current) {
+      initialized.current = true
+      setForm({
+        amount:          txData.amount.toString(),
+        merchantName:    txData.merchantName,
+        categoryId:      txData.categoryId ?? '',
+        cardCompany:     txData.cardCompany  ?? '',
+        memo:            txData.memo         ?? '',
+        transactionDate: new Date(txData.transactionDate),
+      })
+    }
+  }, [txData, isEdit, setForm])
+
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+
+  const isPending = creating || updating || deleting
+
+  const amountError   = submitted && form.amount === ''          ? s.errAmountEmpty   : undefined
+  const merchantError = submitted && form.merchantName.trim() === '' ? s.errMerchantEmpty : undefined
+
+  const handleSubmit = () => {
+    setSubmitted(true)
+    if (!isValid()) return
+    if (isEdit) update(form)
+    else        create(form)
+  }
+
+  const handleDelete = () => {
+    Alert.alert(s.deleteConfirmTitle, s.deleteConfirmMsg, [
+      { text: strings.common.cancel, style: 'cancel' },
+      { text: s.deleteBtn, style: 'destructive', onPress: () => deleteTx() },
+    ])
+  }
+
+  const prevDay = () => {
+    const d = new Date(form.transactionDate); d.setDate(d.getDate() - 1); setField('transactionDate', d)
+  }
+  const nextDay = () => {
+    const d = new Date(form.transactionDate); d.setDate(d.getDate() + 1); setField('transactionDate', d)
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>{title}</Text>
-      {/* TODO: 내역 입력 폼 */}
-    </View>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+
+        <Text style={styles.screenTitle}>{title}</Text>
+
+        {/* ── 금액 ── */}
+        <Text style={styles.label}>{s.amountLabel}</Text>
+        <View style={[styles.amountRow, amountError && styles.inputError]}>
+          <TextInput
+            style={styles.amountInput}
+            placeholder={s.amountPlaceholder}
+            placeholderTextColor={theme.colors.text.disabled}
+            value={form.amount.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            onChangeText={(v) => setField('amount', v.replace(/[^0-9]/g, ''))}
+            keyboardType="number-pad"
+            returnKeyType="next"
+          />
+          <Text style={styles.amountUnit}>원</Text>
+        </View>
+        {amountError && <Text style={styles.errorText}>{amountError}</Text>}
+
+        <View style={styles.gap} />
+
+        {/* ── 가맹점 ── */}
+        <Text style={styles.label}>{s.merchantLabel}</Text>
+        <TextInput
+          style={[styles.input, merchantError && styles.inputError]}
+          placeholder={s.merchantPlaceholder}
+          placeholderTextColor={theme.colors.text.disabled}
+          value={form.merchantName}
+          onChangeText={(v) => setField('merchantName', v)}
+          returnKeyType="next"
+          maxLength={50}
+        />
+        {merchantError && <Text style={styles.errorText}>{merchantError}</Text>}
+
+        <View style={styles.gap} />
+
+        {/* ── 카테고리 ── */}
+        <Text style={styles.label}>{s.categoryLabel}</Text>
+        <TouchableOpacity
+          style={styles.pickerRow}
+          onPress={() => setShowCategoryPicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.pickerText, !form.categoryId && styles.pickerPlaceholder]}>
+            {/* categoryId는 비어있으면 실제 카테고리 이름은 모달에서만 알 수 있어서 placeholder 표시 */}
+            {s.categoryLabel}
+          </Text>
+          <Text style={styles.pickerChevron}>›</Text>
+        </TouchableOpacity>
+
+        <View style={styles.gap} />
+
+        {/* ── 카드사 (선택) ── */}
+        <Text style={styles.label}>{s.cardCompanyLabel}</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={s.cardCompanyPlaceholder}
+          placeholderTextColor={theme.colors.text.disabled}
+          value={form.cardCompany}
+          onChangeText={(v) => setField('cardCompany', v)}
+          returnKeyType="next"
+          maxLength={20}
+        />
+
+        <View style={styles.gap} />
+
+        {/* ── 메모 (선택) ── */}
+        <Text style={styles.label}>{s.memoLabel}</Text>
+        <TextInput
+          style={[styles.input, styles.memoInput]}
+          placeholder={s.memoPlaceholder}
+          placeholderTextColor={theme.colors.text.disabled}
+          value={form.memo}
+          onChangeText={(v) => setField('memo', v)}
+          multiline
+          maxLength={200}
+        />
+
+        <View style={styles.gap} />
+
+        {/* ── 날짜 ── */}
+        <Text style={styles.label}>{s.dateLabel}</Text>
+        <View style={styles.dateRow}>
+          <TouchableOpacity style={styles.dateNavBtn} onPress={prevDay} activeOpacity={0.6}>
+            <Text style={styles.dateArrow}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.dateText}>{formatDate(form.transactionDate)}</Text>
+          <TouchableOpacity style={styles.dateNavBtn} onPress={nextDay} activeOpacity={0.6}>
+            <Text style={styles.dateArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ── 등록/수정 버튼 ── */}
+        <TouchableOpacity
+          style={[styles.submitBtn, isPending && styles.btnDisabled]}
+          onPress={handleSubmit}
+          activeOpacity={0.8}
+          disabled={isPending}
+        >
+          <Text style={styles.submitBtnText}>{isEdit ? s.update : s.submit}</Text>
+        </TouchableOpacity>
+
+        {/* ── 삭제 버튼 (수정 모드만) ── */}
+        {isEdit && (
+          <TouchableOpacity
+            style={[styles.deleteBtn, isPending && styles.btnDisabled]}
+            onPress={handleDelete}
+            activeOpacity={0.8}
+            disabled={isPending}
+          >
+            <Text style={styles.deleteBtnText}>{s.deleteBtn}</Text>
+          </TouchableOpacity>
+        )}
+
+      </ScrollView>
+
+      <CategoryPickerModal
+        visible={showCategoryPicker}
+        selectedId={form.categoryId}
+        onSelect={(id) => setField('categoryId', id)}
+        onClose={() => setShowCategoryPicker(false)}
+      />
+    </KeyboardAvoidingView>
   )
 }

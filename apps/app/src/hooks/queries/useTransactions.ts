@@ -1,23 +1,24 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { transactionsApi, TransactionFilter } from '@/api/endpoints/transactions.api'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { transactionsApi } from '@/api/endpoints/transactions.api'
 import { queryKeys } from '@/constants/queryKeys'
 
-export function useTransactions(filter?: TransactionFilter) {
-  return useQuery({
-    queryKey: queryKeys.transactions.list(filter),
-    queryFn: async () => {
-      const res = await transactionsApi.getList(filter)
-      return res.data
-    },
-  })
+const PAGE_SIZE = 20
+
+export interface TransactionFilter {
+  startDate?:  string
+  endDate?:    string
+  categoryId?: string
 }
 
-export function useDeleteTransaction() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id: string) => transactionsApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+export function useTransactions(filter: TransactionFilter) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.transactions.list(filter),
+    queryFn: ({ pageParam }) =>
+      transactionsApi.getList({ ...filter, page: pageParam, pageSize: PAGE_SIZE }).then(r => r.data),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.pagination
+      return page < totalPages ? page + 1 : undefined
     },
   })
 }

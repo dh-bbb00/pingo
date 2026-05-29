@@ -6,7 +6,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionFilterDto } from './dto/transaction-filter.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { BasicResponse, PageResponse } from '../common/types/response.type';
+import { BasicResponse } from '../common/types/response.type';
 
 @ApiTags('Transactions')
 @ApiBearerAuth()
@@ -21,10 +21,20 @@ export class TransactionsController {
   async findAll(
     @CurrentUser() user: { id: string },
     @Query() filter: TransactionFilterDto,
-  ): Promise<PageResponse<unknown>> {
-    const { data, total, page, pageSize, totalPages } =
+  ) {
+    const { data, total, page, pageSize, totalPages, totalAmount } =
       await this.transactionsService.findAll(user.id, filter);
-    return { success: true, data, pagination: { page, pageSize, total, totalPages } };
+    return { success: true, data, pagination: { page, pageSize, total, totalPages, totalAmount } };
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: '내역 단건 조회' })
+  async findOne(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ): Promise<BasicResponse<unknown>> {
+    const data = await this.transactionsService.findOne(user.id, id);
+    return { success: true, data };
   }
 
   @Post()

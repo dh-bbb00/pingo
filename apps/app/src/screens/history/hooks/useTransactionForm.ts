@@ -3,10 +3,12 @@ import type { TransactionForm } from '../types'
 
 export function useTransactionForm(defaultData?: Partial<TransactionForm>) {
   const [form, setForm] = useState<TransactionForm>({
-    amount:      defaultData?.amount      ?? '',
-    description: defaultData?.description ?? '',
-    categoryId:  defaultData?.categoryId  ?? '',
-    date:        defaultData?.date        ?? new Date(),
+    amount:          defaultData?.amount          ?? '',
+    merchantName:    defaultData?.merchantName    ?? '',
+    categoryId:      defaultData?.categoryId      ?? '',
+    cardCompany:     defaultData?.cardCompany     ?? '',
+    memo:            defaultData?.memo            ?? '',
+    transactionDate: defaultData?.transactionDate ?? new Date(),
   })
 
   function setField<K extends keyof TransactionForm>(key: K, value: TransactionForm[K]) {
@@ -14,8 +16,8 @@ export function useTransactionForm(defaultData?: Partial<TransactionForm>) {
   }
 
   function isValid() {
-    return form.amount !== '' && form.categoryId !== ''
+    return form.amount !== '' && form.merchantName.trim() !== ''
   }
 
-  return { form, setField, isValid }
+  return { form, setField, setForm, isValid }
 }

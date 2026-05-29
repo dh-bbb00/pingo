@@ -8,8 +8,10 @@ export interface HistoryFilter {
 }
 
 export interface TransactionForm {
-  amount:      string
-  description: string
-  categoryId:  string
-  date:        Date
+  amount:          string   // 숫자 문자열
+  merchantName:    string
+  categoryId:      string   // '' = null (기타)
+  cardCompany:     string
+  memo:            string
+  transactionDate: Date
 }
