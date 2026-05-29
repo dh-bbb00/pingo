@@ -140,12 +140,48 @@ export const strings = {
     budgetUnit:       '원',
     fixedBudget:      '매달 예산 고정',
     fixedBudgetDesc:  '매달 동일한 예산을 자동 적용합니다.',
+    budgetHint:       '예산을 설정하면 차트에서 카테고리별 사용 현황을 확인할 수 있습니다.',
     submit:           '등록하기',
     update:           '수정하기',
+    successCreate:    '카테고리가 등록됐습니다.',
+    successUpdate:    '카테고리가 수정됐습니다.',
     errNameEmpty:     '카테고리명을 입력해주세요.',
     colorPickerTitle: '색상 선택',
     colorPickerConfirm: '선택',
     emojiPickerTitle: '아이콘 선택',
+  },
+
+  transactionEdit: {
+    headerCreate: '내역 추가',
+    headerEdit:   '내역 수정',
+  },
+
+  history: {
+    header:   '내역',
+    empty:    '내역이 없습니다.',
+    tabDay:   '일',
+    tabMonth: '월',
+    tabYear:  '년',
+  },
+
+  stats: {
+    header:      '통계',
+    placeholder: (tab: string) => `${tab} 통계 준비 중`,
+    tabDay:      '일',
+    tabMonth:    '월',
+    tabYear:     '년',
+  },
+
+  fixedExpenses: {
+    header:      '고정 지출 관리',
+    empty:       '등록된 고정 지출이 없습니다.',
+    tabList:     '리스트',
+    tabCalendar: '달력',
+  },
+
+  fixedExpenseEdit: {
+    headerCreate: '고정 지출 추가',
+    headerEdit:   '고정 지출 수정',
   },
 
   userManagement: {

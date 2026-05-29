@@ -2,11 +2,13 @@ import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/theme'
+import { strings } from '@/constants/strings'
 import type { StatsDateTab } from './types'
 import { useStatsFilter } from './hooks/useStatsFilter'
 import { makeStyles } from './StatsScreen.styles'
 
-const DATE_TABS: StatsDateTab[] = ['일', '월', '년']
+const s = strings.stats
+const DATE_TABS: StatsDateTab[] = [s.tabDay, s.tabMonth, s.tabYear]
 
 export default function StatsScreen() {
   const { theme } = useTheme()
@@ -21,7 +23,7 @@ export default function StatsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>통계</Text>
+      <Text style={styles.header}>{s.header}</Text>
 
       <View style={styles.tabBar}>
         {DATE_TABS.map((tab) => (
@@ -36,7 +38,7 @@ export default function StatsScreen() {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.placeholder}>{filter.tab} 통계 준비 중</Text>
+        <Text style={styles.placeholder}>{s.placeholder(filter.tab)}</Text>
       </View>
     </SafeAreaView>
   )

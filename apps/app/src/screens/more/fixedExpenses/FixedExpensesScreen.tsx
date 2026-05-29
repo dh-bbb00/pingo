@@ -5,13 +5,15 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
+import { strings } from '@/constants/strings'
 import type { FixedExpensesViewTab, FixedExpenseDetail } from './types'
 import { useFixedExpensesView } from './hooks/useFixedExpensesView'
 import { makeStyles } from './FixedExpensesScreen.styles'
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenses'>
 
-const VIEW_TABS: FixedExpensesViewTab[] = ['리스트', '달력']
+const s = strings.fixedExpenses
+const VIEW_TABS: FixedExpensesViewTab[] = [s.tabList, s.tabCalendar]
 
 export default function FixedExpensesScreen() {
   const { theme } = useTheme()
@@ -24,7 +26,7 @@ export default function FixedExpensesScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>고정 지출 관리</Text>
+      <Text style={styles.header}>{s.header}</Text>
 
       <View style={styles.tabBar}>
         {VIEW_TABS.map((tab) => (
@@ -42,7 +44,7 @@ export default function FixedExpensesScreen() {
         data={[]}
         keyExtractor={(item) => item.id}
         renderItem={() => null}
-        ListEmptyComponent={<Text style={styles.empty}>등록된 고정 지출이 없습니다.</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>{s.empty}</Text>}
       />
 
       <TouchableOpacity

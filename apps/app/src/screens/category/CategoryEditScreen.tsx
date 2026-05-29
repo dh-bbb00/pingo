@@ -100,9 +100,7 @@ export default function CategoryEditScreen() {
           keyboardType="number-pad"
           returnKeyType="done"
         />
-        <Text style={styles.hintText}>
-          예산을 설정하면 차트에서 카테고리별 사용 현황을 확인할 수 있습니다.
-        </Text>
+        <Text style={styles.hintText}>{s.budgetHint}</Text>
 
         <View style={styles.sectionGap} />
 

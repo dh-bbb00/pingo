@@ -4,6 +4,7 @@ import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { MoreStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
+import { strings } from '@/constants/strings'
 import { useFixedExpenseForm } from './hooks/useFixedExpenseForm'
 import { makeStyles } from './FixedExpenseEditScreen.styles'
 
@@ -15,7 +16,7 @@ export default function FixedExpenseEditScreen() {
 
   const { params } = useRoute<Route>()
   const isEdit = !!params?.id
-  const title  = isEdit ? '고정 지출 수정' : '고정 지출 추가'
+  const title  = isEdit ? strings.fixedExpenseEdit.headerEdit : strings.fixedExpenseEdit.headerCreate
 
   const { form, setField, isValid } = useFixedExpenseForm()
   // TODO: isEdit이면 params.id로 데이터 조회 후 useFixedExpenseForm(defaultData) 전달

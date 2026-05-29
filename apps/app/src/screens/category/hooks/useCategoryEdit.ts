@@ -4,6 +4,7 @@ import Toast from 'react-native-toast-message'
 import { categoriesApi } from '@/api/endpoints/categories.api'
 import { handleApiError } from '@/api/errorHandler'
 import { queryKeys } from '@/constants/queryKeys'
+import { strings } from '@/constants/strings'
 import type { CategoryForm } from '../types'
 
 function toPayload(form: CategoryForm) {
@@ -25,7 +26,7 @@ export function useCreateCategory() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
       navigation.goBack()
-      Toast.show({ type: 'success', text1: '카테고리가 등록됐습니다.' })
+      Toast.show({ type: 'success', text1: strings.categoryEdit.successCreate })
     },
     onError: (error) => handleApiError(error),
   })
@@ -40,7 +41,7 @@ export function useUpdateCategory(id: string) {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
       navigation.goBack()
-      Toast.show({ type: 'success', text1: '카테고리가 수정됐습니다.' })
+      Toast.show({ type: 'success', text1: strings.categoryEdit.successUpdate })
     },
     onError: (error) => handleApiError(error),
   })

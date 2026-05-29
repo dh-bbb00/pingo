@@ -4,6 +4,7 @@ import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { HistoryStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
+import { strings } from '@/constants/strings'
 import { useTransactionForm } from './hooks/useTransactionForm'
 import { makeStyles } from './TransactionEditScreen.styles'
 
@@ -15,7 +16,7 @@ export default function TransactionEditScreen() {
 
   const { params } = useRoute<Route>()
   const isEdit = !!params?.id
-  const title  = isEdit ? '내역 수정' : '내역 추가'
+  const title  = isEdit ? strings.transactionEdit.headerEdit : strings.transactionEdit.headerCreate
 
   const { form, setField, isValid } = useTransactionForm()
   // TODO: isEdit이면 params.id로 데이터 조회 후 useTransactionForm(defaultData) 전달
