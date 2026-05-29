@@ -107,8 +107,8 @@ pingo/
 
 | 환경 | URL |
 |------|-----|
-| 로컬 | http://localhost:3000/docs |
-| JSON | http://localhost:3000/docs/json |
+| 로컬 | http://localhost:4000/docs |
+| JSON | http://localhost:4000/docs/json |
 
 모든 API 엔드포인트는 `/api/v1/` 로 시작합니다.
 
@@ -175,7 +175,7 @@ cp apps/app/.env.example apps/app/.env.production
 
 | 항목 | 설명 |
 |------|------|
-| `API_URL` | API 서버 주소 (에뮬레이터: `http://10.0.2.2:3000`) |
+| `API_URL` | API 서버 주소 (에뮬레이터: `http://10.0.2.2:4000`) |
 
 > `.env.*` 파일은 gitignore 처리되어 있습니다.
 
@@ -206,8 +206,8 @@ pnpm db:seed
 
 ### 6. 동작 확인
 
-- API Health: http://localhost:3000/health
-- API 문서: http://localhost:3000/docs
+- API Health: http://localhost:4000/health
+- API 문서: http://localhost:4000/docs
 
 ---
 
@@ -311,9 +311,9 @@ pnpm infra:down && pnpm infra:up
 
 | 환경 | API_URL | 비고 |
 |------|---------|------|
-| 에뮬레이터 | `http://10.0.2.2:3000` | 로컬 PC localhost |
-| 실기기 + USB | `http://localhost:3000` | `adb reverse tcp:3000 tcp:3000` 먼저 실행 |
-| 실기기 + 핫스팟 | `http://<PC-IP>:3000` | PC의 로컬 IP 직접 입력 |
+| 에뮬레이터 | `http://10.0.2.2:4000` | 로컬 PC localhost |
+| 실기기 + USB | `http://localhost:4000` | `adb reverse tcp:4000 tcp:4000` 먼저 실행 |
+| 실기기 + 핫스팟 | `http://<PC-IP>:4000` | PC의 로컬 IP 직접 입력 |
 
 ---
 
