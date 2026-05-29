@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { GetCategoriesQueryDto } from './dto/get-categories-query.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -57,12 +58,13 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: '카테고리 삭제' })
+  @ApiOperation({ summary: '카테고리 삭제 (replaceCategoryId 지정 시 해당 카테고리로 내역 이동 후 삭제)' })
   async remove(
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
+    @Body() dto: DeleteCategoryDto,
   ): Promise<BasicResponse<null>> {
-    await this.categoriesService.remove(user.id, id);
+    await this.categoriesService.remove(user.id, id, dto);
     return { success: true, data: null };
   }
 }

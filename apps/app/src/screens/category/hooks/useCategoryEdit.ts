@@ -46,3 +46,19 @@ export function useUpdateCategory(id: string) {
     onError: (error) => handleApiError(error),
   })
 }
+
+export function useDeleteCategory(id: string) {
+  const queryClient = useQueryClient()
+  const navigation  = useNavigation()
+
+  return useMutation({
+    // replaceCategoryId: 이동할 카테고리 ID, undefined면 null(기타)로 처리
+    mutationFn: (replaceCategoryId?: string) => categoriesApi.delete(id, replaceCategoryId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
+      navigation.goBack()
+      Toast.show({ type: 'success', text1: strings.categoryEdit.successDelete })
+    },
+    onError: (error) => handleApiError(error),
+  })
+}

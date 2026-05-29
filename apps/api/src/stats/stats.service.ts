@@ -21,7 +21,7 @@ export class StatsService {
     });
 
     // 카테고리 상세 정보 조인 (groupBy는 include 미지원)
-    const categoryIds = rows.map((r) => r.categoryId);
+    const categoryIds = rows.map((r) => r.categoryId).filter((id): id is string => id !== null);
     const categories = await this.prisma.category.findMany({
       where: { id: { in: categoryIds } },
       select: { id: true, name: true, icon: true, color: true },
@@ -33,7 +33,7 @@ export class StatsService {
     return {
       total,
       byCategory: rows.map((r) => ({
-        category: catMap[r.categoryId],
+        category: r.categoryId ? catMap[r.categoryId] : null,
         amount: r._sum.amount ?? 0,
         ratio: total > 0 ? Math.round(((r._sum.amount ?? 0) / total) * 1000) / 10 : 0,
       })),

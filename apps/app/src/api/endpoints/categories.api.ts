@@ -49,6 +49,8 @@ export const categoriesApi = {
   update: (id: string, payload: Partial<CategoryPayload>) =>
     apiClient.patch<{ success: boolean; data: Category }>(endpoints.categories.detail(id), payload),
 
-  delete: (id: string) =>
-    apiClient.delete(endpoints.categories.detail(id)),
+  delete: (id: string, replaceCategoryId?: string) =>
+    apiClient.delete(endpoints.categories.detail(id), {
+      data: replaceCategoryId ? { replaceCategoryId } : {},
+    }),
 }

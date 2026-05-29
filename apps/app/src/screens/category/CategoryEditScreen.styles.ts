@@ -43,7 +43,11 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   toggleThumb:     { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff', elevation: 2 },
 
   // Submit
-  submitBtn:       { backgroundColor: t.colors.primary, borderRadius: t.radius.md, paddingVertical: 16, alignItems: 'center', marginTop: 32 },
-  submitBtnText:   { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold, fontSize: t.fontSize.md },
+  submitBtn:         { backgroundColor: t.colors.primary, borderRadius: t.radius.md, paddingVertical: 16, alignItems: 'center', marginTop: 32 },
+  submitBtnText:     { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold, fontSize: t.fontSize.md },
   submitBtnDisabled: { opacity: 0.5 },
+
+  // Delete
+  deleteBtn:     { borderRadius: t.radius.md, paddingVertical: 16, alignItems: 'center', marginTop: 12 },
+  deleteBtnText: { color: t.colors.semantic.error, fontWeight: t.fontWeight.medium, fontSize: t.fontSize.md },
 })

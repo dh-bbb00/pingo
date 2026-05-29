@@ -10,9 +10,10 @@ import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useCategoryForm, DEFAULT_ICON, DEFAULT_COLOR } from './hooks/useCategoryForm'
 import { useCategoryById } from './hooks/useCategoryById'
-import { useCreateCategory, useUpdateCategory } from './hooks/useCategoryEdit'
+import { useCreateCategory, useUpdateCategory, useDeleteCategory } from './hooks/useCategoryEdit'
 import ColorPickerModal from './components/ColorPickerModal'
 import EmojiPickerModal from './components/EmojiPickerModal'
+import CategoryDeleteModal from './components/CategoryDeleteModal'
 import { makeStyles } from './CategoryEditScreen.styles'
 
 type Route = RouteProp<CategoryStackParamList, 'CategoryEdit'>
@@ -31,6 +32,7 @@ export default function CategoryEditScreen() {
   const { form, setField, setForm, isValid } = useCategoryForm()
   const { mutate: create, isPending: creating } = useCreateCategory()
   const { mutate: update, isPending: updating } = useUpdateCategory(params?.id ?? '')
+  const { mutate: deleteCat, isPending: deleting } = useDeleteCategory(params?.id ?? '')
 
   // edit 모드에서 기존 데이터를 폼에 1회 세팅
   const initialized = useRef(false)
@@ -47,9 +49,10 @@ export default function CategoryEditScreen() {
     }
   }, [categoryData, isEdit, setForm])
 
-  const [showColor, setShowColor] = useState(false)
-  const [showEmoji, setShowEmoji] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [showColor,  setShowColor]  = useState(false)
+  const [showEmoji,  setShowEmoji]  = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
+  const [submitted,  setSubmitted]  = useState(false)
 
   const nameError = submitted && form.name.trim() === '' ? s.errNameEmpty : undefined
 
@@ -60,7 +63,7 @@ export default function CategoryEditScreen() {
     else        create(form)
   }
 
-  const isPending      = creating || updating
+  const isPending      = creating || updating || deleting
   const isToggleActive = form.isFixedBudget && form.budget !== ''
   const colorBgStyle   = { backgroundColor: form.color }
 
@@ -139,7 +142,7 @@ export default function CategoryEditScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* ── 등록 버튼 ── */}
+        {/* ── 등록/수정 버튼 ── */}
         <TouchableOpacity
           style={[styles.submitBtn, isPending && styles.submitBtnDisabled]}
           onPress={handleSubmit}
@@ -150,6 +153,18 @@ export default function CategoryEditScreen() {
             {isEdit ? s.update : s.submit}
           </Text>
         </TouchableOpacity>
+
+        {/* ── 삭제 버튼 (수정 모드만) ── */}
+        {isEdit && (
+          <TouchableOpacity
+            style={[styles.deleteBtn, isPending && styles.submitBtnDisabled]}
+            onPress={() => setShowDelete(true)}
+            activeOpacity={0.8}
+            disabled={isPending}
+          >
+            <Text style={styles.deleteBtnText}>{s.deleteBtn}</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <ColorPickerModal
@@ -164,6 +179,15 @@ export default function CategoryEditScreen() {
         onSelect={(emoji) => setField('icon', emoji)}
         onClose={() => setShowEmoji(false)}
       />
+      {isEdit && (
+        <CategoryDeleteModal
+          visible={showDelete}
+          excludeId={params!.id!}
+          isPending={deleting}
+          onConfirm={(replaceCategoryId) => deleteCat(replaceCategoryId)}
+          onCancel={() => setShowDelete(false)}
+        />
+      )}
     </KeyboardAvoidingView>
   )
 }

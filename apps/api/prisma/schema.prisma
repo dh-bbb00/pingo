@@ -158,7 +158,7 @@ model CategoryMonthlyBudget {
 model Transaction {
   id              String   @id @default(cuid())
   userId          String
-  categoryId      String
+  categoryId      String?  // null = 기타 (카테고리 삭제 시 자동 SetNull)
   amount          Int      // 원 단위 (소수점 없음)
   merchantName    String   // 가맹점명
   cardCompany     String?  // 카드사 예: "신한", "국민"
@@ -167,8 +167,8 @@ model Transaction {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user     User     @relation(fields: [userId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@index([userId, transactionDate]) // 날짜 기준 조회·통계 쿼리 최적화
 }
@@ -190,5 +190,5 @@ model FixedExpense {
   updatedAt    DateTime @updatedAt
 
   user     User     @relation(fields: [userId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }

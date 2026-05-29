@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { GetCategoriesQueryDto, CategorySortValue } from './dto/get-categories-query.dto';
 import { MSG } from '../common/constants/messages';
 
@@ -133,8 +134,18 @@ export class CategoriesService {
     return { ...category, budget: monthlyBudget?.budget ?? null };
   }
 
-  async remove(userId: string, id: string) {
+  async remove(userId: string, id: string, dto: DeleteCategoryDto) {
     await this.findOneOrThrow(userId, id);
+
+    if (dto.replaceCategoryId) {
+      await this.findOneOrThrow(userId, dto.replaceCategoryId);
+      await this.prisma.transaction.updateMany({
+        where: { categoryId: id },
+        data:  { categoryId: dto.replaceCategoryId },
+      });
+    }
+    // replaceCategoryId 없으면 onDelete: SetNull이 자동으로 null 처리
+
     return this.prisma.category.delete({ where: { id } });
   }
 
