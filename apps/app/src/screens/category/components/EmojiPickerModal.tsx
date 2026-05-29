@@ -1,22 +1,75 @@
 import React, { useState } from 'react'
-import { Modal, View, Text, TouchableOpacity, FlatList, StyleSheet, Dimensions } from 'react-native'
+import { Modal, View, Text, TouchableOpacity, FlatList, ScrollView, StyleSheet, Dimensions } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 
 const EMOJI_CATEGORIES = [
-  { label: '금융',   emojis: ['💰','💳','💸','🏦','📈','💼','🪙','🏧','📊','💵','🤑','💹'] },
-  { label: '음식',   emojis: ['🍔','🍕','🍜','🍱','🍣','☕','🥗','🍺','🍩','🧃','🍎','🥩','🍝','🧁','🥂','🛒'] },
-  { label: '교통',   emojis: ['🚗','🚕','🚌','🚂','✈️','🚲','🛵','⛽','🚁','🛳️','🏍️','🚦'] },
-  { label: '주거',   emojis: ['🏠','🔑','💡','🛋️','🧹','🛁','🔧','📦','🏗️','🪴','🛏️','🪟'] },
-  { label: '쇼핑',   emojis: ['🛍️','👕','👗','👟','💎','💍','🧴','💄','🧢','👔','👜','🧳'] },
-  { label: '여가',   emojis: ['🎬','🎮','🎵','🎨','📚','🎭','🎤','🏋️','⚽','🏊','🎯','🎸','🎲','🎪','🏖️'] },
-  { label: '건강',   emojis: ['💊','🏥','💉','🩺','🧘','🏃','🦷','👶','🌿','🧬','💪','🛁'] },
-  { label: '기타',   emojis: ['❤️','🐾','🌴','🎓','🌐','🌟','☀️','🌙','🔔','🎁','📱','💻','⌚','🎉','🌈','✨'] },
+  { label: '식비', emojis: [
+    '🍽️','🍔','🍕','🍜','🍱','🍣','🥗','🍗','🥘','🍲','🥙','🌮',
+    '🌯','🥪','🧆','🍳','🥩','🍖','🥓','🍛','🥟','🍤','🦞','🦐',
+    '🫕','🥨','🍚','🍙','🍘','🥫','🏪','🏬','🛒','🫔','🫓','🍝',
+  ]},
+  { label: '카페', emojis: [
+    '☕','🧋','🍵','🥤','🍹','🍷','🍺','🥃','🍾','🍸','🫖','🧃',
+    '🥛','🍶','🧊','🍫','🍬','🍭','🍩','🧁','🎂','🍰','🥐','🥖',
+    '🍞','🧈','🍮','🍯','🥧','🍦','🍧','🍨','🍿','🧇','🌰','🫘',
+  ]},
+  { label: '교통', emojis: [
+    '🚗','🚕','🚌','🚂','🚇','✈️','🚲','🛵','🏍️','🛻','🚁','🛳️',
+    '⛵','🚜','🚛','⛽','🅿️','🚦','🚧','🛞','🗺️','🛣️','🏎️','🚐',
+    '🚃','🚄','🚅','🚈','🚊','🚝','🚞','🛺','🚠','🚡','🚟','🛥️',
+  ]},
+  { label: '주거', emojis: [
+    '🏠','🏡','🏢','🏣','🏤','🏨','🔑','💡','⚡','💧','🔥','🌡️',
+    '🛋️','🛏️','🪑','🚿','🛁','🪞','🚪','🪟','🧹','🧺','🧻','🪣',
+    '🧴','🔧','🔩','🪚','🧰','🪜','🔌','🔋','📺','🎛️','🪴','📦',
+  ]},
+  { label: '쇼핑', emojis: [
+    '🛍️','🛒','👕','👗','👔','👖','🧥','👚','🧣','🧤','🧢','👒',
+    '🎩','👠','👟','🥾','👞','👢','🩴','👜','🧳','💍','💎','💄',
+    '🧴','🪡','🧵','👓','🕶️','💅','💈','🏷️','🎀','🪮','🧸','🪆',
+  ]},
+  { label: '여가', emojis: [
+    '🎬','🎮','🎵','🎨','📚','🎭','🎤','🎸','🎻','🎹','🥁','🎺',
+    '🎷','🎲','🧩','♟️','🃏','🎯','🎱','🎫','🎟️','🎡','🎢','🎠',
+    '🏖️','🎪','🪆','🎽','🛹','🪃','🏹','🎣','🤿','🪂','🏄','🚴',
+  ]},
+  { label: '운동', emojis: [
+    '🏋️','⚽','🏀','⚾','🎾','🏸','🏓','🥊','🤸','🧗','🏊','🏇',
+    '⛷️','🏂','🤺','🥋','⛳','🏌️','🤼','🏃','🧘','🤾','🏐','🏈',
+    '🏉','🎿','🛷','🥌','🏒','🥅','⛸️','🛼','🚵','🧜','🏄','🤽',
+  ]},
+  { label: '의료', emojis: [
+    '💊','🏥','💉','🩺','🩹','🩻','🫀','🧠','🦷','🦴','🩸','🔬',
+    '🧪','🧬','🌡️','🚑','🩼','🦯','🦽','🦼','👁️','👂','💆','💇',
+    '🧖','🧴','🧼','🪥','🌿','🍃','🌱','💪','🤧','😷','🧑‍⚕️','👶',
+  ]},
+  { label: '교육', emojis: [
+    '📚','📖','📝','✏️','🖊️','📓','📔','📒','📕','📗','📘','📙',
+    '📃','📊','📈','📉','🗂️','📁','🎓','🏫','💻','🖥️','📱','⌨️',
+    '🖨️','📡','🔭','🔬','🧮','🗒️','📋','🖋️','🗃️','📌','📍','🗝️',
+  ]},
+  { label: '여행', emojis: [
+    '✈️','🗺️','🧳','🏨','🏕️','🏖️','🏝️','🏔️','🗻','🌋','🏜️','🌅',
+    '🌄','🌇','🌆','🌃','🌌','🎑','🗼','🗽','🗿','🏛️','⛩️','🕌',
+    '🕍','🏯','🏰','🌉','🌁','🧭','📸','🛂','🛃','🛄','🛅','🎡',
+  ]},
+  { label: '반려', emojis: [
+    '🐶','🐱','🐰','🐹','🐭','🐮','🐷','🐸','🐔','🐧','🦜','🐠',
+    '🐟','🐡','🦎','🐢','🐇','🐈','🐕','🦮','🐩','🐈‍⬛','🐕‍🦺','🪺',
+    '🐾','🦴','🎾','🧸','🌿','🌱','🌾','🍖','🏡','🛁','💊','🩺',
+  ]},
+  { label: '경조', emojis: [
+    '🎁','🎉','🎊','🎈','🎀','🎂','🍰','🥂','🍾','💐','🌹','💍',
+    '💒','👰','🤵','👶','🎓','🏆','🥇','🎖️','🏅','🪙','💰','🧧',
+    '🪔','🕯️','🎋','🎑','🎆','🎇','✨','🌟','⭐','💫','🌈','🌠',
+  ]},
 ] as const
 
 const WIN_WIDTH  = Dimensions.get('window').width
-const NUM_COLS   = 7
-const CELL_SIZE  = Math.floor((WIN_WIDTH - 64) / NUM_COLS)
+const WIN_HEIGHT = Dimensions.get('window').height
+const NUM_COLS  = 7
+const CELL_SIZE = Math.floor((WIN_WIDTH - 64) / NUM_COLS)
 
 interface Props {
   visible:   boolean
@@ -44,13 +97,17 @@ export default function EmojiPickerModal({ visible, selected, onSelect, onClose 
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
 
       <View style={[styles.sheet, { backgroundColor: t.colors.surface }]}>
-        {/* Title */}
         <Text style={[styles.title, { color: t.colors.text.primary, fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold }]}>
           {s.emojiPickerTitle}
         </Text>
 
-        {/* Category tabs */}
-        <View style={[styles.tabs, { borderBottomColor: t.colors.divider }]}>
+        {/* 카테고리 탭 — 가로 스크롤 */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={[styles.tabScroll, { borderBottomColor: t.colors.divider }]}
+          contentContainerStyle={styles.tabContent}
+        >
           {EMOJI_CATEGORIES.map((cat, i) => {
             const isActive = i === activeTab
             return (
@@ -71,12 +128,12 @@ export default function EmojiPickerModal({ visible, selected, onSelect, onClose 
               </TouchableOpacity>
             )
           })}
-        </View>
+        </ScrollView>
 
-        {/* Emoji grid */}
+        {/* 이모지 그리드 — 고정 높이로 스크롤 */}
         <FlatList
           key={activeTab}
-          data={currentEmojis as string[]}
+          data={currentEmojis}
           numColumns={NUM_COLS}
           keyExtractor={(item, i) => `${item}-${i}`}
           renderItem={({ item }) => (
@@ -94,6 +151,7 @@ export default function EmojiPickerModal({ visible, selected, onSelect, onClose 
           )}
           contentContainerStyle={styles.grid}
           showsVerticalScrollIndicator={false}
+          style={styles.list}
         />
       </View>
     </Modal>
@@ -101,14 +159,16 @@ export default function EmojiPickerModal({ visible, selected, onSelect, onClose 
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet:   { maxHeight: '60%', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 20, paddingHorizontal: 20 },
-  title:   { marginBottom: 16 },
-  tabs:    { flexDirection: 'row', borderBottomWidth: 1, marginBottom: 8 },
-  tab:     { flex: 1, alignItems: 'center', paddingVertical: 8 },
-  tabActive: { borderBottomWidth: 2 },
-  tabText: {},
-  grid:    { paddingBottom: 24 },
-  cell:    { alignItems: 'center', justifyContent: 'center' },
-  emoji:   { fontSize: 26 },
+  overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
+  sheet:      { height: WIN_HEIGHT * 0.3, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 20, paddingHorizontal: 20 },
+  title:      { marginBottom: 12 },
+  tabScroll:  { borderBottomWidth: 1, marginBottom: 8, flexGrow: 0 },
+  tabContent: { gap: 4 },
+  tab:        { paddingHorizontal: 10, paddingVertical: 8 },
+  tabActive:  { borderBottomWidth: 2 },
+  tabText:    {},
+  list:       { flex: 1 },
+  grid:       { paddingBottom: 24 },
+  cell:       { alignItems: 'center', justifyContent: 'center' },
+  emoji:      { fontSize: 26 },
 })
