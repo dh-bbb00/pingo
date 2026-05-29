@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query'
 import { categoriesApi } from '@/api/endpoints/categories.api'
 import { queryKeys } from '@/constants/queryKeys'
 import type { CategorySort } from '@/screens/category/types'
@@ -15,5 +15,6 @@ export function useCategories(sort: CategorySort) {
       const { page, totalPages } = lastPage.pagination
       return page < totalPages ? page + 1 : undefined
     },
+    placeholderData: keepPreviousData,
   })
 }
