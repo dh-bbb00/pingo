@@ -6,11 +6,7 @@ export interface CategoryForm {
   color:         string
 }
 
-export interface CategoryListItem {
-  id:           string
-  name:         string
-  color:        string
-  icon:         string
-  budget:       number | null
-  isBudgetFixed: boolean
-}
+export type CategorySort =
+  | 'budget_asc' | 'budget_desc'
+  | 'name_asc'   | 'name_desc'
+  | 'date_asc'   | 'date_desc'

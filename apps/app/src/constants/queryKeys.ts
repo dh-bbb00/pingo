@@ -6,7 +6,8 @@ export const queryKeys = {
   },
   categories: {
     all: ['categories'] as const,
-    list: () => ['categories', 'list'] as const,
+    list:   (sort?: string) => ['categories', 'list', sort] as const,
+    detail: (id: string)   => ['categories', id] as const,
   },
   fixedExpenses: {
     all: ['fixed-expenses'] as const,

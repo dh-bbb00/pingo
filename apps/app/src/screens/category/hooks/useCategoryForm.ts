@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { CategoryForm } from '../types'
 
-const DEFAULT_ICON  = '🏷️'
-const DEFAULT_COLOR = '#5B7BFB'
+export const DEFAULT_ICON  = '🏷️'
+export const DEFAULT_COLOR = '#5B7BFB'
 
 export function useCategoryForm(defaultData?: Partial<CategoryForm>) {
   const [form, setForm] = useState<CategoryForm>({
@@ -21,5 +21,5 @@ export function useCategoryForm(defaultData?: Partial<CategoryForm>) {
     return form.name.trim() !== ''
   }
 
-  return { form, setField, isValid }
+  return { form, setField, setForm, isValid }
 }

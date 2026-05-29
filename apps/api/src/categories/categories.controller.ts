@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { GetCategoriesQueryDto } from './dto/get-categories-query.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { BasicResponse, ListResponse } from '../common/types/response.type';
+import { BasicResponse } from '../common/types/response.type';
 
 @ApiTags('Categories')
 @ApiBearerAuth()
@@ -15,11 +16,22 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  @ApiOperation({ summary: '카테고리 목록' })
+  @ApiOperation({ summary: '카테고리 목록 (페이지네이션)' })
   async findAll(
     @CurrentUser() user: { id: string },
-  ): Promise<ListResponse<unknown>> {
-    const data = await this.categoriesService.findAll(user.id);
+    @Query() query: GetCategoriesQueryDto,
+  ) {
+    const result = await this.categoriesService.findAll(user.id, query);
+    return { success: true, ...result };
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: '카테고리 단건 조회' })
+  async findOne(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ): Promise<BasicResponse<unknown>> {
+    const data = await this.categoriesService.findOne(user.id, id);
     return { success: true, data };
   }
 

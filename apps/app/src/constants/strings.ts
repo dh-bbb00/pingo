@@ -128,6 +128,19 @@ export const strings = {
     },
   },
 
+  category: {
+    header:         '카테고리',
+    empty:          '카테고리가 없습니다.',
+    statCountLabel: '카테고리',
+    statBudgetLabel:'총 예산',
+    countFmt:       (n: number) => `${n}개`,
+    budgetFmt:      (n: number) => `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원`,
+    noBudget:       '예산 없음',
+    sortBudget: '예산',
+    sortName:   '이름',
+    sortDate:   '등록일',
+  },
+
   categoryEdit: {
     headerCreate:     '카테고리 등록',
     headerEdit:       '카테고리 수정',

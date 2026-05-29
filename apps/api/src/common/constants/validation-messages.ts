@@ -12,4 +12,5 @@ export const VM = {
   dateString:  '날짜 형식이 올바르지 않습니다. (ISO 8601)',
   min:         (n: number) => `${n} 이상의 값을 입력해주세요.`,
   max:         (n: number) => `${n} 이하의 값을 입력해주세요.`,
+  invalid:     '유효하지 않은 값입니다.',
 } as const

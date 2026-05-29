@@ -8,6 +8,15 @@ export interface Category {
   icon:         string
   budget:       number | null
   isBudgetFixed: boolean
+  createdAt?:   string
+}
+
+export interface CategoryPagination {
+  page:        number
+  pageSize:    number
+  total:       number
+  totalPages:  number
+  totalBudget: number
 }
 
 interface CategoryPayload {
@@ -18,9 +27,21 @@ interface CategoryPayload {
   isBudgetFixed?: boolean
 }
 
+export interface CategoryListParams {
+  page:     number
+  pageSize: number
+  sort:     string
+}
+
 export const categoriesApi = {
-  getList: () =>
-    apiClient.get<{ success: boolean; data: Category[] }>(endpoints.categories.base),
+  getOne: (id: string) =>
+    apiClient.get<{ success: boolean; data: Category }>(endpoints.categories.detail(id)),
+
+  getList: (params: CategoryListParams) =>
+    apiClient.get<{ success: boolean; data: Category[]; pagination: CategoryPagination }>(
+      endpoints.categories.base,
+      { params },
+    ),
 
   create: (payload: CategoryPayload) =>
     apiClient.post<{ success: boolean; data: Category }>(endpoints.categories.base, payload),

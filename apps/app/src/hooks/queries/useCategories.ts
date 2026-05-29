@@ -1,13 +1,19 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { categoriesApi } from '@/api/endpoints/categories.api'
 import { queryKeys } from '@/constants/queryKeys'
+import type { CategorySort } from '@/screens/category/types'
 
-export function useCategories() {
-  return useQuery({
-    queryKey: queryKeys.categories.list(),
-    queryFn: async () => {
-      const res = await categoriesApi.getList()
-      return res.data
+const PAGE_SIZE = 20
+
+export function useCategories(sort: CategorySort) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.categories.list(sort),
+    queryFn: ({ pageParam }) =>
+      categoriesApi.getList({ page: pageParam, pageSize: PAGE_SIZE, sort }).then(r => r.data),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.pagination
+      return page < totalPages ? page + 1 : undefined
     },
   })
 }

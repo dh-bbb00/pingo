@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform,
@@ -8,7 +8,8 @@ import type { RouteProp } from '@react-navigation/native'
 import type { CategoryStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import { useCategoryForm } from './hooks/useCategoryForm'
+import { useCategoryForm, DEFAULT_ICON, DEFAULT_COLOR } from './hooks/useCategoryForm'
+import { useCategoryById } from './hooks/useCategoryById'
 import { useCreateCategory, useUpdateCategory } from './hooks/useCategoryEdit'
 import ColorPickerModal from './components/ColorPickerModal'
 import EmojiPickerModal from './components/EmojiPickerModal'
@@ -26,9 +27,25 @@ export default function CategoryEditScreen() {
   const isEdit  = !!params?.id
   const title   = isEdit ? s.headerEdit : s.headerCreate
 
-  const { form, setField, isValid } = useCategoryForm()
+  const { data: categoryData } = useCategoryById(isEdit ? params?.id : undefined)
+  const { form, setField, setForm, isValid } = useCategoryForm()
   const { mutate: create, isPending: creating } = useCreateCategory()
   const { mutate: update, isPending: updating } = useUpdateCategory(params?.id ?? '')
+
+  // edit 모드에서 기존 데이터를 폼에 1회 세팅
+  const initialized = useRef(false)
+  useEffect(() => {
+    if (isEdit && categoryData && !initialized.current) {
+      initialized.current = true
+      setForm({
+        name:          categoryData.name,
+        icon:          categoryData.icon  || DEFAULT_ICON,
+        color:         categoryData.color || DEFAULT_COLOR,
+        budget:        categoryData.budget !== null ? categoryData.budget.toString() : '',
+        isFixedBudget: categoryData.isBudgetFixed,
+      })
+    }
+  }, [categoryData, isEdit, setForm])
 
   const [showColor, setShowColor] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
