@@ -1,11 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useMemo, useState, useRef, useEffect } from 'react'
 import {
   Modal, View, Text, TextInput, TouchableOpacity,
-  PanResponder, StyleSheet, Dimensions, KeyboardAvoidingView, Platform,
+  PanResponder, StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
+import { makeStyles, COLOR_PICKER_BOX_SIZE, COLOR_PICKER_HUE_H, COLOR_PICKER_DOT_SIZE, COLOR_PICKER_HUE_DOT } from './ColorPickerModal.styles'
 
 // ─── HSV utilities ────────────────────────────────────────────────────────────
 
@@ -40,14 +41,6 @@ function isValidHex(hex: string): boolean {
   return /^#[0-9a-fA-F]{6}$/.test(hex)
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const WIN_WIDTH  = Dimensions.get('window').width
-const BOX_SIZE   = WIN_WIDTH - 64  // 32px padding each side
-const HUE_H      = 26
-const DOT_SIZE   = 22
-const HUE_DOT    = 26
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -58,43 +51,64 @@ interface Props {
 }
 
 export default function ColorPickerModal({ visible, initialColor, onSelect, onClose }: Props) {
-  const { theme: t } = useTheme()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const s = strings.categoryEdit
 
   const [hsv,      setHsv]      = useState(() => hexToHsv(initialColor))
   const [hexInput, setHexInput] = useState(initialColor.toUpperCase())
 
-  const currentHex  = hsvToHex(hsv.h, hsv.s, hsv.v).toUpperCase()
-  const hueOnlyHex  = hsvToHex(hsv.h, 1, 1)
+  const currentHex = hsvToHex(hsv.h, hsv.s, hsv.v).toUpperCase()
+  const hueOnlyHex = hsvToHex(hsv.h, 1, 1)
+
+  // PanResponder는 초기 1회만 생성되어 hsv가 stale하게 캡처됨.
+  // hsvRef로 항상 최신값 참조.
+  const hsvRef = useRef(hsv)
+  useEffect(() => { hsvRef.current = hsv }, [hsv])
+
+  // 드래그 시작 위치 — Move에서 gestureState.dx/dy와 합산해 영역 밖 이탈 시에도 끝 위치 유지
+  const svGrantPos = useRef({ x: 0, y: 0 })
+  const hueGrantX  = useRef(0)
 
   // ── SV box pan ──────────────────────────────────────────────────────────────
   const svPan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder:  () => true,
-    onPanResponderGrant: (e) => updateSv(e.nativeEvent.locationX, e.nativeEvent.locationY),
-    onPanResponderMove:  (e) => updateSv(e.nativeEvent.locationX, e.nativeEvent.locationY),
+    onPanResponderGrant: (e) => {
+      svGrantPos.current = { x: e.nativeEvent.locationX, y: e.nativeEvent.locationY }
+      const ns = Math.max(0, Math.min(1, e.nativeEvent.locationX / COLOR_PICKER_BOX_SIZE))
+      const nv = Math.max(0, Math.min(1, 1 - e.nativeEvent.locationY / COLOR_PICKER_BOX_SIZE))
+      setHsv(prev => ({ ...prev, s: ns, v: nv }))
+      setHexInput(hsvToHex(hsvRef.current.h, ns, nv).toUpperCase())
+    },
+    onPanResponderMove: (_e, gs) => {
+      const x  = svGrantPos.current.x + gs.dx
+      const y  = svGrantPos.current.y + gs.dy
+      const ns = Math.max(0, Math.min(1, x / COLOR_PICKER_BOX_SIZE))
+      const nv = Math.max(0, Math.min(1, 1 - y / COLOR_PICKER_BOX_SIZE))
+      setHsv(prev => ({ ...prev, s: ns, v: nv }))
+      setHexInput(hsvToHex(hsvRef.current.h, ns, nv).toUpperCase())
+    },
   })).current
-
-  const updateSv = useCallback((x: number, y: number) => {
-    const ns = Math.max(0, Math.min(1, x / BOX_SIZE))
-    const nv = Math.max(0, Math.min(1, 1 - y / BOX_SIZE))
-    setHsv(prev => ({ ...prev, s: ns, v: nv }))
-    setHexInput(hsvToHex(hsv.h, ns, nv).toUpperCase())
-  }, [hsv.h])
 
   // ── Hue slider pan ──────────────────────────────────────────────────────────
   const huePan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder:  () => true,
-    onPanResponderGrant: (e) => updateHue(e.nativeEvent.locationX),
-    onPanResponderMove:  (e) => updateHue(e.nativeEvent.locationX),
+    onPanResponderGrant: (e) => {
+      hueGrantX.current = e.nativeEvent.locationX
+      const nh = Math.max(0, Math.min(360, (e.nativeEvent.locationX / COLOR_PICKER_BOX_SIZE) * 360))
+      setHsv(prev => ({ ...prev, h: nh }))
+      setHexInput(hsvToHex(nh, hsvRef.current.s, hsvRef.current.v).toUpperCase())
+    },
+    onPanResponderMove: (_e, gs) => {
+      const x  = hueGrantX.current + gs.dx
+      const nh = Math.max(0, Math.min(360, (x / COLOR_PICKER_BOX_SIZE) * 360))
+      setHsv(prev => ({ ...prev, h: nh }))
+      setHexInput(hsvToHex(nh, hsvRef.current.s, hsvRef.current.v).toUpperCase())
+    },
   })).current
-
-  const updateHue = useCallback((x: number) => {
-    const nh = Math.max(0, Math.min(360, (x / BOX_SIZE) * 360))
-    setHsv(prev => ({ ...prev, h: nh }))
-    setHexInput(hsvToHex(nh, hsv.s, hsv.v).toUpperCase())
-  }, [hsv.s, hsv.v])
 
   // ── Hex input ───────────────────────────────────────────────────────────────
   const handleHexChange = (text: string) => {
@@ -108,17 +122,17 @@ export default function ColorPickerModal({ visible, initialColor, onSelect, onCl
     onClose()
   }
 
-  // Reset state when modal opens
   const handleShow = () => {
     const parsed = hexToHsv(initialColor)
     setHsv(parsed)
     setHexInput(initialColor.toUpperCase())
   }
 
-  // ── Indicator positions ─────────────────────────────────────────────────────
-  const dotX   = hsv.s * BOX_SIZE  - DOT_SIZE / 2
-  const dotY   = (1 - hsv.v) * BOX_SIZE - DOT_SIZE / 2
-  const hueX   = (hsv.h / 360) * BOX_SIZE - HUE_DOT / 2
+  // ── 드래그로 바뀌는 런타임 위치값 — StyleSheet에 넣을 수 없음
+  const dotX  = hsv.s * COLOR_PICKER_BOX_SIZE - COLOR_PICKER_DOT_SIZE / 2
+  const dotY  = (1 - hsv.v) * COLOR_PICKER_BOX_SIZE - COLOR_PICKER_DOT_SIZE / 2
+  const hueX  = (hsv.h / 360) * COLOR_PICKER_BOX_SIZE - COLOR_PICKER_HUE_DOT / 2
+  const dotBorderColor = hsv.v > 0.5 ? '#00000066' : '#ffffff99'
 
   return (
     <Modal
@@ -135,14 +149,12 @@ export default function ColorPickerModal({ visible, initialColor, onSelect, onCl
       >
         <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
 
-        <View style={[styles.sheet, { backgroundColor: t.colors.surface, borderRadius: t.radius.xl }]}>
-          <Text style={[styles.title, { color: t.colors.text.primary, fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold }]}>
-            {s.colorPickerTitle}
-          </Text>
+        <View style={styles.sheet}>
+          <Text style={styles.title}>{s.colorPickerTitle}</Text>
 
           {/* SV box */}
-          <View style={[styles.boxWrap, { width: BOX_SIZE, height: BOX_SIZE }]}>
-            <Svg width={BOX_SIZE} height={BOX_SIZE} style={StyleSheet.absoluteFill} pointerEvents="none">
+          <View style={styles.boxWrap}>
+            <Svg width={COLOR_PICKER_BOX_SIZE} height={COLOR_PICKER_BOX_SIZE} style={StyleSheet.absoluteFill} pointerEvents="none">
               <Defs>
                 <LinearGradient id="cpSat" x1="0" y1="0" x2="1" y2="0">
                   <Stop offset="0" stopColor="#ffffff" stopOpacity="1" />
@@ -153,27 +165,22 @@ export default function ColorPickerModal({ visible, initialColor, onSelect, onCl
                   <Stop offset="1" stopColor="#000000" stopOpacity="1" />
                 </LinearGradient>
               </Defs>
-              <Rect width={BOX_SIZE} height={BOX_SIZE} fill="url(#cpSat)" />
-              <Rect width={BOX_SIZE} height={BOX_SIZE} fill="url(#cpVal)" />
+              <Rect width={COLOR_PICKER_BOX_SIZE} height={COLOR_PICKER_BOX_SIZE} fill="url(#cpSat)" />
+              <Rect width={COLOR_PICKER_BOX_SIZE} height={COLOR_PICKER_BOX_SIZE} fill="url(#cpVal)" />
             </Svg>
 
-            {/* Touch overlay */}
             <View style={StyleSheet.absoluteFill} {...svPan.panHandlers} />
 
-            {/* Dot indicator */}
+            {/* 드래그 위치에 따라 실시간 변경 — inline 불가피 */}
             <View
               pointerEvents="none"
-              style={[
-                styles.dot,
-                { width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2,
-                  left: dotX, top: dotY, borderColor: hsv.v > 0.5 ? '#00000066' : '#ffffff99' },
-              ]}
+              style={[styles.dot, { left: dotX, top: dotY, borderColor: dotBorderColor }]}
             />
           </View>
 
           {/* Hue slider */}
-          <View style={[styles.hueWrap, { width: BOX_SIZE, height: HUE_H, marginTop: 16 }]}>
-            <Svg width={BOX_SIZE} height={HUE_H} style={StyleSheet.absoluteFill} pointerEvents="none">
+          <View style={styles.hueWrap}>
+            <Svg width={COLOR_PICKER_BOX_SIZE} height={COLOR_PICKER_HUE_H} style={StyleSheet.absoluteFill} pointerEvents="none">
               <Defs>
                 <LinearGradient id="cpHue" x1="0" y1="0" x2="1" y2="0">
                   <Stop offset="0"     stopColor="#ff0000" />
@@ -185,70 +192,42 @@ export default function ColorPickerModal({ visible, initialColor, onSelect, onCl
                   <Stop offset="1"     stopColor="#ff0000" />
                 </LinearGradient>
               </Defs>
-              <Rect width={BOX_SIZE} height={HUE_H} fill="url(#cpHue)" rx={HUE_H / 2} />
+              <Rect width={COLOR_PICKER_BOX_SIZE} height={COLOR_PICKER_HUE_H} fill="url(#cpHue)" rx={COLOR_PICKER_HUE_H / 2} />
             </Svg>
 
-            {/* Touch overlay */}
             <View style={StyleSheet.absoluteFill} {...huePan.panHandlers} />
 
-            {/* Hue indicator */}
+            {/* 드래그 위치에 따라 실시간 변경 — inline 불가피 */}
             <View
               pointerEvents="none"
-              style={[
-                styles.hueDot,
-                { width: HUE_DOT, height: HUE_DOT, borderRadius: HUE_DOT / 2,
-                  left: hueX, top: (HUE_H - HUE_DOT) / 2, backgroundColor: hueOnlyHex },
-              ]}
+              style={[styles.hueDot, { left: hueX, backgroundColor: hueOnlyHex }]}
             />
           </View>
 
           {/* Preview + hex input */}
-          <View style={[styles.previewRow, { marginTop: 16 }]}>
-            <View style={[styles.preview, { backgroundColor: currentHex, borderRadius: t.radius.md }]} />
-            <View style={[styles.hexWrap, { backgroundColor: t.colors.background, borderRadius: t.radius.md }]}>
-              <Text style={[styles.hexHash, { color: t.colors.text.disabled, fontSize: t.fontSize.md }]}>#</Text>
+          <View style={styles.previewRow}>
+            {/* 선택 색상 실시간 반영 — inline 불가피 */}
+            <View style={[styles.preview, { backgroundColor: currentHex }]} />
+            <View style={styles.hexWrap}>
+              <Text style={styles.hexHash}>#</Text>
               <TextInput
-                style={[styles.hexInput, { color: t.colors.text.primary, fontSize: t.fontSize.md }]}
+                style={styles.hexInput}
                 value={hexInput.replace('#', '')}
                 onChangeText={(v) => handleHexChange(`#${v}`)}
                 maxLength={6}
                 autoCapitalize="characters"
                 autoCorrect={false}
                 placeholder="5B7BFB"
-                placeholderTextColor={t.colors.text.disabled}
+                placeholderTextColor={theme.colors.text.disabled}
               />
             </View>
           </View>
 
-          {/* Confirm button */}
-          <TouchableOpacity
-            style={[styles.btn, { backgroundColor: t.colors.primary, borderRadius: t.radius.md, marginTop: 20 }]}
-            onPress={handleConfirm}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.btnText, { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold, fontSize: t.fontSize.md }]}>
-              {s.colorPickerConfirm}
-            </Text>
+          <TouchableOpacity style={styles.btn} onPress={handleConfirm} activeOpacity={0.8}>
+            <Text style={styles.btnText}>{s.colorPickerConfirm}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  overlay:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  sheet:      { padding: 24, width: WIN_WIDTH - 32, alignItems: 'center' },
-  title:      { alignSelf: 'flex-start', marginBottom: 16 },
-  boxWrap:    { position: 'relative', borderRadius: 6, overflow: 'hidden' },
-  dot:        { position: 'absolute', borderWidth: 2.5, borderColor: '#fff' },
-  hueWrap:    { position: 'relative' },
-  hueDot:     { position: 'absolute', borderWidth: 2.5, borderColor: '#fff', elevation: 2 },
-  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 12, alignSelf: 'stretch' },
-  preview:    { width: 44, height: 44 },
-  hexWrap:    { flex: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 44 },
-  hexHash:    { marginRight: 2 },
-  hexInput:   { flex: 1 },
-  btn:        { alignSelf: 'stretch', paddingVertical: 14, alignItems: 'center' },
-  btnText:    {},
-})

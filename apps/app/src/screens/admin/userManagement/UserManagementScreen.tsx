@@ -79,21 +79,17 @@ export default function UserManagementScreen() {
         )}
       </View>
 
-      <View style={[styles.tabBar, { borderBottomColor: theme.colors.divider }]}>
+      <View style={styles.tabBar}>
         {(['APPROVED', 'SUSPENDED'] as Tab[]).map((tab) => {
           const isActive = activeTab === tab
           return (
             <TouchableOpacity
               key={tab}
-              style={[styles.tab, isActive && [styles.tabActive, { borderBottomColor: theme.colors.primary }]]}
+              style={[styles.tab, isActive && styles.tabActive]}
               onPress={() => handleTabChange(tab)}
               activeOpacity={0.7}
             >
-              <Text style={[
-                styles.tabText,
-                { color: isActive ? theme.colors.primary : theme.colors.text.disabled,
-                  fontWeight: isActive ? theme.fontWeight.bold : theme.fontWeight.medium },
-              ]}>
+              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
                 {tab === 'APPROVED' ? s.tabActive : s.tabSuspended}
               </Text>
             </TouchableOpacity>

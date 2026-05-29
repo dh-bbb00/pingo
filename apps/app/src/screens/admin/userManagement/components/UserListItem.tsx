@@ -1,9 +1,10 @@
-import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import React, { useMemo } from 'react'
+import { View, Text, TouchableOpacity, Alert } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { AdminUserDetail } from '../../types'
 import { useSuspendUser, useUnsuspendUser } from '../hooks/useSuspendUser'
+import { makeStyles } from './UserListItem.styles'
 
 interface Props {
   item:     AdminUserDetail
@@ -14,7 +15,9 @@ interface Props {
 const s = strings.userManagement
 
 export default function UserListItem({ item, expanded, onToggle }: Props) {
-  const { theme: t } = useTheme()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+
   const { mutate: suspend }   = useSuspendUser()
   const { mutate: unsuspend } = useUnsuspendUser()
 
@@ -35,53 +38,35 @@ export default function UserListItem({ item, expanded, onToggle }: Props) {
   }
 
   return (
-    <View style={[styles.card, { backgroundColor: t.colors.surface, borderRadius: t.radius.lg }]}>
+    <View style={styles.card}>
       <TouchableOpacity style={styles.row} onPress={() => onToggle(item.id)} activeOpacity={0.7}>
-        <Text style={[styles.email, { color: t.colors.text.primary, fontSize: t.fontSize.md, fontWeight: t.fontWeight.medium }]}>
-          {item.email}
-        </Text>
-        <Text style={[styles.chevron, { color: t.colors.text.secondary }]}>
-          {expanded ? '▲' : '▼'}
-        </Text>
+        <Text style={styles.email}>{item.email}</Text>
+        <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
       </TouchableOpacity>
 
       {expanded && (
-        <View style={[styles.devices, { borderTopColor: t.colors.divider }]}>
+        <View style={styles.devices}>
           {item.devices.length === 0 ? (
-            <Text style={[styles.noDevice, { color: t.colors.text.disabled, fontSize: t.fontSize.sm }]}>
-              등록된 기기 없음
-            </Text>
+            <Text style={styles.noDevice}>등록된 기기 없음</Text>
           ) : (
             item.devices.map((d, i) => (
               <View key={d.id} style={styles.deviceRow}>
-                <Text style={[styles.deviceNum, { color: t.colors.primary, fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold }]}>
-                  {i + 1}.
-                </Text>
+                <Text style={styles.deviceNum}>{i + 1}.</Text>
                 <View style={styles.deviceInfo}>
-                  <Text style={[styles.deviceName, { color: t.colors.text.primary, fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium }]}>
-                    {d.deviceName}
-                  </Text>
-                  <Text style={[styles.deviceMeta, { color: t.colors.text.secondary, fontSize: t.fontSize.xs }]}>
-                    {d.phoneModel} · {d.osVersion} · v{d.appVersion}
-                  </Text>
+                  <Text style={styles.deviceName}>{d.deviceName}</Text>
+                  <Text style={styles.deviceMeta}>{d.phoneModel} · {d.osVersion} · v{d.appVersion}</Text>
                 </View>
               </View>
             ))
           )}
 
-          <View style={[styles.actionRow, { borderTopColor: t.colors.divider }]}>
+          <View style={styles.actionRow}>
             <TouchableOpacity
-              style={[
-                styles.actionBtn,
-                { backgroundColor: isSuspended ? t.colors.primaryLight : t.colors.semantic.errorBackground },
-              ]}
+              style={[styles.actionBtn, isSuspended ? styles.actionBtnSuspended : styles.actionBtnActive]}
               onPress={handleSuspendPress}
               activeOpacity={0.7}
             >
-              <Text style={[
-                styles.actionBtnText,
-                { color: isSuspended ? t.colors.primary : t.colors.semantic.error, fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold },
-              ]}>
+              <Text style={[styles.actionBtnText, isSuspended ? styles.actionBtnTextSuspended : styles.actionBtnTextActive]}>
                 {isSuspended ? s.unsuspend : s.suspend}
               </Text>
             </TouchableOpacity>
@@ -91,20 +76,3 @@ export default function UserListItem({ item, expanded, onToggle }: Props) {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  card:       { marginBottom: 8, overflow: 'hidden' },
-  row:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
-  email:      { flex: 1 },
-  chevron:    { fontSize: 10, marginLeft: 8 },
-  devices:    { borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
-  noDevice:   { textAlign: 'center', paddingVertical: 4 },
-  deviceRow:  { flexDirection: 'row', gap: 8 },
-  deviceNum:  { width: 18 },
-  deviceInfo: { flex: 1 },
-  deviceName: { marginBottom: 2 },
-  deviceMeta: {},
-  actionRow:  { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 10, alignItems: 'flex-end' },
-  actionBtn:  { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 8 },
-  actionBtnText: {},
-})

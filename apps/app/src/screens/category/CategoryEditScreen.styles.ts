@@ -5,6 +5,7 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   container:       { flex: 1, backgroundColor: t.colors.background },
   scroll:          { flex: 1 },
   content:         { padding: 24, paddingBottom: 40 },
+  screenTitle:     { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, marginBottom: 28 },
 
   // Preview
   previewSection:  { alignItems: 'center', marginBottom: 28 },
@@ -13,7 +14,15 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   pickerRow:       { flexDirection: 'row', gap: 12 },
   pickerBtn:       { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: t.radius.md, backgroundColor: t.colors.surface },
   pickerBtnText:   { fontSize: t.fontSize.sm, color: t.colors.text.primary, fontWeight: t.fontWeight.medium },
+  pickerIcon:      { fontSize: t.fontSize.lg },
   colorSwatch:     { width: 18, height: 18, borderRadius: 9 },
+
+  // Toggle active variants (isSuspended 등 런타임 상태에 따른 색상)
+  toggleLabelDisabled: { color: t.colors.text.disabled },
+  toggleBtnOn:         { backgroundColor: t.colors.primary },
+  toggleBtnOff:        { backgroundColor: t.colors.border },
+  toggleThumbOn:       { alignSelf: 'flex-end' as const },
+  toggleThumbOff:      { alignSelf: 'flex-start' as const },
 
   // Form
   sectionGap:      { height: 20 },

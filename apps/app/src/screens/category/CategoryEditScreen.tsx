@@ -43,7 +43,9 @@ export default function CategoryEditScreen() {
     else        create(form)
   }
 
-  const isPending = creating || updating
+  const isPending      = creating || updating
+  const isToggleActive = form.isFixedBudget && form.budget !== ''
+  const colorBgStyle   = { backgroundColor: form.color }
 
   return (
     <KeyboardAvoidingView
@@ -53,22 +55,20 @@ export default function CategoryEditScreen() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
         {/* ── 타이틀 ── */}
-        <Text style={{ fontSize: theme.fontSize.xl, fontWeight: theme.fontWeight.bold, color: theme.colors.text.primary, marginBottom: 28 }}>
-          {title}
-        </Text>
+        <Text style={styles.screenTitle}>{title}</Text>
 
         {/* ── 아이콘 + 색상 미리보기 ── */}
         <View style={styles.previewSection}>
-          <View style={[styles.previewCircle, { backgroundColor: form.color }]}>
+          <View style={[styles.previewCircle, colorBgStyle]}>
             <Text style={styles.previewEmoji}>{form.icon}</Text>
           </View>
           <View style={styles.pickerRow}>
             <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowEmoji(true)} activeOpacity={0.7}>
-              <Text style={{ fontSize: 18 }}>{form.icon}</Text>
+              <Text style={styles.pickerIcon}>{form.icon}</Text>
               <Text style={styles.pickerBtnText}>{s.iconLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowColor(true)} activeOpacity={0.7}>
-              <View style={[styles.colorSwatch, { backgroundColor: form.color }]} />
+              <View style={[styles.colorSwatch, colorBgStyle]} />
               <Text style={styles.pickerBtnText}>{s.colorLabel}</Text>
             </TouchableOpacity>
           </View>
@@ -95,7 +95,7 @@ export default function CategoryEditScreen() {
           style={styles.input}
           placeholder={s.budgetPlaceholder}
           placeholderTextColor={theme.colors.text.disabled}
-          value={form.budget}
+          value={form.budget.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           onChangeText={(v) => setField('budget', v.replace(/[^0-9]/g, ''))}
           keyboardType="number-pad"
           returnKeyType="done"
@@ -112,19 +112,13 @@ export default function CategoryEditScreen() {
           disabled={form.budget === ''}
         >
           <View style={styles.toggleLeft}>
-            <Text style={[styles.toggleLabel, form.budget === '' && { color: theme.colors.text.disabled }]}>
+            <Text style={[styles.toggleLabel, form.budget === '' && styles.toggleLabelDisabled]}>
               {s.fixedBudget}
             </Text>
             <Text style={styles.toggleDesc}>{s.fixedBudgetDesc}</Text>
           </View>
-          <View style={[
-            styles.toggleBtn,
-            { backgroundColor: form.isFixedBudget && form.budget !== '' ? theme.colors.primary : theme.colors.border },
-          ]}>
-            <View style={[
-              styles.toggleThumb,
-              { alignSelf: form.isFixedBudget && form.budget !== '' ? 'flex-end' : 'flex-start' },
-            ]} />
+          <View style={[styles.toggleBtn, isToggleActive ? styles.toggleBtnOn : styles.toggleBtnOff]}>
+            <View style={[styles.toggleThumb, isToggleActive ? styles.toggleThumbOn : styles.toggleThumbOff]} />
           </View>
         </TouchableOpacity>
 
