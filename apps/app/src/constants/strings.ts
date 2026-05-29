@@ -148,7 +148,7 @@ export const strings = {
     colorLabel:       '색상',
     nameLabel:        '카테고리명',
     namePlaceholder:  '예: 식비, 교통비',
-    budgetLabel:      '월 예산',
+    budgetLabel:      '이번 달 예산',
     budgetPlaceholder: '미입력 시 예산 없음',
     budgetUnit:       '원',
     fixedBudget:      '매달 예산 고정',

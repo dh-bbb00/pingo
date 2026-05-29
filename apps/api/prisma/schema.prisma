@@ -126,16 +126,32 @@ model Category {
   name           String
   icon           String?  // 아이콘 식별자
   color          String?  // HEX 색상코드 예: "#FF5733"
-  budget         Int?     // 월 예산 (원 단위). null이면 예산 미설정 — 예산 관련 기능 비활성
   isBudgetFixed  Boolean  @default(false) // true면 매월 동일 예산 자동 적용
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user          User          @relation(fields: [userId], references: [id])
-  transactions  Transaction[]
-  fixedExpenses FixedExpense[]
+  user           User                    @relation(fields: [userId], references: [id])
+  transactions   Transaction[]
+  fixedExpenses  FixedExpense[]
+  monthlyBudgets CategoryMonthlyBudget[]
 
   @@unique([userId, name])
+}
+
+/// 카테고리 월별 예산 스냅샷. 이번 달 예산 수정 시 upsert, isBudgetFixed=true면 스케줄러가 매월 1일 전월 값 복사.
+model CategoryMonthlyBudget {
+  id         String   @id @default(cuid())
+  categoryId String
+  year       Int
+  month      Int      // 1–12
+  budget     Int      // 원 단위
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, year, month])
+  @@index([categoryId])
 }
 
 /// 소비 내역. 수동 입력 및 고정 지출 자동 생성분 포함.

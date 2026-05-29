@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, Min, ValidateIf } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { VM } from '../../common/constants/validation-messages';
 
@@ -19,11 +19,12 @@ export class CreateCategoryDto {
   @IsString({ message: VM.string })
   color?: string;
 
-  @ApiProperty({ required: false, description: '월 예산 (원). null이면 예산 기능 비활성' })
+  @ApiProperty({ required: false, nullable: true, description: '이번 달 예산 (원). null이면 예산 삭제' })
   @IsOptional()
+  @ValidateIf((o) => o.budget !== null)
   @IsNumber({}, { message: VM.number })
   @Min(0, { message: VM.min(0) })
-  budget?: number;
+  budget?: number | null;
 
   @ApiProperty({ required: false, description: 'true면 매월 동일 예산 자동 적용' })
   @IsOptional()

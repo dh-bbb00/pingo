@@ -24,7 +24,7 @@ export class StatsService {
     const categoryIds = rows.map((r) => r.categoryId);
     const categories = await this.prisma.category.findMany({
       where: { id: { in: categoryIds } },
-      select: { id: true, name: true, icon: true, color: true, budget: true },
+      select: { id: true, name: true, icon: true, color: true },
     });
     const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
 
