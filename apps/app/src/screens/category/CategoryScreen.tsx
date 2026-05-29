@@ -9,6 +9,7 @@ import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { useCategories } from '@/hooks/queries/useCategories'
 import CategoryItem from './components/CategoryItem'
+import SortArrowIcon from '@/components/icons/SortArrowIcon'
 import type { CategorySort } from './types'
 import { makeStyles } from './CategoryScreen.styles'
 
@@ -49,13 +50,13 @@ export default function CategoryScreen() {
   const ListHeader = (
     <View style={styles.sortRow}>
       {SORT_GROUPS.map(({ key, label }) => {
-        const isActive = sort.startsWith(key)
-        const arrow    = isActive ? (sort.endsWith('desc') ? ' ↓' : ' ↑') : ''
+        const isActive  = sort.startsWith(key)
+        const direction = sort.endsWith('desc') ? 'desc' : 'asc'
+        const color     = isActive ? theme.colors.primary : theme.colors.text.disabled
         return (
-          <TouchableOpacity key={key} onPress={() => handleSortPress(key)} activeOpacity={0.6}>
-            <Text style={[styles.sortText, isActive && styles.sortTextActive]}>
-              {label}{arrow}
-            </Text>
+          <TouchableOpacity key={key} style={styles.sortChip} onPress={() => handleSortPress(key)} activeOpacity={0.6}>
+            <Text style={[styles.sortText, isActive && styles.sortTextActive]}>{label}</Text>
+            {isActive && <SortArrowIcon direction={direction} color={color} size={10} />}
           </TouchableOpacity>
         )
       })}
@@ -83,12 +84,11 @@ export default function CategoryScreen() {
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <CategoryItem
             item={item}
-            isFirst={index === 0}
-            isLast={index === categories.length - 1}
             onPress={() => navigation.navigate(Screens.Category.CategoryEdit, { id: item.id })}
+            onStatsPress={() => { /* TODO: 오늘 날짜 + 해당 카테고리로 통계 탭 이동 */ }}
           />
         )}
         ListHeaderComponent={ListHeader}

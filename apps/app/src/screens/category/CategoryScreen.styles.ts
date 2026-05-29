@@ -14,14 +14,12 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
 
   // ── 정렬 ─────────────────────────────────────────────────────────────────────
   sortRow:        { flexDirection: 'row', gap: 20, paddingHorizontal: 20, paddingBottom: 12 },
+  sortChip:       { flexDirection: 'row', alignItems: 'center', gap: 4 },
   sortText:       { fontSize: t.fontSize.sm, color: t.colors.text.disabled, fontWeight: t.fontWeight.medium },
   sortTextActive: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
 
   // ── 리스트 ────────────────────────────────────────────────────────────────────
-  separator:     { backgroundColor: t.colors.surface, marginHorizontal: 16 },
-  separatorLine: { height: StyleSheet.hairlineWidth, backgroundColor: t.colors.divider, marginLeft: 74 },
-
-  list:      { paddingBottom: 100 },
+list:      { paddingBottom: 100 },
   emptyWrap: { alignItems: 'center', paddingTop: 80 },
   emptyText: { color: t.colors.text.disabled, fontSize: t.fontSize.md },
   footer:    { paddingVertical: 20 },
