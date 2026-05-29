@@ -10,7 +10,8 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
 
   statsRow:   { flexDirection: 'row', gap: 32 },
   statLabel:  { fontSize: t.fontSize.xs, fontWeight: t.fontWeight.medium, color: t.colors.text.secondary, marginBottom: 4 },
-  statNum:    { fontSize: t.fontSize.xxl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, includeFontPadding: false },
+  statNum:     { fontSize: t.fontSize.xxl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, includeFontPadding: false },
+  statSkeleton: { marginTop: 4 },
 
   // ── 정렬 ─────────────────────────────────────────────────────────────────────
   sortRow:        { flexDirection: 'row', gap: 20, paddingHorizontal: 20, paddingBottom: 12 },

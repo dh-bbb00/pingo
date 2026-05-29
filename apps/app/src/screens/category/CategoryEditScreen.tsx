@@ -14,6 +14,7 @@ import { useCreateCategory, useUpdateCategory, useDeleteCategory } from './hooks
 import ColorPickerModal from './components/ColorPickerModal'
 import EmojiPickerModal from './components/EmojiPickerModal'
 import CategoryDeleteModal from './components/CategoryDeleteModal'
+import CategoryEditSkeleton from './components/CategoryEditSkeleton'
 import { makeStyles } from './CategoryEditScreen.styles'
 
 type Route = RouteProp<CategoryStackParamList, 'CategoryEdit'>
@@ -28,7 +29,7 @@ export default function CategoryEditScreen() {
   const isEdit  = !!params?.id
   const title   = isEdit ? s.headerEdit : s.headerCreate
 
-  const { data: categoryData } = useCategoryById(isEdit ? params?.id : undefined)
+  const { data: categoryData, isLoading: loadingCategory } = useCategoryById(isEdit ? params?.id : undefined)
   const { form, setField, setForm, isValid } = useCategoryForm()
   const { mutate: create, isPending: creating } = useCreateCategory()
   const { mutate: update, isPending: updating } = useUpdateCategory(params?.id ?? '')
@@ -66,6 +67,10 @@ export default function CategoryEditScreen() {
   const isPending      = creating || updating || deleting
   const isToggleActive = form.isFixedBudget && form.budget !== ''
   const colorBgStyle   = { backgroundColor: form.color }
+
+  if (isEdit && loadingCategory) {
+    return <CategoryEditSkeleton title={title} />
+  }
 
   return (
     <KeyboardAvoidingView
