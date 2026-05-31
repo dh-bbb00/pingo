@@ -20,11 +20,18 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   amountInput: { flex: 1, paddingVertical: 14, fontSize: t.fontSize.lg, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
   amountUnit:  { fontSize: t.fontSize.md, color: t.colors.text.secondary, marginLeft: 4 },
 
+  // 금액 위 카테고리 아이콘
+  categoryIconArea:   { alignItems: 'flex-start', marginBottom: 20 },
+  categoryIconCircle: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
+  categoryIconEmoji:  { fontSize: 28 },
+
   // 카테고리 피커
   pickerRow:         { flexDirection: 'row', alignItems: 'center', backgroundColor: t.colors.surface, borderRadius: t.radius.md, paddingHorizontal: 16, paddingVertical: 14 },
   pickerText:        { flex: 1, fontSize: t.fontSize.md, color: t.colors.text.primary },
   pickerPlaceholder: { color: t.colors.text.disabled },
   pickerChevron:     { fontSize: 22, color: t.colors.text.disabled, lineHeight: 26 },
+  pickerIconWrap:    { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  pickerIconEmoji:   { fontSize: 14 },
 
   // 날짜
   dateRow:    { flexDirection: 'row', alignItems: 'center', backgroundColor: t.colors.surface, borderRadius: t.radius.md },

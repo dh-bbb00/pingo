@@ -1,4 +1,6 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Dimensions } from 'react-native'
+
+const { height: screenHeight } = Dimensions.get('window')
 import type { Theme } from '@/theme'
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
@@ -14,7 +16,7 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   },
 
   title:    { fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, paddingHorizontal: 20, marginBottom: 16 },
-  listWrap: { flex: 1, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
+  listWrap: { height: screenHeight * 0.3, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
 
   noneItem: { borderBottomWidth: 1, borderBottomColor: t.colors.divider },
   noneIcon: { backgroundColor: t.colors.surfaceVariant },
@@ -28,7 +30,8 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   itemNameSelected: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
   checkDot:         { width: 8, height: 8, borderRadius: 4, backgroundColor: t.colors.primary },
 
-  loader: { paddingVertical: 12 },
+  loader:    { paddingVertical: 12 },
+  emptyText: { textAlign: 'center', paddingVertical: 24, fontSize: t.fontSize.sm, color: t.colors.text.secondary },
 
   btnRow:     { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingTop: 20 },
   btn:        { flex: 1, paddingVertical: 14, borderRadius: t.radius.md, alignItems: 'center' },

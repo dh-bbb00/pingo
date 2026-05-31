@@ -179,6 +179,7 @@ export const strings = {
     merchantPlaceholder: '가맹점명 입력',
     categoryLabel:       '카테고리',
     noCategoryLabel:     '기타 (미분류)',
+    categoryPickerEmpty: '카테고리가 없습니다.',
     categoryPickerTitle: '카테고리 선택',
     cardCompanyLabel:    '카드사',
     cardCompanyPlaceholder: '예: 신한, 국민 (선택)',

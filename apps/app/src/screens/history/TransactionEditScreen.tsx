@@ -15,6 +15,7 @@ import {
   useUpdateTransaction,
   useDeleteTransaction,
 } from './hooks/useTransactionEdit'
+import { useCategoryById } from '@/screens/category/hooks/useCategoryById'
 import CategoryPickerModal from './components/CategoryPickerModal'
 import { makeStyles } from './TransactionEditScreen.styles'
 
@@ -56,6 +57,8 @@ export default function TransactionEditScreen() {
     }
   }, [txData, isEdit, setForm])
 
+  const { data: selectedCategory } = useCategoryById(form.categoryId || undefined)
+
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -90,6 +93,15 @@ export default function TransactionEditScreen() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
         <Text style={styles.screenTitle}>{title}</Text>
+
+        {/* ── 카테고리 아이콘 (카테고리 선택 시 금액 위 표시) ── */}
+        {selectedCategory && (
+          <View style={styles.categoryIconArea}>
+            <View style={[styles.categoryIconCircle, { backgroundColor: selectedCategory.color }]}>
+              <Text style={styles.categoryIconEmoji}>{selectedCategory.icon}</Text>
+            </View>
+          </View>
+        )}
 
         {/* ── 금액 ── */}
         <Text style={styles.label}>{s.amountLabel}</Text>
@@ -131,10 +143,18 @@ export default function TransactionEditScreen() {
           onPress={() => setShowCategoryPicker(true)}
           activeOpacity={0.7}
         >
-          <Text style={[styles.pickerText, !form.categoryId && styles.pickerPlaceholder]}>
-            {/* categoryId는 비어있으면 실제 카테고리 이름은 모달에서만 알 수 있어서 placeholder 표시 */}
-            {s.categoryLabel}
-          </Text>
+          {selectedCategory ? (
+            <>
+              <View style={[styles.pickerIconWrap, { backgroundColor: selectedCategory.color }]}>
+                <Text style={styles.pickerIconEmoji}>{selectedCategory.icon}</Text>
+              </View>
+              <Text style={styles.pickerText}>{selectedCategory.name}</Text>
+            </>
+          ) : (
+            <Text style={[styles.pickerText, styles.pickerPlaceholder]}>
+              {form.categoryId === '' ? s.noCategoryLabel : s.categoryLabel}
+            </Text>
+          )}
           <Text style={styles.pickerChevron}>›</Text>
         </TouchableOpacity>
 

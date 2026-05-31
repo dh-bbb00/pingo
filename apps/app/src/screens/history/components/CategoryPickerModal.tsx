@@ -23,7 +23,7 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
 
   const [localSelected, setLocalSelected] = useState(selectedId)
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useCategories('name_asc')
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useCategories('name_asc')
   const categories = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
 
   const handleConfirm = () => {
@@ -73,20 +73,27 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
           <Text style={styles.title}>{s.categoryPickerTitle}</Text>
 
           <View style={styles.listWrap}>
-            <FlatList
-              data={categories}
-              keyExtractor={item => item.id}
-              renderItem={renderItem}
-              ListHeaderComponent={NoneItem}
-              ListFooterComponent={
-                isFetchingNextPage
-                  ? <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
-                  : null
-              }
-              onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
-              onEndReachedThreshold={0.3}
-              showsVerticalScrollIndicator={false}
-            />
+            {isLoading ? (
+              <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
+            ) : (
+              <FlatList
+                data={categories}
+                keyExtractor={item => item.id}
+                renderItem={renderItem}
+                ListHeaderComponent={NoneItem}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>{s.categoryPickerEmpty}</Text>
+                }
+                ListFooterComponent={
+                  isFetchingNextPage
+                    ? <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
+                    : null
+                }
+                onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
+                onEndReachedThreshold={0.3}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
           </View>
 
           <View style={styles.btnRow}>
