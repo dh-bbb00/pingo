@@ -20,10 +20,10 @@ export class CreateTransactionDto {
   @IsNotEmpty({ message: VM.notEmpty })
   merchantName: string;
 
-  @ApiProperty({ required: false, description: '카드사 예: 신한, 국민' })
+  @ApiProperty({ required: false, nullable: true, description: '결제수단 ID (null이면 미지정)' })
   @IsOptional()
   @IsString({ message: VM.string })
-  cardCompany?: string;
+  paymentMethodId?: string | null;
 
   @ApiProperty({ required: false })
   @IsOptional()

@@ -43,6 +43,15 @@ export class ApprovalsService {
           where: { id: request.userId },
           data: { status: status === 'APPROVED' ? 'APPROVED' : 'REJECTED' },
         });
+        // 신규 승인 시 현금·상품권 결제수단 자동 생성
+        if (status === 'APPROVED') {
+          await tx.paymentMethod.createMany({
+            data: [
+              { userId: request.userId, type: 'CASH',      name: '현금' },
+              { userId: request.userId, type: 'GIFT_CARD', name: '상품권' },
+            ],
+          });
+        }
       }
     });
 

@@ -6,7 +6,7 @@ export function useTransactionForm(defaultData?: Partial<TransactionForm>) {
     amount:          defaultData?.amount          ?? '',
     merchantName:    defaultData?.merchantName    ?? '',
     categoryId:      defaultData?.categoryId      ?? '',
-    cardCompany:     defaultData?.cardCompany     ?? '',
+    paymentMethodId: defaultData?.paymentMethodId ?? '',
     memo:            defaultData?.memo            ?? '',
     transactionDate: defaultData?.transactionDate ?? new Date(),
   })

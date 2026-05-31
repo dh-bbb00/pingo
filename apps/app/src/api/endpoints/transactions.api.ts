@@ -8,16 +8,23 @@ export interface TransactionCategory {
   color: string | null
 }
 
+export interface TransactionPaymentMethod {
+  id:   string
+  name: string
+  type: string
+}
+
 export interface Transaction {
   id:              string
   categoryId:      string | null
+  paymentMethodId: string | null
   amount:          number
   merchantName:    string
-  cardCompany:     string | null
   memo:            string | null
   transactionDate: string
   createdAt:       string
   category:        TransactionCategory | null
+  paymentMethod:   TransactionPaymentMethod | null
 }
 
 export interface TransactionPagination {
@@ -40,7 +47,7 @@ export interface TransactionPayload {
   merchantName:    string
   amount:          number
   categoryId?:     string | null
-  cardCompany?:    string
+  paymentMethodId?: string | null
   memo?:           string
   transactionDate: string
 }

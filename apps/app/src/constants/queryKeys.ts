@@ -9,6 +9,10 @@ export const queryKeys = {
     list:   (sort?: string) => ['categories', 'list', sort] as const,
     detail: (id: string)   => ['categories', id] as const,
   },
+  paymentMethods: {
+    all:  ['payment-methods'] as const,
+    list: () => ['payment-methods', 'list'] as const,
+  },
   fixedExpenses: {
     all: ['fixed-expenses'] as const,
     list: () => ['fixed-expenses', 'list'] as const,

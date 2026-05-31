@@ -13,8 +13,8 @@ function toPayload(form: TransactionForm) {
   return {
     merchantName:    form.merchantName.trim(),
     amount:          Number(form.amount),
-    categoryId:      form.categoryId !== '' ? form.categoryId : null,
-    cardCompany:     form.cardCompany.trim() || undefined,
+    categoryId:      form.categoryId      !== '' ? form.categoryId      : null,
+    paymentMethodId: form.paymentMethodId !== '' ? form.paymentMethodId : null,
     memo:            form.memo.trim()        || undefined,
     transactionDate: form.transactionDate.toISOString(),
   }

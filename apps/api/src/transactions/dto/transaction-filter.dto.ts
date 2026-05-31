@@ -46,10 +46,10 @@ export class TransactionFilterDto {
   @IsNumber({}, { message: VM.number })
   amountMax?: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, description: '결제수단 ID 필터' })
   @IsOptional()
   @IsString({ message: VM.string })
-  cardCompany?: string;
+  paymentMethodId?: string;
 
   @ApiProperty({ required: false, description: '가맹점명 부분 검색' })
   @IsOptional()

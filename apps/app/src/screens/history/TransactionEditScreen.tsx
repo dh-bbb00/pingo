@@ -17,6 +17,8 @@ import {
 } from './hooks/useTransactionEdit'
 import { useCategoryById } from '@/screens/category/hooks/useCategoryById'
 import CategoryPickerModal from './components/CategoryPickerModal'
+import PaymentMethodPickerModal from './components/PaymentMethodPickerModal'
+import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import { makeStyles } from './TransactionEditScreen.styles'
 
 type Route = RouteProp<HistoryStackParamList, 'TransactionEdit'>
@@ -49,8 +51,8 @@ export default function TransactionEditScreen() {
       setForm({
         amount:          txData.amount.toString(),
         merchantName:    txData.merchantName,
-        categoryId:      txData.categoryId ?? '',
-        cardCompany:     txData.cardCompany  ?? '',
+        categoryId:      txData.categoryId      ?? '',
+        paymentMethodId: txData.paymentMethodId ?? '',
         memo:            txData.memo         ?? '',
         transactionDate: new Date(txData.transactionDate),
       })
@@ -58,8 +60,11 @@ export default function TransactionEditScreen() {
   }, [txData, isEdit, setForm])
 
   const { data: selectedCategory } = useCategoryById(form.categoryId || undefined)
+  const { data: paymentMethods }   = usePaymentMethods()
+  const selectedPaymentMethod      = paymentMethods?.find(m => m.id === form.paymentMethodId)
 
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+  const [showCategoryPicker,       setShowCategoryPicker]       = useState(false)
+  const [showPaymentMethodPicker,  setShowPaymentMethodPicker]  = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   const isPending = creating || updating || deleting
@@ -160,17 +165,18 @@ export default function TransactionEditScreen() {
 
         <View style={styles.gap} />
 
-        {/* ── 카드사 (선택) ── */}
-        <Text style={styles.label}>{s.cardCompanyLabel}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={s.cardCompanyPlaceholder}
-          placeholderTextColor={theme.colors.text.disabled}
-          value={form.cardCompany}
-          onChangeText={(v) => setField('cardCompany', v)}
-          returnKeyType="next"
-          maxLength={20}
-        />
+        {/* ── 결제수단 (선택) ── */}
+        <Text style={styles.label}>{s.paymentMethodLabel}</Text>
+        <TouchableOpacity
+          style={styles.pickerRow}
+          onPress={() => setShowPaymentMethodPicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.pickerText, !form.paymentMethodId && styles.pickerPlaceholder]}>
+            {selectedPaymentMethod ? selectedPaymentMethod.name : s.paymentMethodPlaceholder}
+          </Text>
+          <Text style={styles.pickerChevron}>›</Text>
+        </TouchableOpacity>
 
         <View style={styles.gap} />
 
@@ -229,6 +235,13 @@ export default function TransactionEditScreen() {
         selectedId={form.categoryId}
         onSelect={(id) => setField('categoryId', id)}
         onClose={() => setShowCategoryPicker(false)}
+      />
+
+      <PaymentMethodPickerModal
+        visible={showPaymentMethodPicker}
+        selectedId={form.paymentMethodId}
+        onSelect={(id) => setField('paymentMethodId', id)}
+        onClose={() => setShowPaymentMethodPicker(false)}
       />
     </KeyboardAvoidingView>
   )

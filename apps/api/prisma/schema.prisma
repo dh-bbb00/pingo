@@ -26,6 +26,7 @@ model User {
   transactions     Transaction[]
   fixedExpenses    FixedExpense[]
   refreshTokens    RefreshToken[]
+  paymentMethods   PaymentMethod[]
 }
 
 enum Role {
@@ -154,21 +155,46 @@ model CategoryMonthlyBudget {
   @@index([categoryId])
 }
 
+enum PaymentMethodType {
+  CASH       // 현금
+  GIFT_CARD  // 상품권
+  CARD       // 카드 (사용자 등록)
+}
+
+/// 결제수단. CASH·GIFT_CARD는 유저 승인 시 자동 생성, CARD는 사용자가 직접 등록.
+model PaymentMethod {
+  id        String            @id @default(cuid())
+  userId    String
+  type      PaymentMethodType
+  name       String            // CARD: 카드사명, CASH: "현금", GIFT_CARD: "상품권"
+  cardNumber String?           // CARD 전용 카드번호 (예: 끝 4자리). CASH·GIFT_CARD는 null
+  isDefault  Boolean           @default(false) // 기본 결제수단 여부 (내정보 화면에서 관리)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+  @@map("payment_methods")
+}
+
 /// 소비 내역. 수동 입력 및 고정 지출 자동 생성분 포함.
 model Transaction {
   id              String   @id @default(cuid())
   userId          String
-  categoryId      String?  // null = 기타 (카테고리 삭제 시 자동 SetNull)
-  amount          Int      // 원 단위 (소수점 없음)
-  merchantName    String   // 가맹점명
-  cardCompany     String?  // 카드사 예: "신한", "국민"
+  categoryId      String?       // null = 기타 (카테고리 삭제 시 자동 SetNull)
+  paymentMethodId String?       // null = 결제수단 미지정 (결제수단 삭제 시 자동 SetNull)
+  amount          Int           // 원 단위 (소수점 없음)
+  merchantName    String        // 가맹점명
   memo            String?
-  transactionDate DateTime // 실제 거래 일시 (createdAt과 다를 수 있음)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  transactionDate DateTime      // 실제 거래 일시 (createdAt과 다를 수 있음)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id])
-  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  user          User           @relation(fields: [userId], references: [id])
+  category      Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
 
   @@index([userId, transactionDate]) // 날짜 기준 조회·통계 쿼리 최적화
 }

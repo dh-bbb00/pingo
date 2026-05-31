@@ -1,0 +1,40 @@
+import { StyleSheet, Dimensions } from 'react-native'
+import type { Theme } from '@/theme'
+
+const { height: screenHeight } = Dimensions.get('window')
+
+export const makeStyles = (t: Theme) => StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+
+  sheet: {
+    backgroundColor: t.colors.background,
+    borderTopLeftRadius: t.radius.xl,
+    borderTopRightRadius: t.radius.xl,
+    paddingTop: 24,
+    paddingBottom: 32,
+  },
+
+  title:    { fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, paddingHorizontal: 20, marginBottom: 16 },
+  listWrap: { height: screenHeight * 0.3, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
+
+  sectionHeader: { paddingHorizontal: 20, paddingVertical: 8, backgroundColor: t.colors.surfaceVariant },
+  sectionText:   { fontSize: t.fontSize.xs, fontWeight: t.fontWeight.semiBold, color: t.colors.text.secondary },
+
+  item:         { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12, backgroundColor: t.colors.background },
+  itemSelected: { backgroundColor: t.colors.primaryLight },
+  itemName:     { flex: 1, fontSize: t.fontSize.md, color: t.colors.text.primary },
+  itemNameSelected: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
+  checkDot:     { width: 8, height: 8, borderRadius: 4, backgroundColor: t.colors.primary },
+
+  typeTag:     { fontSize: t.fontSize.xs, color: t.colors.text.secondary, marginRight: 8 },
+
+  loader:    { paddingVertical: 12 },
+  emptyText: { textAlign: 'center', paddingVertical: 24, fontSize: t.fontSize.sm, color: t.colors.text.secondary },
+
+  btnRow:     { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingTop: 20 },
+  btn:        { flex: 1, paddingVertical: 14, borderRadius: t.radius.md, alignItems: 'center' },
+  cancelBtn:  { backgroundColor: t.colors.surfaceVariant },
+  confirmBtn: { backgroundColor: t.colors.primary },
+  cancelText:  { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
+  confirmText: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },
+})

@@ -16,6 +16,10 @@ export const endpoints = {
     base:   `${V1}/categories`,
     detail: (id: string) => `${V1}/categories/${id}`,
   },
+  paymentMethods: {
+    base:   `${V1}/payment-methods`,
+    detail: (id: string) => `${V1}/payment-methods/${id}`,
+  },
   fixedExpenses: {
     base:   `${V1}/fixed-expenses`,
     detail: (id: string) => `${V1}/fixed-expenses/${id}`,

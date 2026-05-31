@@ -19,6 +19,10 @@ export const MSG = {
     wrongPassword:   '현재 비밀번호가 올바르지 않습니다.',
     passwordChanged: '비밀번호가 변경되었습니다.',
   },
+  paymentMethod: {
+    cannotEditFixed:   '현금·상품권은 이름을 변경할 수 없습니다.',
+    cannotDeleteFixed: '현금·상품권은 삭제할 수 없습니다.',
+  },
   common: {
     notFound:      '요청한 리소스를 찾을 수 없습니다.',
     internalError: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',

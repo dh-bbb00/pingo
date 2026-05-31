@@ -25,7 +25,7 @@ export class TransactionsService {
       };
     }
     if (filter.categoryId) where.categoryId = filter.categoryId;
-    if (filter.cardCompany) where.cardCompany = filter.cardCompany;
+    if (filter.paymentMethodId) where.paymentMethodId = filter.paymentMethodId;
     if (filter.merchantName) where.merchantName = { contains: filter.merchantName };
     if (filter.amountMin !== undefined || filter.amountMax !== undefined) {
       where.amount = {
@@ -37,7 +37,10 @@ export class TransactionsService {
     const [data, total, amountAgg] = await Promise.all([
       this.prisma.transaction.findMany({
         where,
-        include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+        include: {
+          category:      { select: { id: true, name: true, icon: true, color: true } },
+          paymentMethod: { select: { id: true, name: true, type: true } },
+        },
         orderBy: { transactionDate: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -57,7 +60,10 @@ export class TransactionsService {
   async findOne(userId: string, id: string) {
     const tx = await this.prisma.transaction.findFirst({
       where: { id, userId },
-      include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+      include: {
+          category:      { select: { id: true, name: true, icon: true, color: true } },
+          paymentMethod: { select: { id: true, name: true, type: true } },
+        },
     });
     if (!tx) throw new NotFoundException(MSG.common.notFound);
     return tx;
@@ -66,7 +72,10 @@ export class TransactionsService {
   create(userId: string, dto: CreateTransactionDto) {
     return this.prisma.transaction.create({
       data: { ...dto, userId, transactionDate: new Date(dto.transactionDate) },
-      include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+      include: {
+          category:      { select: { id: true, name: true, icon: true, color: true } },
+          paymentMethod: { select: { id: true, name: true, type: true } },
+        },
     });
   }
 
