@@ -58,9 +58,32 @@ export const strings = {
   },
 
   more: {
-    header:        '전체',
-    fixedExpenses: '고정 지출 관리',
-    myInfo:        '내 정보',
+    header:          '전체',
+    fixedExpenses:   '고정 지출 관리',
+    paymentMethods:  '결제수단 관리',
+    myInfo:          '내 정보',
+  },
+
+  paymentMethods: {
+    header:              '결제수단 관리',
+    noCards:             '등록된 카드 정보가 없습니다.',
+    addCard:             '등록하기',
+    headerCreate:        '카드 등록',
+    headerEdit:          '카드 수정',
+    nameLabel:           '카드사',
+    namePlaceholder:     '예: 신한, 국민',
+    cardNumberLabel:     '카드번호',
+    cardNumberSuffix:    '끝 4자리',
+    cardNumberPlaceholder: '카드번호 입력 (선택)',
+    submit:              '등록하기',
+    update:              '수정하기',
+    deleteBtn:           '카드 삭제',
+    deleteConfirmTitle:  '카드 삭제',
+    deleteConfirmMsg:    '이 카드를 삭제하시겠습니까?',
+    errNameEmpty:        '카드사를 입력해주세요.',
+    successCreate:       '카드가 등록됐습니다.',
+    successUpdate:       '카드가 수정됐습니다.',
+    successDelete:       '카드가 삭제됐습니다.',
   },
 
   myInfo: {
@@ -200,6 +223,12 @@ export const strings = {
     successDelete:       '내역이 삭제됐습니다.',
     errAmountEmpty:      '금액을 입력해주세요.',
     errMerchantEmpty:    '가맹점명을 입력해주세요.',
+  },
+
+  datePicker: {
+    weekdays:    ['일', '월', '화', '수', '목', '금', '토'],
+    monthFormat: (year: number, month: number) => `${year}년 ${month}월`,
+    dateFormat:  (year: number, month: number, day: number) => `${year}년 ${month}월 ${day}일`,
   },
 
   history: {

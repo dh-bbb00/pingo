@@ -9,6 +9,7 @@ import type { HistoryStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useTransactionForm } from './hooks/useTransactionForm'
+import { usePendingTransactionStore } from '@/store/pendingTransactionStore'
 import {
   useTransactionById,
   useCreateTransaction,
@@ -18,16 +19,15 @@ import {
 import { useCategoryById } from '@/screens/category/hooks/useCategoryById'
 import CategoryPickerModal from './components/CategoryPickerModal'
 import PaymentMethodPickerModal from './components/PaymentMethodPickerModal'
+import DateNavigator from '@/components/DateNavigator'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
+import { navigationRef } from '@/navigation/navigationRef'
+import { Screens } from '@/constants/screens'
 import { makeStyles } from './TransactionEditScreen.styles'
 
 type Route = RouteProp<HistoryStackParamList, 'TransactionEdit'>
 
 const s = strings.transactionEdit
-
-function formatDate(d: Date) {
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`
-}
 
 export default function TransactionEditScreen() {
   const { theme } = useTheme()
@@ -43,8 +43,22 @@ export default function TransactionEditScreen() {
   const { mutate: update,  isPending: updating  } = useUpdateTransaction(params?.id ?? '')
   const { mutate: deleteTx, isPending: deleting } = useDeleteTransaction(params?.id ?? '')
 
-  // edit 모드에서 기존 데이터를 폼에 1회 세팅
   const initialized = useRef(false)
+
+  // 결제수단 등록 후 복귀: 저장된 폼 + 새 결제수단 ID 복원 (1회 실행)
+  useEffect(() => {
+    if (pendingStore.pendingForm && !initialized.current) {
+      initialized.current = true
+      setForm({
+        ...pendingStore.pendingForm,
+        ...(pendingStore.newPaymentMethodId && { paymentMethodId: pendingStore.newPaymentMethodId }),
+      })
+      pendingStore.clear()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // edit 모드에서 기존 데이터를 폼에 1회 세팅
   useEffect(() => {
     if (isEdit && txData && !initialized.current) {
       initialized.current = true
@@ -53,11 +67,13 @@ export default function TransactionEditScreen() {
         merchantName:    txData.merchantName,
         categoryId:      txData.categoryId      ?? '',
         paymentMethodId: txData.paymentMethodId ?? '',
-        memo:            txData.memo         ?? '',
+        memo:            txData.memo            ?? '',
         transactionDate: new Date(txData.transactionDate),
       })
     }
   }, [txData, isEdit, setForm])
+
+  const pendingStore = usePendingTransactionStore()
 
   const { data: selectedCategory } = useCategoryById(form.categoryId || undefined)
   const { data: paymentMethods }   = usePaymentMethods()
@@ -86,18 +102,43 @@ export default function TransactionEditScreen() {
     ])
   }
 
+  // 결제수단 피커에서 "등록하기" 클릭 → 현재 폼 저장 후 카드 등록 화면으로 이동
+  const handleAddCard = () => {
+    pendingStore.save(form)
+    navigationRef.navigate(Screens.Root.UserTabs as any, {
+      screen: Screens.UserTab.More,
+      params: {
+        screen: Screens.More.PaymentMethodEdit,
+        params: { returnToTransaction: true },
+      },
+    })
+  }
+
   const prevDay = () => {
     const d = new Date(form.transactionDate); d.setDate(d.getDate() - 1); setField('transactionDate', d)
   }
   const nextDay = () => {
     const d = new Date(form.transactionDate); d.setDate(d.getDate() + 1); setField('transactionDate', d)
   }
+  const setDate = (d: Date) => setField('transactionDate', d)
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
         <Text style={styles.screenTitle}>{title}</Text>
+
+        {/* ── 날짜 ── */}
+        <Text style={styles.label}>{s.dateLabel}</Text>
+        <DateNavigator
+          date={form.transactionDate}
+          onChange={setDate}
+          onPrev={prevDay}
+          onNext={nextDay}
+          variant="card"
+        />
+
+        <View style={styles.gap} />
 
         {/* ── 카테고리 아이콘 (카테고리 선택 시 금액 위 표시) ── */}
         {selectedCategory && (
@@ -192,20 +233,6 @@ export default function TransactionEditScreen() {
           maxLength={200}
         />
 
-        <View style={styles.gap} />
-
-        {/* ── 날짜 ── */}
-        <Text style={styles.label}>{s.dateLabel}</Text>
-        <View style={styles.dateRow}>
-          <TouchableOpacity style={styles.dateNavBtn} onPress={prevDay} activeOpacity={0.6}>
-            <Text style={styles.dateArrow}>‹</Text>
-          </TouchableOpacity>
-          <Text style={styles.dateText}>{formatDate(form.transactionDate)}</Text>
-          <TouchableOpacity style={styles.dateNavBtn} onPress={nextDay} activeOpacity={0.6}>
-            <Text style={styles.dateArrow}>›</Text>
-          </TouchableOpacity>
-        </View>
-
         {/* ── 등록/수정 버튼 ── */}
         <TouchableOpacity
           style={[styles.submitBtn, isPending && styles.btnDisabled]}
@@ -242,6 +269,7 @@ export default function TransactionEditScreen() {
         selectedId={form.paymentMethodId}
         onSelect={(id) => setField('paymentMethodId', id)}
         onClose={() => setShowPaymentMethodPicker(false)}
+        onAddCard={handleAddCard}
       />
     </KeyboardAvoidingView>
   )

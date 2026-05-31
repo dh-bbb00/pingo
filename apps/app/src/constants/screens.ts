@@ -54,6 +54,8 @@ export const Screens = {
     FixedExpenses:      'FixedExpenses',
     FixedExpenseDetail: 'FixedExpenseDetail',
     FixedExpenseEdit:   'FixedExpenseEdit',
+    PaymentMethods:     'PaymentMethods',
+    PaymentMethodEdit:  'PaymentMethodEdit',
     MyInfo:             'MyInfo',
     PasswordChange:     'PasswordChange',
   } satisfies Record<string, keyof MoreStackParamList>,

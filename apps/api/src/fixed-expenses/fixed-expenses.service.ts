@@ -57,7 +57,6 @@ export class FixedExpensesService {
           categoryId: fe.categoryId,
           amount: fe.amount,
           merchantName: fe.merchantName,
-          cardCompany: fe.cardCompany,
           memo: fe.memo,
           transactionDate,
         },

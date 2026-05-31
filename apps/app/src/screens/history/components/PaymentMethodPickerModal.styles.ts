@@ -22,14 +22,19 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
 
   item:         { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12, backgroundColor: t.colors.background },
   itemSelected: { backgroundColor: t.colors.primaryLight },
-  itemName:     { flex: 1, fontSize: t.fontSize.md, color: t.colors.text.primary },
+  itemName:         { flex: 1, fontSize: t.fontSize.md, color: t.colors.text.primary },
   itemNameSelected: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
+  cardNumber:       { fontSize: t.fontSize.sm, color: t.colors.text.secondary },
   checkDot:     { width: 8, height: 8, borderRadius: 4, backgroundColor: t.colors.primary },
 
-  typeTag:     { fontSize: t.fontSize.xs, color: t.colors.text.secondary, marginRight: 8 },
+  typeTag:     { fontSize: 20, marginRight: 8 },
 
   loader:    { paddingVertical: 12 },
-  emptyText: { textAlign: 'center', paddingVertical: 24, fontSize: t.fontSize.sm, color: t.colors.text.secondary },
+  emptyText: { fontSize: t.fontSize.sm, color: t.colors.text.secondary, marginBottom: 12 },
+
+  noCardWrap:  { alignItems: 'center', paddingVertical: 16, paddingHorizontal: 20 },
+  addCardBtn:  { paddingHorizontal: 20, paddingVertical: 8, borderRadius: t.radius.md, backgroundColor: t.colors.primary },
+  addCardText: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },
 
   btnRow:     { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingTop: 20 },
   btn:        { flex: 1, paddingVertical: 14, borderRadius: t.radius.md, alignItems: 'center' },

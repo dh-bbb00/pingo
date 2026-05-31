@@ -12,6 +12,7 @@ import type { Transaction } from '@/api/endpoints/transactions.api'
 import TransactionItem from './components/TransactionItem'
 import { useHistoryFilter } from './hooks/useHistoryFilter'
 import type { HistoryDateTab } from './types'
+import DateNavigator from '@/components/DateNavigator'
 import { makeStyles } from './HistoryScreen.styles'
 
 type Nav = NativeStackNavigationProp<HistoryStackParamList, 'HistoryMain'>
@@ -28,6 +29,9 @@ function endOfDay(d: Date) {
 function isToday(d: Date) {
   const now = new Date()
   return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
+}
+function addDays(d: Date, n: number) {
+  const r = new Date(d); r.setDate(r.getDate() + n); return r
 }
 
 export default function HistoryScreen() {
@@ -47,19 +51,7 @@ export default function HistoryScreen() {
   const transactions = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
   const totalAmount  = data?.pages[0]?.pagination.totalAmount ?? 0
 
-  const prevDay = () => {
-    const d = new Date(filter.date); d.setDate(d.getDate() - 1); setDate(d)
-  }
-  const nextDay = () => {
-    const d = new Date(filter.date); d.setDate(d.getDate() + 1); setDate(d)
-  }
   const todayFlag = isToday(filter.date)
-
-  const dateLabel = s.dateFormat(
-    filter.date.getFullYear(),
-    filter.date.getMonth() + 1,
-    filter.date.getDate(),
-  )
 
   const renderItem = ({ item }: { item: Transaction }) => (
     <TransactionItem
@@ -87,18 +79,15 @@ export default function HistoryScreen() {
       </View>
 
       {/* 날짜 네비게이션 (일 탭) */}
-      <View style={styles.dateNav}>
-        <TouchableOpacity style={styles.navBtn} onPress={prevDay} activeOpacity={0.6}>
-          <Text style={styles.navArrow}>‹</Text>
-        </TouchableOpacity>
-        <View style={styles.dateCenter}>
-          <Text style={styles.dateText}>{dateLabel}</Text>
-          {todayFlag && <Text style={styles.todayBadge}>{s.today}</Text>}
-        </View>
-        <TouchableOpacity style={styles.navBtn} onPress={nextDay} activeOpacity={todayFlag ? 1 : 0.6} disabled={todayFlag}>
-          <Text style={[styles.navArrow, todayFlag && styles.navArrowDisabled]}>›</Text>
-        </TouchableOpacity>
-      </View>
+      <DateNavigator
+        date={filter.date}
+        onChange={setDate}
+        onPrev={() => setDate(addDays(filter.date, -1))}
+        onNext={() => setDate(addDays(filter.date, 1))}
+        disableNext={todayFlag}
+        todayBadge={s.today}
+        variant="flat"
+      />
 
       {filter.tab === s.tabDay ? (
         <>

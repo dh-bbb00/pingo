@@ -20,12 +20,14 @@ import TransactionEditScreen    from '@/screens/history/TransactionEditScreen'
 import CategoryScreen           from '@/screens/category/CategoryScreen'
 import CategoryEditScreen       from '@/screens/category/CategoryEditScreen'
 
-import MoreScreen               from '@/screens/more/MoreScreen'
-import FixedExpensesScreen      from '@/screens/more/fixedExpenses/FixedExpensesScreen'
-import FixedExpenseDetailScreen from '@/screens/more/fixedExpenses/FixedExpenseDetailScreen'
-import FixedExpenseEditScreen   from '@/screens/more/fixedExpenses/FixedExpenseEditScreen'
-import MyInfoScreen             from '@/screens/more/myInfo/MyInfoScreen'
-import PasswordChangeScreen     from '@/screens/more/myInfo/PasswordChangeScreen'
+import MoreScreen                  from '@/screens/more/MoreScreen'
+import FixedExpensesScreen         from '@/screens/more/fixedExpenses/FixedExpensesScreen'
+import FixedExpenseDetailScreen    from '@/screens/more/fixedExpenses/FixedExpenseDetailScreen'
+import FixedExpenseEditScreen      from '@/screens/more/fixedExpenses/FixedExpenseEditScreen'
+import PaymentMethodsScreen        from '@/screens/more/paymentMethods/PaymentMethodsScreen'
+import PaymentMethodEditScreen     from '@/screens/more/paymentMethods/PaymentMethodEditScreen'
+import MyInfoScreen                from '@/screens/more/myInfo/MyInfoScreen'
+import PasswordChangeScreen        from '@/screens/more/myInfo/PasswordChangeScreen'
 import HomeScreen               from '@/screens/home/HomeScreen'
 import StatsScreen              from '@/screens/stats/StatsScreen'
 import SplashScreen             from '@/screens/splash/SplashScreen'
@@ -90,7 +92,9 @@ export const moreRoutes: StackRoute[] = [
   { name: 'FixedExpenses',      component: FixedExpensesScreen,      options: backHeader },
   { name: 'FixedExpenseDetail', component: FixedExpenseDetailScreen, options: backHeader },
   { name: 'FixedExpenseEdit',   component: FixedExpenseEditScreen,   options: backHeader },
-  { name: 'MyInfo',             component: MyInfoScreen,             options: backHeader },
+  { name: 'PaymentMethods',    component: PaymentMethodsScreen,     options: backHeader },
+  { name: 'PaymentMethodEdit', component: PaymentMethodEditScreen,  options: backHeader },
+  { name: 'MyInfo',            component: MyInfoScreen,             options: backHeader },
   { name: 'PasswordChange',     component: PasswordChangeScreen,     options: backHeader },
 ]
 

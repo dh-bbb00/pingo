@@ -33,12 +33,6 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   pickerIconWrap:    { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   pickerIconEmoji:   { fontSize: 14 },
 
-  // 날짜
-  dateRow:    { flexDirection: 'row', alignItems: 'center', backgroundColor: t.colors.surface, borderRadius: t.radius.md },
-  dateNavBtn: { width: 44, height: 48, alignItems: 'center', justifyContent: 'center' },
-  dateArrow:  { fontSize: 24, color: t.colors.text.primary, includeFontPadding: false, lineHeight: 28 },
-  dateText:   { flex: 1, textAlign: 'center', fontSize: t.fontSize.md, fontWeight: t.fontWeight.medium, color: t.colors.text.primary },
-
   // 버튼
   submitBtn:     { backgroundColor: t.colors.primary, borderRadius: t.radius.md, paddingVertical: 16, alignItems: 'center', marginTop: 32 },
   submitBtnText: { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold, fontSize: t.fontSize.md },

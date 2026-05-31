@@ -13,15 +13,6 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   tabText:       { fontSize: t.fontSize.sm, color: t.colors.text.disabled, fontWeight: t.fontWeight.medium },
   tabTextActive: { color: t.colors.primary, fontWeight: t.fontWeight.bold },
 
-  // 날짜 네비
-  dateNav:         { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginBottom: 4 },
-  navBtn:          { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  navArrow:        { fontSize: 28, color: t.colors.text.primary, includeFontPadding: false, lineHeight: 32 },
-  navArrowDisabled:{ color: t.colors.text.disabled },
-  dateCenter:      { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  dateText:        { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
-  todayBadge:      { fontSize: t.fontSize.xs, color: t.colors.primary, fontWeight: t.fontWeight.semiBold, backgroundColor: t.colors.primaryLight, paddingHorizontal: 8, paddingVertical: 2, borderRadius: t.radius.full },
-
   // 요약
   summaryRow:    { paddingHorizontal: 20, paddingVertical: 8, marginBottom: 4 },
   summaryAmount: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.secondary },

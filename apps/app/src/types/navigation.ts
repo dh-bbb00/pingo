@@ -56,6 +56,8 @@ export type MoreStackParamList = {
   FixedExpenses:       undefined
   FixedExpenseDetail:  { id: string }
   FixedExpenseEdit:    { id?: string }
+  PaymentMethods:      undefined
+  PaymentMethodEdit:   { id?: string; returnToTransaction?: boolean }
   MyInfo:              undefined
   PasswordChange:      undefined
 }

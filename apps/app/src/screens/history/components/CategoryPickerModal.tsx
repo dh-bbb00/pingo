@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, Modal, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native'
+import { View, Text, Modal, TouchableOpacity, FlatList, ActivityIndicator, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useCategories } from '@/hooks/queries/useCategories'
@@ -69,6 +69,7 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={styles.sheet}>
           <Text style={styles.title}>{s.categoryPickerTitle}</Text>
 
