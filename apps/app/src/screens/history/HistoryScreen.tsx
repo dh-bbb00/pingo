@@ -14,6 +14,7 @@ import { useHistoryFilter } from './hooks/useHistoryFilter'
 import type { HistoryDateTab } from './types'
 import DateNavigator from '@/components/DateNavigator'
 import { makeStyles } from './HistoryScreen.styles'
+import { startOfDay, endOfDay, addDays, addMonths, addYears, isSameDay, isSameMonth, isSameYear } from '@/utils/date'
 
 type Nav = NativeStackNavigationProp<HistoryStackParamList, 'HistoryMain'>
 
@@ -23,11 +24,6 @@ const DATE_TABS: HistoryDateTab[] = [s.tabDay, s.tabMonth, s.tabYear]
 
 type Section = { title: string; data: Transaction[]; total: number }
 
-function startOfDay(d: Date) { const r = new Date(d); r.setHours(0, 0, 0, 0); return r }
-function endOfDay(d: Date)   { const r = new Date(d); r.setHours(23, 59, 59, 999); return r }
-function addDays(d: Date, n: number)   { const r = new Date(d); r.setDate(r.getDate() + n); return r }
-function addMonths(d: Date, n: number) { const r = new Date(d); r.setMonth(r.getMonth() + n); return r }
-function addYears(d: Date, n: number)  { const r = new Date(d); r.setFullYear(r.getFullYear() + n); return r }
 
 function groupTransactions(transactions: Transaction[], tab: HistoryDateTab): Section[] {
   const groupMap = new Map<string, { title: string; data: Transaction[] }>()
@@ -100,10 +96,10 @@ export default function HistoryScreen() {
 
   const now = new Date()
   const disableNext = filter.tab === s.tabYear
-    ? filter.date.getFullYear() >= now.getFullYear()
+    ? isSameYear(filter.date, now)
     : filter.tab === s.tabMonth
-      ? filter.date.getFullYear() >= now.getFullYear() && filter.date.getMonth() >= now.getMonth()
-      : filter.date >= startOfDay(now)
+      ? isSameMonth(filter.date, now)
+      : isSameDay(filter.date, now)
 
   const renderItem = ({ item }: { item: Transaction }) => (
     <TransactionItem

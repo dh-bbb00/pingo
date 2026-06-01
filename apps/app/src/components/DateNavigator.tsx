@@ -7,6 +7,7 @@ import DatePickerModal from './DatePickerModal'
 import MonthPickerModal from './MonthPickerModal'
 import YearPickerModal from './YearPickerModal'
 import { makeStyles } from './DateNavigator.styles'
+import { isSameDay, isSameMonth, isSameYear } from '@/utils/date'
 
 const dp = strings.datePicker
 
@@ -23,19 +24,14 @@ interface Props {
   style?:        ViewStyle
 }
 
-function isSameDate(a: Date, b: Date, mode: 'day' | 'month' | 'year') {
-  if (mode === 'year')  return a.getFullYear() === b.getFullYear()
-  if (mode === 'month') return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
 export default function DateNavigator({ date, onChange, onPrev, onNext, disableNext, todayBadge, mode = 'day', showTime = false, variant = 'flat', style }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const [pickerVisible, setPickerVisible] = useState(false)
 
-  const isNow        = isSameDate(date, new Date(), mode)
+  const now   = new Date()
+  const isNow = mode === 'year' ? isSameYear(date, now) : mode === 'month' ? isSameMonth(date, now) : isSameDay(date, now)
   const nextDisabled = disableNext ?? false
 
   const dateLabel = mode === 'year'
