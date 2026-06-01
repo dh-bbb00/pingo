@@ -8,27 +8,32 @@ import { MSG } from '../common/constants/messages';
 export class FixedExpensesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly INCLUDE = {
+    category:      { select: { id: true, name: true, icon: true, color: true } },
+    paymentMethod: { select: { id: true, name: true, type: true } },
+  } as const;
+
   findAll(userId: string) {
     return this.prisma.fixedExpense.findMany({
-      where: { userId },
-      include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+      where:   { userId },
+      include: this.INCLUDE,
       orderBy: { dayOfMonth: 'asc' },
     });
   }
 
   create(userId: string, dto: CreateFixedExpenseDto) {
     return this.prisma.fixedExpense.create({
-      data: { ...dto, userId },
-      include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+      data:    { ...dto, userId },
+      include: this.INCLUDE,
     });
   }
 
   async update(userId: string, id: string, dto: UpdateFixedExpenseDto) {
     await this.findOneOrThrow(userId, id);
     return this.prisma.fixedExpense.update({
-      where: { id },
-      data: dto,
-      include: { category: { select: { id: true, name: true, icon: true, color: true } } },
+      where:   { id },
+      data:    dto,
+      include: this.INCLUDE,
     });
   }
 
@@ -53,11 +58,12 @@ export class FixedExpensesService {
 
       return this.prisma.transaction.create({
         data: {
-          userId: fe.userId,
-          categoryId: fe.categoryId,
-          amount: fe.amount,
-          merchantName: fe.merchantName,
-          memo: fe.memo,
+          userId:          fe.userId,
+          categoryId:      fe.categoryId,
+          paymentMethodId: fe.paymentMethodId,
+          amount:          fe.amount,
+          merchantName:    fe.merchantName,
+          memo:            fe.memo,
           transactionDate,
         },
       });

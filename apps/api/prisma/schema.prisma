@@ -172,8 +172,9 @@ model PaymentMethod {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  fixedExpenses FixedExpense[]
 
   @@index([userId])
   @@map("payment_methods")
@@ -203,18 +204,19 @@ model Transaction {
 /// 고정 지출 항목. 스케줄러가 매월 1일에 실행되어 isActive 항목의 Transaction을 생성.
 /// Transaction의 transactionDate는 해당 월의 dayOfMonth일로 설정됨.
 model FixedExpense {
-  id           String   @id @default(cuid())
-  userId       String
-  categoryId   String
-  amount       Int      // 원 단위
-  merchantName String   // 가맹점명
-  cardCompany  String?
-  memo         String?
-  dayOfMonth   Int      // Transaction에 기록될 지출 날짜 (1~31). 해당 월에 없는 날짜면 말일로 처리
-  isActive     Boolean  @default(true) // false면 스케줄러 실행 시 제외
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String
+  categoryId      String
+  paymentMethodId String?
+  amount          Int      // 원 단위
+  merchantName    String   // 가맹점명
+  memo            String?
+  dayOfMonth      Int      // Transaction에 기록될 지출 날짜 (1~31). 해당 월에 없는 날짜면 말일로 처리
+  isActive        Boolean  @default(true) // false면 스케줄러 실행 시 제외
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  user     User     @relation(fields: [userId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id])
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
 }

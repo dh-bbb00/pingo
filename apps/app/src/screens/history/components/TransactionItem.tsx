@@ -24,7 +24,7 @@ export default function TransactionItem({ item, onPress }: Props) {
       <View style={styles.middle}>
         <Text style={styles.merchant} numberOfLines={1}>{item.merchantName}</Text>
         <Text style={styles.sub} numberOfLines={1}>
-          {[cat?.name ?? strings.history.noCategory, item.cardCompany].filter(Boolean).join(' · ')}
+          {[cat?.name ?? strings.history.noCategory, item.paymentMethod?.name].filter(Boolean).join(' · ')}
         </Text>
       </View>
       <Text style={styles.amount}>{item.amount.toLocaleString()}원</Text>

@@ -19,10 +19,10 @@ export class CreateFixedExpenseDto {
   @IsNotEmpty({ message: VM.notEmpty })
   merchantName: string;
 
-  @ApiProperty({ required: false, description: '카드사 예: 신한, 국민' })
+  @ApiProperty({ required: false, description: '결제수단 ID' })
   @IsOptional()
   @IsString({ message: VM.string })
-  cardCompany?: string;
+  paymentMethodId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

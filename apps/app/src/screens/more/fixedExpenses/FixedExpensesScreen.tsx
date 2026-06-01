@@ -1,50 +1,96 @@
 import React, { useMemo } from 'react'
-import { View, Text, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Switch, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
-import type { FixedExpensesViewTab, FixedExpenseDetail } from './types'
-import { useFixedExpensesView } from './hooks/useFixedExpensesView'
+import type { FixedExpenseDetail } from './types'
 import { makeStyles } from './FixedExpensesScreen.styles'
+import { useFixedExpenses, useUpdateFixedExpense } from '@/hooks/queries/useFixedExpenses'
+import { handleApiError } from '@/api/errorHandler'
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenses'>
 
 const s = strings.fixedExpenses
-const VIEW_TABS: FixedExpensesViewTab[] = [s.tabList, s.tabCalendar]
+const se = strings.fixedExpenseEdit
 
 export default function FixedExpensesScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const navigation = useNavigation<Nav>()
-  const { activeTab, setActiveTab } = useFixedExpensesView()
+  const { data: items = [] } = useFixedExpenses()
+  const { mutate: updateItem } = useUpdateFixedExpense()
 
-  // TODO: 고정 지출 목록 API 연동
+  function handleToggleActive(item: FixedExpenseDetail) {
+    if (item.isActive) {
+      Alert.alert(se.confirmDisableTitle, se.confirmDisableMsg, [
+        { text: se.confirmDisableCancel, style: 'cancel' },
+        {
+          text: se.confirmDisableOk,
+          style: 'destructive',
+          onPress: () => updateItem(
+            { id: item.id, payload: { isActive: false } },
+            { onError: (e) => handleApiError(e) },
+          ),
+        },
+      ])
+    } else {
+      updateItem(
+        { id: item.id, payload: { isActive: true } },
+        { onError: (e) => handleApiError(e) },
+      )
+    }
+  }
+
+  function renderItem({ item }: { item: FixedExpenseDetail }) {
+    return (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => navigation.navigate(Screens.More.FixedExpenseEdit, { id: item.id })}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.categoryDot, { backgroundColor: item.category.color }]} />
+        <View style={styles.itemBody}>
+          <View style={styles.itemRow}>
+            <Text style={styles.itemName} numberOfLines={1}>{item.merchantName}</Text>
+            <Text style={styles.itemAmount}>{item.amount.toLocaleString()}원</Text>
+          </View>
+          <View style={styles.itemRow}>
+            <Text style={styles.itemSub}>{s.dayOfMonthFmt(item.dayOfMonth)}</Text>
+            {item.paymentMethod && (
+              <Text style={styles.itemSub}>{item.paymentMethod.name}</Text>
+            )}
+          </View>
+        </View>
+        <Switch
+          value={item.isActive}
+          onValueChange={() => handleToggleActive(item)}
+          trackColor={{ false: theme.colors.divider, true: theme.colors.primaryLight }}
+          thumbColor={item.isActive ? theme.colors.primary : theme.colors.text.disabled}
+        />
+      </TouchableOpacity>
+    )
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{s.header}</Text>
 
-      <View style={styles.tabBar}>
-        {VIEW_TABS.map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.tabActive]}
-            onPress={() => setActiveTab(tab)}
-          >
-            <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
       <FlatList<FixedExpenseDetail>
-        data={[]}
+        data={items}
         keyExtractor={(item) => item.id}
-        renderItem={() => null}
-        ListEmptyComponent={<Text style={styles.empty}>{s.empty}</Text>}
+        renderItem={renderItem}
+        ItemSeparatorComponent={() => <View style={styles.divider} />}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyWrap}>
+            <Text style={styles.empty}>{s.empty}</Text>
+          </View>
+        }
       />
 
       <TouchableOpacity

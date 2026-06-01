@@ -3,10 +3,13 @@ import type { FixedExpenseForm } from '../types'
 
 export function useFixedExpenseForm(defaultData?: Partial<FixedExpenseForm>) {
   const [form, setForm] = useState<FixedExpenseForm>({
-    name:       defaultData?.name       ?? '',
-    amount:     defaultData?.amount     ?? '',
-    categoryId: defaultData?.categoryId ?? '',
-    billingDay: defaultData?.billingDay ?? '',
+    merchantName:    defaultData?.merchantName    ?? '',
+    amount:          defaultData?.amount          ?? '',
+    categoryId:      defaultData?.categoryId      ?? '',
+    paymentMethodId: defaultData?.paymentMethodId ?? '',
+    memo:            defaultData?.memo            ?? '',
+    dayOfMonth:      defaultData?.dayOfMonth      ?? '',
+    isActive:        defaultData?.isActive        ?? true,
   })
 
   function setField<K extends keyof FixedExpenseForm>(key: K, value: FixedExpenseForm[K]) {
@@ -14,8 +17,8 @@ export function useFixedExpenseForm(defaultData?: Partial<FixedExpenseForm>) {
   }
 
   function isValid() {
-    return form.name !== '' && form.amount !== '' && form.billingDay !== ''
+    return form.merchantName.trim() !== '' && form.amount !== '' && form.dayOfMonth !== ''
   }
 
-  return { form, setField, isValid }
+  return { form, setField, setForm, isValid }
 }
