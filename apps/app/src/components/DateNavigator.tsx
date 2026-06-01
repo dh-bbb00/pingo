@@ -4,32 +4,70 @@ import type { ViewStyle } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import DatePickerModal from './DatePickerModal'
+import MonthPickerModal from './MonthPickerModal'
+import YearPickerModal from './YearPickerModal'
 import { makeStyles } from './DateNavigator.styles'
+
+const dp = strings.datePicker
 
 interface Props {
   date:          Date
-  onChange:      (date: Date) => void  // 달력에서 날짜 선택 시
-  onPrev:        () => void            // 왼쪽 화살표
-  onNext:        () => void            // 오른쪽 화살표
-  disableNext?:  boolean               // 오른쪽 화살표 비활성화
-  todayBadge?:   string                // 오늘 배지 텍스트 (설정 시 오늘이면 배지 표시)
-  variant?:      'flat' | 'card'       // flat=HistoryScreen, card=TransactionEdit
+  onChange:      (date: Date) => void
+  onPrev:        () => void
+  onNext:        () => void
+  disableNext?:  boolean
+  todayBadge?:   string
+  mode?:         'day' | 'month' | 'year'
+  showTime?:     boolean
+  variant?:      'flat' | 'card'
   style?:        ViewStyle
 }
 
-function isSameDay(a: Date, b: Date) {
+function isSameDate(a: Date, b: Date, mode: 'day' | 'month' | 'year') {
+  if (mode === 'year')  return a.getFullYear() === b.getFullYear()
+  if (mode === 'month') return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
-export default function DateNavigator({ date, onChange, onPrev, onNext, disableNext, todayBadge, variant = 'flat', style }: Props) {
+export default function DateNavigator({ date, onChange, onPrev, onNext, disableNext, todayBadge, mode = 'day', showTime = false, variant = 'flat', style }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const [pickerVisible, setPickerVisible] = useState(false)
 
-  const isToday    = isSameDay(date, new Date())
-  const dateLabel  = strings.datePicker.dateFormat(date.getFullYear(), date.getMonth() + 1, date.getDate())
+  const isNow        = isSameDate(date, new Date(), mode)
   const nextDisabled = disableNext ?? false
+
+  const dateLabel = mode === 'year'
+    ? dp.yearFormat(date.getFullYear())
+    : mode === 'month'
+      ? dp.monthFormat(date.getFullYear(), date.getMonth() + 1)
+      : dp.dateWithDowFormat(date.getFullYear(), date.getMonth() + 1, date.getDate(), dp.weekdays[date.getDay()])
+
+  const picker = mode === 'month' ? (
+    <MonthPickerModal
+      visible={pickerVisible}
+      selectedYear={date.getFullYear()}
+      selectedMonth={date.getMonth()}
+      onSelect={(y, m) => onChange(new Date(y, m, 1))}
+      onClose={() => setPickerVisible(false)}
+    />
+  ) : mode === 'year' ? (
+    <YearPickerModal
+      visible={pickerVisible}
+      selectedYear={date.getFullYear()}
+      onSelect={(y) => onChange(new Date(y, 0, 1))}
+      onClose={() => setPickerVisible(false)}
+    />
+  ) : (
+    <DatePickerModal
+      visible={pickerVisible}
+      selectedDate={date}
+      onSelect={onChange}
+      onClose={() => setPickerVisible(false)}
+      showTime={showTime}
+    />
+  )
 
   if (variant === 'card') {
     return (
@@ -45,17 +83,11 @@ export default function DateNavigator({ date, onChange, onPrev, onNext, disableN
             <Text style={[styles.cardArrow, nextDisabled && styles.arrowDisabled]}>›</Text>
           </TouchableOpacity>
         </View>
-        <DatePickerModal
-          visible={pickerVisible}
-          selectedDate={date}
-          onSelect={onChange}
-          onClose={() => setPickerVisible(false)}
-        />
+        {picker}
       </>
     )
   }
 
-  // flat variant
   return (
     <>
       <View style={[styles.flatContainer, style]}>
@@ -66,7 +98,7 @@ export default function DateNavigator({ date, onChange, onPrev, onNext, disableN
           <TouchableOpacity onPress={() => setPickerVisible(true)} activeOpacity={0.7}>
             <Text style={styles.flatDateText}>{dateLabel}</Text>
           </TouchableOpacity>
-          {todayBadge && isToday && (
+          {todayBadge && isNow && mode === 'day' && (
             <Text style={styles.todayBadge}>{todayBadge}</Text>
           )}
         </View>
@@ -74,12 +106,7 @@ export default function DateNavigator({ date, onChange, onPrev, onNext, disableN
           <Text style={[styles.flatArrow, nextDisabled && styles.arrowDisabled]}>›</Text>
         </TouchableOpacity>
       </View>
-      <DatePickerModal
-        visible={pickerVisible}
-        selectedDate={date}
-        onSelect={onChange}
-        onClose={() => setPickerVisible(false)}
-      />
+      {picker}
     </>
   )
 }

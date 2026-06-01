@@ -136,6 +136,7 @@ export default function TransactionEditScreen() {
           onPrev={prevDay}
           onNext={nextDay}
           variant="card"
+          showTime
         />
 
         <View style={styles.gap} />

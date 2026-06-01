@@ -213,6 +213,7 @@ export const strings = {
     memoLabel:           '메모',
     memoPlaceholder:     '메모 입력 (선택)',
     dateLabel:           '날짜',
+    timeLabel:           '시간',
     submit:              '등록하기',
     update:              '수정하기',
     deleteBtn:           '내역 삭제',
@@ -225,10 +226,20 @@ export const strings = {
     errMerchantEmpty:    '가맹점명을 입력해주세요.',
   },
 
+  timePicker: {
+    title:  '시간 선택',
+    hour:   '시',
+    minute: '분',
+    format: (h: number, m: number) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+  },
+
   datePicker: {
     weekdays:    ['일', '월', '화', '수', '목', '금', '토'],
-    monthFormat: (year: number, month: number) => `${year}년 ${month}월`,
-    dateFormat:  (year: number, month: number, day: number) => `${year}년 ${month}월 ${day}일`,
+    months:      ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    monthFormat:      (year: number, month: number) => `${year}년 ${month}월`,
+    yearFormat:       (year: number) => `${year}년`,
+    dateFormat:       (year: number, month: number, day: number) => `${year}년 ${month}월 ${day}일`,
+    dateWithDowFormat: (year: number, month: number, day: number, dow: string) => `${year}년 ${month}월 ${day}일 (${dow})`,
   },
 
   history: {
@@ -241,6 +252,9 @@ export const strings = {
     dateFormat:  (y: number, m: number, d: number) => `${y}년 ${m}월 ${d}일`,
     totalAmount: (n: number) => `총 ${n.toLocaleString()}원`,
     noCategory:  '기타',
+    groupHourFmt:  (hour: number) => `${hour}시`,
+    groupDayFmt:   (day: number, dow: string) => `${day}일 (${dow})`,
+    groupMonthFmt: (month: number) => `${month}월`,
   },
 
   stats: {

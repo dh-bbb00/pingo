@@ -7,7 +7,8 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   content:     { padding: 24, paddingBottom: 40 },
   screenTitle: { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, marginBottom: 28 },
 
-  gap:   { height: 20 },
+  gap:      { height: 20 },
+  smallGap: { height: 12 },
   label: { fontSize: t.fontSize.sm, color: t.colors.text.secondary, marginBottom: 8, fontWeight: t.fontWeight.medium },
 
   input:      { backgroundColor: t.colors.surface, borderRadius: t.radius.md, paddingHorizontal: 16, paddingVertical: 14, fontSize: t.fontSize.md, color: t.colors.text.primary },

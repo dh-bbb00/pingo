@@ -2,8 +2,11 @@ import { Dimensions, StyleSheet } from 'react-native'
 import type { Theme } from '@/theme'
 
 const SHEET_WIDTH = Dimensions.get('window').width - 48
-// 셀 너비 = (시트 너비 - 좌우 패딩 40) / 7
-const CELL_SIZE = Math.floor((SHEET_WIDTH - 40) / 7)
+const CELL_SIZE   = Math.floor((SHEET_WIDTH - 40) / 7)
+
+export const TIME_ITEM_H  = 36
+export const TIME_VISIBLE = 3
+export const TIME_PAD     = Math.floor(TIME_VISIBLE / 2)  // 1
 
 export { CELL_SIZE }
 
@@ -30,4 +33,9 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   dayText:            { fontSize: t.fontSize.sm, color: t.colors.text.primary },
   dayTextSelected:    { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold },
   dayTextToday:       { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
+
+  // 시간 피커
+  timeDivider: { height: 1, backgroundColor: t.colors.divider, marginTop: 16, marginBottom: 12, marginHorizontal: -20 },
+  timeRow:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  timeColon:   { fontSize: 24, fontWeight: '700', color: t.colors.text.primary, marginHorizontal: 8 },
 })
