@@ -10,6 +10,7 @@ import { makeStyles } from './DateNavigator.styles'
 import { isSameDay, isSameMonth, isSameYear } from '@/utils/date'
 
 const dp = strings.datePicker
+const tp = strings.timePicker
 
 interface Props {
   date:          Date
@@ -34,11 +35,14 @@ export default function DateNavigator({ date, onChange, onPrev, onNext, disableN
   const isNow = mode === 'year' ? isSameYear(date, now) : mode === 'month' ? isSameMonth(date, now) : isSameDay(date, now)
   const nextDisabled = disableNext ?? false
 
-  const dateLabel = mode === 'year'
+  const baseLabel = mode === 'year'
     ? dp.yearFormat(date.getFullYear())
     : mode === 'month'
       ? dp.monthFormat(date.getFullYear(), date.getMonth() + 1)
       : dp.dateWithDowFormat(date.getFullYear(), date.getMonth() + 1, date.getDate(), dp.weekdays[date.getDay()])
+  const dateLabel = showTime
+    ? `${baseLabel}  ${tp.format(date.getHours(), date.getMinutes())}`
+    : baseLabel
 
   const picker = mode === 'month' ? (
     <MonthPickerModal

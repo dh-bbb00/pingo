@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { TransactionForm } from '../types'
+import { startOfDay } from '@/utils/date'
 
 export function useTransactionForm(defaultData?: Partial<TransactionForm>) {
   const [form, setForm] = useState<TransactionForm>({
@@ -8,7 +9,7 @@ export function useTransactionForm(defaultData?: Partial<TransactionForm>) {
     categoryId:      defaultData?.categoryId      ?? '',
     paymentMethodId: defaultData?.paymentMethodId ?? '',
     memo:            defaultData?.memo            ?? '',
-    transactionDate: defaultData?.transactionDate ?? new Date(),
+    transactionDate: defaultData?.transactionDate ?? startOfDay(new Date()),
   })
 
   function setField<K extends keyof TransactionForm>(key: K, value: TransactionForm[K]) {
