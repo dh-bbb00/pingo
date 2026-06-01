@@ -36,10 +36,4 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   addCardBtn:  { paddingHorizontal: 20, paddingVertical: 8, borderRadius: t.radius.md, backgroundColor: t.colors.primary },
   addCardText: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },
 
-  btnRow:     { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingTop: 20 },
-  btn:        { flex: 1, paddingVertical: 14, borderRadius: t.radius.md, alignItems: 'center' },
-  cancelBtn:  { backgroundColor: t.colors.surfaceVariant },
-  confirmBtn: { backgroundColor: t.colors.primary },
-  cancelText:  { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
-  confirmText: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },
 })

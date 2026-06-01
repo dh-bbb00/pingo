@@ -33,10 +33,4 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   loader:    { paddingVertical: 12 },
   emptyText: { textAlign: 'center', paddingVertical: 24, fontSize: t.fontSize.sm, color: t.colors.text.secondary },
 
-  btnRow:     { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingTop: 20 },
-  btn:        { flex: 1, paddingVertical: 14, borderRadius: t.radius.md, alignItems: 'center' },
-  cancelBtn:  { backgroundColor: t.colors.surfaceVariant },
-  confirmBtn: { backgroundColor: t.colors.primary },
-  cancelText:  { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
-  confirmText: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },
 })

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, Modal, TouchableOpacity, FlatList, ActivityIndicator, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
@@ -21,22 +21,15 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const [localSelected, setLocalSelected] = useState(selectedId)
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useCategories('name_asc')
   const categories = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
 
-  const handleConfirm = () => {
-    onSelect(localSelected)
-    onClose()
-  }
-
   const renderItem = ({ item }: { item: Category }) => {
-    const isSelected = item.id === localSelected
+    const isSelected = item.id === selectedId
     return (
       <TouchableOpacity
         style={[styles.item, isSelected && styles.itemSelected]}
-        onPress={() => setLocalSelected(item.id)}
+        onPress={() => { onSelect(item.id); onClose() }}
         activeOpacity={0.7}
       >
         <View style={[styles.iconWrap, { backgroundColor: item.color }]}>
@@ -52,17 +45,17 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
 
   const NoneItem = (
     <TouchableOpacity
-      style={[styles.item, styles.noneItem, localSelected === NO_CATEGORY_ID && styles.itemSelected]}
-      onPress={() => setLocalSelected(NO_CATEGORY_ID)}
+      style={[styles.item, styles.noneItem, selectedId === NO_CATEGORY_ID && styles.itemSelected]}
+      onPress={() => { onSelect(NO_CATEGORY_ID); onClose() }}
       activeOpacity={0.7}
     >
       <View style={[styles.iconWrap, styles.noneIcon]}>
         <Text style={styles.iconEmoji}>—</Text>
       </View>
-      <Text style={[styles.itemName, localSelected === NO_CATEGORY_ID && styles.itemNameSelected]}>
+      <Text style={[styles.itemName, selectedId === NO_CATEGORY_ID && styles.itemNameSelected]}>
         {s.noCategoryLabel}
       </Text>
-      {localSelected === NO_CATEGORY_ID && <View style={styles.checkDot} />}
+      {selectedId === NO_CATEGORY_ID && <View style={styles.checkDot} />}
     </TouchableOpacity>
   )
 
@@ -97,14 +90,6 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
             )}
           </View>
 
-          <View style={styles.btnRow}>
-            <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onClose} activeOpacity={0.7}>
-              <Text style={styles.cancelText}>{strings.common.cancel}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.confirmBtn]} onPress={handleConfirm} activeOpacity={0.7}>
-              <Text style={styles.confirmText}>{strings.common.confirm}</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </Modal>

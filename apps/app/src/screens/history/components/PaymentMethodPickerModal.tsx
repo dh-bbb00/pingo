@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { View, Text, Modal, TouchableOpacity, FlatList, ActivityIndicator, SectionList, StyleSheet } from 'react-native'
+import React, { useMemo } from 'react'
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator, SectionList, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
@@ -26,8 +26,6 @@ export default function PaymentMethodPickerModal({ visible, selectedId, onSelect
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const [localSelected, setLocalSelected] = useState(selectedId)
-
   const { data: methods, isLoading } = usePaymentMethods()
 
   // CASH·GIFT_CARD → 기본 섹션, CARD → 카드 섹션 (카드 없으면 빈 섹션으로 헤더만 표시)
@@ -43,17 +41,12 @@ export default function PaymentMethodPickerModal({ visible, selectedId, onSelect
   }, [methods])
 
 
-  const handleConfirm = () => {
-    onSelect(localSelected)
-    onClose()
-  }
-
   const renderItem = ({ item }: { item: PaymentMethod }) => {
-    const isSelected = item.id === localSelected
+    const isSelected = item.id === selectedId
     return (
       <TouchableOpacity
         style={[styles.item, isSelected && styles.itemSelected]}
-        onPress={() => setLocalSelected(item.id)}
+        onPress={() => { onSelect(item.id); onClose() }}
         activeOpacity={0.7}
       >
         <Text style={styles.typeTag}>{TYPE_EMOJI[item.type]}</Text>
@@ -106,14 +99,6 @@ export default function PaymentMethodPickerModal({ visible, selectedId, onSelect
             )}
           </View>
 
-          <View style={styles.btnRow}>
-            <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onClose} activeOpacity={0.7}>
-              <Text style={styles.cancelText}>{strings.common.cancel}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.confirmBtn]} onPress={handleConfirm} activeOpacity={0.7}>
-              <Text style={styles.confirmText}>{strings.common.confirm}</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </Modal>
