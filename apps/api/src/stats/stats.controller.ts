@@ -35,6 +35,16 @@ export class StatsController {
     return { success: true, data };
   }
 
+  /** 홈 대시보드 — 이번달 요약, 카테고리별 TOP, 최근 5건, 6개월 추이 */
+  @Get('home-summary')
+  @ApiOperation({ summary: '홈 대시보드 요약' })
+  async homeSummary(
+    @CurrentUser() user: { id: string },
+  ): Promise<BasicResponse<unknown>> {
+    const data = await this.statsService.getHomeSummary(user.id);
+    return { success: true, data };
+  }
+
   /** 월별 지출 추이 — 선 그래프 데이터 */
   @Get('by-month')
   @ApiOperation({ summary: '월별 지출 통계' })

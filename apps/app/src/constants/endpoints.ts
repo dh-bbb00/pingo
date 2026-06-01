@@ -25,7 +25,8 @@ export const endpoints = {
     detail: (id: string) => `${V1}/fixed-expenses/${id}`,
   },
   stats: {
-    base: `${V1}/stats`,
+    base:        `${V1}/stats`,
+    homeSummary: `${V1}/stats/home-summary`,
   },
   users: {
     base:      `${V1}/users`,

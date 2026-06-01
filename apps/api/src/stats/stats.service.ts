@@ -85,6 +85,80 @@ export class StatsService {
     }));
   }
 
+  async getHomeSummary(userId: string) {
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    const startThis  = new Date(year, month - 1, 1);
+    const endThis    = new Date(year, month, 0, 23, 59, 59, 999);
+    const lastYear   = month === 1 ? year - 1 : year;
+    const lastMonth  = month === 1 ? 12 : month - 1;
+    const startLast  = new Date(lastYear, lastMonth - 1, 1);
+    const endLast    = new Date(lastYear, lastMonth, 0, 23, 59, 59, 999);
+    const trendStart = new Date(year, month - 7, 1); // 6개월 전 시작
+
+    const [byCatRows, lastMonthAgg, budgets, recentTx, trendRows] = await Promise.all([
+      this.prisma.transaction.groupBy({
+        by: ['categoryId'],
+        where: { userId, transactionDate: { gte: startThis, lte: endThis } },
+        _sum: { amount: true },
+        orderBy: { _sum: { amount: 'desc' } },
+      }),
+      this.prisma.transaction.aggregate({
+        where: { userId, transactionDate: { gte: startLast, lte: endLast } },
+        _sum: { amount: true },
+      }),
+      this.prisma.categoryMonthlyBudget.findMany({
+        where: { category: { userId }, year, month },
+        select: { categoryId: true, budget: true },
+      }),
+      this.prisma.transaction.findMany({
+        where: { userId },
+        orderBy: { transactionDate: 'desc' },
+        take: 5,
+        include: {
+          category:      { select: { id: true, name: true, icon: true, color: true } },
+          paymentMethod: { select: { id: true, name: true, type: true } },
+        },
+      }),
+      this.prisma.$queryRaw<{ month: Date; amount: bigint }[]>`
+        SELECT date_trunc('month', "transactionDate") AS month,
+               SUM(amount)::bigint AS amount
+        FROM   "Transaction"
+        WHERE  "userId" = ${userId}
+          AND  "transactionDate" >= ${trendStart}
+          AND  "transactionDate" <= ${endThis}
+        GROUP BY month
+        ORDER BY month ASC
+      `,
+    ]);
+
+    const categoryIds = byCatRows.map(r => r.categoryId).filter((id): id is string => !!id);
+    const categories  = await this.prisma.category.findMany({
+      where:  { id: { in: categoryIds } },
+      select: { id: true, name: true, icon: true, color: true },
+    });
+    const catMap    = Object.fromEntries(categories.map(c => [c.id, c]));
+    const budgetMap = Object.fromEntries(budgets.map(b => [b.categoryId, b.budget]));
+    const thisMonthTotal = byCatRows.reduce((s, r) => s + (r._sum.amount ?? 0), 0);
+
+    return {
+      thisMonthTotal,
+      lastMonthTotal: lastMonthAgg._sum.amount ?? 0,
+      byCategory: byCatRows.map(r => ({
+        category: r.categoryId ? (catMap[r.categoryId] ?? null) : null,
+        amount:   r._sum.amount ?? 0,
+        ratio:    thisMonthTotal > 0
+          ? Math.round(((r._sum.amount ?? 0) / thisMonthTotal) * 1000) / 10
+          : 0,
+        budget: r.categoryId ? (budgetMap[r.categoryId] ?? null) : null,
+      })),
+      recentTransactions: recentTx,
+      monthlyTrend: trendRows.map(r => ({ month: r.month, amount: Number(r.amount) })),
+    };
+  }
+
   private buildWhere(userId: string, query: StatsQueryDto) {
     return {
       userId,

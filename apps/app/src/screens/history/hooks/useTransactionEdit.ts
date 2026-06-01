@@ -28,6 +28,13 @@ export function useTransactionById(id: string | undefined) {
   })
 }
 
+function invalidateAll(queryClient: ReturnType<typeof useQueryClient>) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.stats.all }),
+  ])
+}
+
 export function useCreateTransaction() {
   const queryClient = useQueryClient()
   const navigation  = useNavigation()
@@ -35,7 +42,7 @@ export function useCreateTransaction() {
   return useMutation({
     mutationFn: (form: TransactionForm) => transactionsApi.create(toPayload(form)),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      await invalidateAll(queryClient)
       navigation.goBack()
       Toast.show({ type: 'success', text1: s.successCreate })
     },
@@ -50,7 +57,7 @@ export function useUpdateTransaction(id: string) {
   return useMutation({
     mutationFn: (form: TransactionForm) => transactionsApi.update(id, toPayload(form)),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      await invalidateAll(queryClient)
       navigation.goBack()
       Toast.show({ type: 'success', text1: s.successUpdate })
     },
@@ -65,7 +72,7 @@ export function useDeleteTransaction(id: string) {
   return useMutation({
     mutationFn: () => transactionsApi.delete(id),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      await invalidateAll(queryClient)
       navigation.goBack()
       Toast.show({ type: 'success', text1: s.successDelete })
     },

@@ -57,6 +57,27 @@ export const strings = {
     submit: '승인 요청하기',
   },
 
+  home: {
+    headerFmt:          (month: number) => `${month}월 소비 현황`,
+    totalLabel:         '이번달 총 소비',
+    vsMoreFmt:          (n: number) => `지난달보다 ${n.toLocaleString()}원 더 씀`,
+    vsLessFmt:          (n: number) => `지난달보다 ${n.toLocaleString()}원 덜 씀`,
+    vsSame:             '지난달과 동일',
+    noLastMonth:        '지난달 데이터 없음',
+    categoryTopTitle:   '카테고리별 소비',
+    categoryOthersFmt:  (n: number) => `기타 ${n}개`,
+    toStats:            '통계에서 더 보기 ›',
+    budgetAlertTitle:   '예산 알림',
+    budgetNearFmt:      (name: string, pct: number) => `${name} ${pct}% 도달`,
+    budgetOverFmt:      (name: string) => `${name} 예산 초과`,
+    recentTitle:        '최근 거래내역',
+    toHistory:          '전체 보기 ›',
+    trendTitle:         '소비 추이',
+    trendMonthFmt:      (m: number) => `${m}월`,
+    noData:             '이번달 거래 내역이 없습니다.',
+    noCategory:         '기타',
+  },
+
   more: {
     header:          '전체',
     fixedExpenses:   '고정 지출 관리',

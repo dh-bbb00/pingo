@@ -18,8 +18,9 @@ export const queryKeys = {
     list: () => ['fixed-expenses', 'list'] as const,
   },
   stats: {
-    all: ['stats'] as const,
-    monthly: (year: number, month: number) => ['stats', year, month] as const,
+    all:         ['stats'] as const,
+    homeSummary: () => ['stats', 'home-summary'] as const,
+    monthly:     (year: number, month: number) => ['stats', year, month] as const,
   },
   adminUsers: {
     all:  ['admin-users'] as const,
