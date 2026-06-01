@@ -22,7 +22,7 @@ const s  = strings.history
 const dp = strings.datePicker
 const DATE_TABS: HistoryDateTab[] = [s.tabDay, s.tabMonth, s.tabYear]
 
-type Section = { title: string; data: Transaction[]; total: number }
+type Section = { title: string; data: Transaction[] }
 
 
 function groupTransactions(transactions: Transaction[], tab: HistoryDateTab): Section[] {
@@ -51,10 +51,7 @@ function groupTransactions(transactions: Transaction[], tab: HistoryDateTab): Se
     groupMap.get(key)!.data.push(t)
   }
 
-  return Array.from(groupMap.values()).map(g => ({
-    ...g,
-    total: g.data.reduce((sum, t) => sum + t.amount, 0),
-  }))
+  return Array.from(groupMap.values())
 }
 
 export default function HistoryScreen() {
@@ -111,7 +108,6 @@ export default function HistoryScreen() {
   const renderSectionHeader = ({ section }: { section: Section }) => (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{section.title}</Text>
-      <Text style={styles.sectionSubtotal}>{section.total.toLocaleString()}원</Text>
     </View>
   )
 
