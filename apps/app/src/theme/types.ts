@@ -23,6 +23,7 @@ export interface ThemeColors {
     /** UI 피드백용 성공 — income(도메인)과 구분 */
     success:           string
     successBackground: string
+    warningBackground: string
     /** UI 피드백용 오류 — expense(도메인)과 구분 */
     error:           string
     errorBackground: string

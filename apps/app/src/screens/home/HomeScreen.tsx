@@ -98,31 +98,26 @@ export default function HomeScreen() {
         {budgetAlerts.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{s.budgetAlertTitle}</Text>
-            <View style={styles.alertBox}>
+            <View style={styles.alertList}>
               {budgetAlerts.map((item, idx) => {
                 const pct  = Math.round((item.amount / item.budget!) * 100)
                 const over = pct >= OVER_PCT
                 const name = item.category?.name ?? s.noCategory
+                const color = over ? theme.colors.semantic.error : theme.colors.semantic.warning
+                const bg    = over ? theme.colors.semantic.errorBackground : theme.colors.semantic.warningBackground
                 return (
                   <View
                     key={item.category?.id ?? idx}
-                    style={[styles.alertRow, idx > 0 && styles.alertRowBorder]}
+                    style={[styles.alertRow, { backgroundColor: bg, borderLeftColor: color }]}
                   >
-                    <View
-                      style={[
-                        styles.alertDot,
-                        { backgroundColor: over ? theme.colors.semantic.error : theme.colors.primary },
-                      ]}
-                    />
-                    <Text style={styles.alertText}>
-                      {over ? s.budgetOverFmt(name) : s.budgetNearFmt(name, pct)}
-                    </Text>
-                    <Text style={[
-                      styles.alertPct,
-                      { color: over ? theme.colors.semantic.error : theme.colors.primary },
-                    ]}>
-                      {pct}%
-                    </Text>
+                    <Text style={styles.alertIcon}>{over ? '🚨' : '⚠️'}</Text>
+                    <View style={styles.alertBody}>
+                      <Text style={styles.alertName}>{name}</Text>
+                      <Text style={styles.alertDesc}>
+                        {over ? s.budgetOverFmt(name) : s.budgetNearFmt(name, pct)}
+                      </Text>
+                    </View>
+                    <Text style={[styles.alertPct, { color }]}>{pct}%</Text>
                   </View>
                 )
               })}

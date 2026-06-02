@@ -24,6 +24,7 @@ export const lightTheme: Theme = {
       warning:           palette.yellow500,
       success:           palette.green500,
       successBackground: palette.green100,
+      warningBackground: palette.yellow100,
       error:             palette.red500,
       errorBackground:   palette.red100,
     },

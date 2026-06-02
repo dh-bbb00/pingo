@@ -24,6 +24,7 @@ export const darkTheme: Theme = {
       warning:           palette.yellow500,
       success:           palette.green500,
       successBackground: palette.green900,
+      warningBackground: palette.gray700,
       error:             palette.red400,
       errorBackground:   palette.red900,
     },

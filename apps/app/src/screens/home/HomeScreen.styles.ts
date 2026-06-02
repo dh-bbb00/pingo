@@ -21,12 +21,13 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   linkText:     { fontSize: t.fontSize.sm, color: t.colors.primary, fontWeight: t.fontWeight.medium },
 
   // 예산 알림
-  alertBox:       { backgroundColor: t.colors.surface, borderRadius: t.radius.lg, overflow: 'hidden' },
-  alertRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16 },
-  alertRowBorder: { borderTopWidth: 1, borderTopColor: t.colors.divider },
-  alertDot:       { width: 8, height: 8, borderRadius: 4, marginRight: 10 },
-  alertText:      { flex: 1, fontSize: t.fontSize.sm, color: t.colors.text.primary },
-  alertPct:       { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold },
+  alertList:      { gap: 8 },
+  alertRow:       { flexDirection: 'row', alignItems: 'center', borderRadius: t.radius.md, paddingVertical: 10, paddingHorizontal: 14, borderLeftWidth: 4 },
+  alertIcon:      { fontSize: 18, marginRight: 10 },
+  alertBody:      { flex: 1 },
+  alertName:      { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
+  alertDesc:      { fontSize: t.fontSize.xs, color: t.colors.text.secondary, marginTop: 2 },
+  alertPct:       { fontSize: t.fontSize.md, fontWeight: t.fontWeight.bold },
 
   // 카테고리 바
   catRow:          { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },

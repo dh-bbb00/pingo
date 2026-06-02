@@ -25,5 +25,6 @@ export const palette = {
   green500: '#10B981',
   green900: '#064E3B',
 
+  yellow100: '#FEF3C7',
   yellow500: '#F59E0B',
 } as const
