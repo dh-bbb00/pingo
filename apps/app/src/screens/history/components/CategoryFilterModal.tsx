@@ -2,32 +2,25 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator, FlatList, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
-import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
-import { makeStyles } from './PaymentMethodPickerModal.styles'
+import { useCategoriesAll } from '@/hooks/queries/useCategoriesAll'
+import type { Category } from '@/api/endpoints/categories.api'
+import { makeStyles } from './CategoryFilterModal.styles'
 
 const s = strings.history
 
 interface Props {
-  visible:    boolean
+  visible:      boolean
   committedIds: string[]
-  onConfirm:  (ids: string[]) => void
-  onClose:    () => void
+  onConfirm:    (ids: string[]) => void
+  onClose:      () => void
 }
 
-const TYPE_EMOJI: Record<string, string> = {
-  CASH:      '💰',
-  GIFT_CARD: '🎁',
-  CARD:      '💳',
-}
-
-export default function PaymentMethodPickerModal({ visible, committedIds, onConfirm, onClose }: Props) {
+export default function CategoryFilterModal({ visible, committedIds, onConfirm, onClose }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const { data: methods = [], isLoading } = usePaymentMethods()
+  const { data: categories = [], isLoading } = useCategoriesAll()
 
-  // 모달 열릴 때 현재 커밋된 선택으로 초기화
   const [localIds, setLocalIds] = useState<string[]>(committedIds)
   useEffect(() => {
     if (visible) setLocalIds(committedIds)
@@ -45,11 +38,7 @@ export default function PaymentMethodPickerModal({ visible, committedIds, onConf
     onClose()
   }
 
-  function handleClose() {
-    onClose()  // 확인 없이 닫기 — localIds 버림
-  }
-
-  const renderItem = ({ item }: { item: PaymentMethod }) => {
+  const renderItem = ({ item }: { item: Category }) => {
     const isSelected = localIds.includes(item.id)
     return (
       <TouchableOpacity
@@ -57,13 +46,12 @@ export default function PaymentMethodPickerModal({ visible, committedIds, onConf
         onPress={() => toggle(item.id)}
         activeOpacity={0.7}
       >
-        <Text style={styles.typeTag}>{TYPE_EMOJI[item.type]}</Text>
-        <View style={styles.itemBody}>
-          <Text style={[styles.itemName, isSelected && styles.itemNameSelected]} numberOfLines={1}>
-            {item.name}
-            {item.cardNumber ? <Text style={styles.cardNumber}> ({item.cardNumber})</Text> : null}
-          </Text>
+        <View style={[styles.iconWrap, { backgroundColor: item.color }]}>
+          <Text style={styles.icon}>{item.icon}</Text>
         </View>
+        <Text style={[styles.itemName, isSelected && styles.itemNameSelected]} numberOfLines={1}>
+          {item.name}
+        </Text>
         <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
           {isSelected && <Text style={styles.checkmark}>✓</Text>}
         </View>
@@ -72,12 +60,12 @@ export default function PaymentMethodPickerModal({ visible, committedIds, onConf
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={handleClose} activeOpacity={1} />
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.title}>{s.filterPaymentPickerTitle}</Text>
+            <Text style={styles.title}>{s.filterCategoryPickerTitle}</Text>
             <TouchableOpacity onPress={() => setLocalIds([])} activeOpacity={0.7}>
               <Text style={[styles.clearBtn, localIds.length === 0 && styles.clearBtnDisabled]}>
                 {s.filterAll}
@@ -90,7 +78,7 @@ export default function PaymentMethodPickerModal({ visible, committedIds, onConf
               <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
             ) : (
               <FlatList
-                data={methods}
+                data={categories}
                 keyExtractor={item => item.id}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}

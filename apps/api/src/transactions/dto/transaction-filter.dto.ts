@@ -1,5 +1,5 @@
-import { IsOptional, IsString, IsNumber, IsDateString, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsArray, IsNumber, IsDateString, Min } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { VM } from '../../common/constants/validation-messages';
 
@@ -29,10 +29,12 @@ export class TransactionFilterDto {
   @IsDateString({}, { message: VM.dateString })
   endDate?: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, isArray: true, description: '카테고리 ID 필터 (복수 선택)' })
   @IsOptional()
-  @IsString({ message: VM.string })
-  categoryId?: string;
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @IsString({ each: true, message: VM.string })
+  categoryIds?: string[];
 
   @ApiProperty({ required: false, description: '최소 금액 (원)' })
   @IsOptional()
@@ -46,10 +48,12 @@ export class TransactionFilterDto {
   @IsNumber({}, { message: VM.number })
   amountMax?: number;
 
-  @ApiProperty({ required: false, description: '결제수단 ID 필터' })
+  @ApiProperty({ required: false, isArray: true, description: '결제수단 ID 필터 (복수 선택)' })
   @IsOptional()
-  @IsString({ message: VM.string })
-  paymentMethodId?: string;
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @IsString({ each: true, message: VM.string })
+  paymentMethodIds?: string[];
 
   @ApiProperty({ required: false, description: '가맹점명 부분 검색' })
   @IsOptional()

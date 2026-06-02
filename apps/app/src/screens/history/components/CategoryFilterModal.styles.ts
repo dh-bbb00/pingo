@@ -21,20 +21,20 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 12,
   },
-  title:           { fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
-  clearBtn:        { fontSize: t.fontSize.sm, color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
-  clearBtnDisabled:{ color: t.colors.text.disabled },
+  title:            { fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
+  clearBtn:         { fontSize: t.fontSize.sm, color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
+  clearBtnDisabled: { color: t.colors.text.disabled },
 
-  listWrap: { maxHeight: screenHeight * 0.35, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
+  listWrap: { maxHeight: screenHeight * 0.45, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
 
-  item:         { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 14, backgroundColor: t.colors.background },
+  item:         { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12, backgroundColor: t.colors.background },
   itemSelected: { backgroundColor: t.colors.primaryLight },
-  itemBody:     { flex: 1 },
-  itemName:         { fontSize: t.fontSize.md, color: t.colors.text.primary },
-  itemNameSelected: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
-  cardNumber:       { fontSize: t.fontSize.sm, color: t.colors.text.secondary, fontWeight: t.fontWeight.regular },
 
-  typeTag:  { fontSize: 20, marginRight: 12 },
+  iconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  icon:     { fontSize: 16 },
+
+  itemName:         { flex: 1, fontSize: t.fontSize.md, color: t.colors.text.primary },
+  itemNameSelected: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
 
   checkbox: {
     width: 22,

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { View, Text, SectionList, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
@@ -13,6 +13,8 @@ import TransactionItem from './components/TransactionItem'
 import { useHistoryFilter } from './hooks/useHistoryFilter'
 import type { HistoryDateTab } from './types'
 import DateNavigator from '@/components/DateNavigator'
+import PaymentMethodPickerModal from './components/PaymentMethodPickerModal'
+import CategoryFilterModal from './components/CategoryFilterModal'
 import { makeStyles } from './HistoryScreen.styles'
 import { startOfDay, endOfDay, addDays, addMonths, addYears, isSameDay, isSameMonth, isSameYear } from '@/utils/date'
 
@@ -59,29 +61,45 @@ export default function HistoryScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const navigation = useNavigation<Nav>()
-  const { filter, setTab, setDate } = useHistoryFilter()
+  const { filter, setTab, setDate, setCategoryIds, setPaymentMethodIds } = useHistoryFilter()
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+  const [showPaymentMethodPicker, setShowPaymentMethodPicker] = useState(false)
 
-  const dateFilter = useMemo(() => {
+  const categoryLabel = filter.categoryIds.length === 0
+    ? s.filterCategory
+    : s.filterCategorySelected(filter.categoryIds.length)
+  const paymentLabel = filter.paymentMethodIds.length === 0
+    ? s.filterPaymentMethod
+    : s.filterPaymentMethodSelected(filter.paymentMethodIds.length)
+
+  const queryFilter = useMemo(() => {
     const d = filter.date
+    const base = {
+      ...(filter.categoryIds.length      && { categoryIds:      filter.categoryIds }),
+      ...(filter.paymentMethodIds.length && { paymentMethodIds: filter.paymentMethodIds }),
+    }
     if (filter.tab === s.tabMonth) {
       return {
+        ...base,
         startDate: new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0).toISOString(),
         endDate:   new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).toISOString(),
       }
     }
     if (filter.tab === s.tabYear) {
       return {
+        ...base,
         startDate: new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0).toISOString(),
         endDate:   new Date(d.getFullYear(), 11, 31, 23, 59, 59, 999).toISOString(),
       }
     }
     return {
+      ...base,
       startDate: startOfDay(d).toISOString(),
       endDate:   endOfDay(d).toISOString(),
     }
-  }, [filter.date, filter.tab])
+  }, [filter.date, filter.tab, filter.categoryIds, filter.paymentMethodIds])
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useTransactions(dateFilter)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useTransactions(queryFilter)
 
   const transactions = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
   const totalAmount  = data?.pages[0]?.pagination.totalAmount ?? 0
@@ -149,6 +167,28 @@ export default function HistoryScreen() {
         variant="flat"
       />
 
+      {/* 카테고리 + 결제수단 필터 */}
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={[styles.filterChip, filter.categoryIds.length > 0 && styles.filterChipActive]}
+          onPress={() => setShowCategoryPicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.filterChipText, filter.categoryIds.length > 0 && styles.filterChipTextActive]}>
+            {categoryLabel}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterChip, filter.paymentMethodIds.length > 0 && styles.filterChipActive]}
+          onPress={() => setShowPaymentMethodPicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.filterChipText, filter.paymentMethodIds.length > 0 && styles.filterChipTextActive]}>
+            {paymentLabel}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* 총 금액 */}
       {!isLoading && (
         <View style={styles.summaryRow}>
@@ -188,6 +228,19 @@ export default function HistoryScreen() {
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
+
+      <CategoryFilterModal
+        visible={showCategoryPicker}
+        committedIds={filter.categoryIds}
+        onConfirm={setCategoryIds}
+        onClose={() => setShowCategoryPicker(false)}
+      />
+      <PaymentMethodPickerModal
+        visible={showPaymentMethodPicker}
+        committedIds={filter.paymentMethodIds}
+        onConfirm={setPaymentMethodIds}
+        onClose={() => setShowPaymentMethodPicker(false)}
+      />
     </SafeAreaView>
   )
 }

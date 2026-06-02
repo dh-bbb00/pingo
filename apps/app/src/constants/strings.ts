@@ -276,6 +276,14 @@ export const strings = {
     groupHourFmt:  (hour: number) => `${hour}시`,
     groupDayFmt:   (day: number, dow: string) => `${day}일 (${dow})`,
     groupMonthFmt: (month: number) => `${month}월`,
+    filterPaymentMethod:        '결제수단',
+    filterCategory:             '카테고리',
+    filterAll:                  '전체',
+    filterPaymentMethodSelected: (n: number) => `결제수단 ${n}개`,
+    filterCategorySelected:      (n: number) => `카테고리 ${n}개`,
+    filterPickerConfirm:         '확인',
+    filterPaymentPickerTitle:    '결제수단 필터',
+    filterCategoryPickerTitle:   '카테고리 필터',
   },
 
   stats: {

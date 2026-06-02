@@ -3,10 +3,12 @@ import type { HistoryDateTab, HistoryFilter } from '../types'
 
 export function useHistoryFilter() {
   const [filter, setFilter] = useState<HistoryFilter>({
-    tab:       '일',
-    date:      new Date(),
-    isPeriod:  false,
-    periodEnd: null,
+    tab:              '일',
+    date:             new Date(),
+    isPeriod:         false,
+    periodEnd:        null,
+    categoryIds:      [],
+    paymentMethodIds: [],
   })
 
   function setTab(tab: HistoryDateTab) {
@@ -29,5 +31,13 @@ export function useHistoryFilter() {
     setFilter((prev) => ({ ...prev, periodEnd: date }))
   }
 
-  return { filter, setTab, setDate, togglePeriod, setPeriodEnd }
+  function setCategoryIds(ids: string[]) {
+    setFilter((prev) => ({ ...prev, categoryIds: ids }))
+  }
+
+  function setPaymentMethodIds(ids: string[]) {
+    setFilter((prev) => ({ ...prev, paymentMethodIds: ids }))
+  }
+
+  return { filter, setTab, setDate, togglePeriod, setPeriodEnd, setCategoryIds, setPaymentMethodIds }
 }

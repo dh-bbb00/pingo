@@ -24,8 +24,8 @@ export class TransactionsService {
         ...(filter.endDate && { lte: new Date(filter.endDate) }),
       };
     }
-    if (filter.categoryId) where.categoryId = filter.categoryId;
-    if (filter.paymentMethodId) where.paymentMethodId = filter.paymentMethodId;
+    if (filter.categoryIds?.length) where.categoryId = { in: filter.categoryIds };
+    if (filter.paymentMethodIds?.length) where.paymentMethodId = { in: filter.paymentMethodIds };
     if (filter.merchantName) where.merchantName = { contains: filter.merchantName };
     if (filter.amountMin !== undefined || filter.amountMax !== undefined) {
       where.amount = {

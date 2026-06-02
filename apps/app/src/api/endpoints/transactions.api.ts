@@ -36,11 +36,12 @@ export interface TransactionPagination {
 }
 
 export interface TransactionListParams {
-  page:       number
-  pageSize:   number
-  startDate?: string
-  endDate?:   string
-  categoryId?: string
+  page:              number
+  pageSize:          number
+  startDate?:        string
+  endDate?:          string
+  categoryIds?:      string[]
+  paymentMethodIds?: string[]
 }
 
 export interface TransactionPayload {

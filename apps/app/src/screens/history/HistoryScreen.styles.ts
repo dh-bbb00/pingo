@@ -13,8 +13,15 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   tabText:       { fontSize: t.fontSize.sm, color: t.colors.text.disabled, fontWeight: t.fontWeight.medium },
   tabTextActive: { color: t.colors.primary, fontWeight: t.fontWeight.bold },
 
+  // 결제수단 필터
+  filterRow:            { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 8, gap: 8 },
+  filterChip:           { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: t.colors.surface },
+  filterChipActive:     { backgroundColor: t.colors.primaryLight },
+  filterChipText:       { fontSize: t.fontSize.sm, color: t.colors.text.secondary },
+  filterChipTextActive: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
+
   // 요약
-  summaryRow:    { paddingHorizontal: 20, paddingVertical: 8, marginBottom: 4 },
+  summaryRow:    { paddingHorizontal: 20, paddingVertical: 4, marginBottom: 4 },
   summaryAmount: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.secondary },
 
   // 리스트

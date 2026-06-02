@@ -1,10 +1,12 @@
 export type HistoryDateTab = '일' | '월' | '년'
 
 export interface HistoryFilter {
-  tab:        HistoryDateTab
-  date:       Date
-  isPeriod:   boolean
-  periodEnd:  Date | null
+  tab:              HistoryDateTab
+  date:             Date
+  isPeriod:         boolean
+  periodEnd:        Date | null
+  categoryIds:      string[]  // [] = 전체
+  paymentMethodIds: string[]  // [] = 전체
 }
 
 export interface TransactionForm {

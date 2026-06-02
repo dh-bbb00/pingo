@@ -5,9 +5,10 @@ import { queryKeys } from '@/constants/queryKeys'
 const PAGE_SIZE = 20
 
 export interface TransactionFilter {
-  startDate?:  string
-  endDate?:    string
-  categoryId?: string
+  startDate?:        string
+  endDate?:          string
+  categoryIds?:      string[]
+  paymentMethodIds?: string[]
 }
 
 export function useTransactions(filter: TransactionFilter) {
