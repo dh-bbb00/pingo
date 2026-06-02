@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native'
 import {
   useApprovals,
   useApproveRequest,
@@ -13,6 +13,9 @@ import type { ApprovalRequest } from '../types'
 import type { ApprovalStatus } from '@/api/endpoints/approvals.api'
 import { makeStyles } from './ApprovalManagementScreen.styles'
 import ApprovalRequestCard from './components/ApprovalRequestCard'
+import ApprovalRequestCardSkeleton from './components/ApprovalRequestCardSkeleton'
+
+const SKELETON_KEYS = Array.from({ length: 3 }, (_, i) => `sk-${i}`)
 
 const s = strings.approvalManagement
 
@@ -68,7 +71,11 @@ export default function ApprovalManagementScreen() {
       </View>
 
       {isLoading
-        ? <ActivityIndicator style={styles.loader} />
+        ? (
+          <View style={styles.list}>
+            {SKELETON_KEYS.map(key => <ApprovalRequestCardSkeleton key={key} />)}
+          </View>
+        )
         : (
           <FlatList<ApprovalRequest>
             data={data}

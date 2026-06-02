@@ -13,7 +13,6 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   tabText:        { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.secondary },
   tabTextActive:  { color: t.colors.text.primary, fontWeight: t.fontWeight.semiBold },
 
-  loader:         { marginTop: 80 },
   list:           { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
   empty:          { textAlign: 'center', color: t.colors.text.disabled, marginTop: 80 },
 

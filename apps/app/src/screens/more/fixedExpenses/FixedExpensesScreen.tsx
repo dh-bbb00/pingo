@@ -10,6 +10,9 @@ import type { FixedExpenseDetail } from './types'
 import { makeStyles } from './FixedExpensesScreen.styles'
 import { useFixedExpenses, useUpdateFixedExpense } from '@/hooks/queries/useFixedExpenses'
 import { handleApiError } from '@/api/errorHandler'
+import FixedExpenseItemSkeleton from './components/FixedExpenseItemSkeleton'
+
+const SKELETON_KEYS = Array.from({ length: 5 }, (_, i) => `sk-${i}`)
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenses'>
 
@@ -21,7 +24,7 @@ export default function FixedExpensesScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const navigation = useNavigation<Nav>()
-  const { data: items = [] } = useFixedExpenses()
+  const { data: items, isLoading } = useFixedExpenses()
   const { mutate: updateItem } = useUpdateFixedExpense()
 
   function handleToggleActive(item: FixedExpenseDetail) {
@@ -79,19 +82,30 @@ export default function FixedExpensesScreen() {
     <View style={styles.container}>
       <Text style={styles.header}>{s.header}</Text>
 
-      <FlatList<FixedExpenseDetail>
-        data={items}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.divider} />}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyWrap}>
-            <Text style={styles.empty}>{s.empty}</Text>
-          </View>
-        }
-      />
+      {isLoading && !items ? (
+        <View style={styles.list}>
+          {SKELETON_KEYS.map((key, i) => (
+            <React.Fragment key={key}>
+              <FixedExpenseItemSkeleton />
+              {i < SKELETON_KEYS.length - 1 && <View style={styles.divider} />}
+            </React.Fragment>
+          ))}
+        </View>
+      ) : (
+        <FlatList<FixedExpenseDetail>
+          data={items ?? []}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyWrap}>
+              <Text style={styles.empty}>{s.empty}</Text>
+            </View>
+          }
+        />
+      )}
 
       <TouchableOpacity
         style={styles.fab}

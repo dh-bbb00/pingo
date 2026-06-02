@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, SectionList, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, SectionList, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -10,7 +10,10 @@ import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
 import PaymentMethodItem from './components/PaymentMethodItem'
+import PaymentMethodSkeleton from './components/PaymentMethodSkeleton'
 import { makeStyles } from './PaymentMethodsScreen.styles'
+
+const SKELETON_KEYS = Array.from({ length: 4 }, (_, i) => `sk-${i}`)
 
 type Nav = NativeStackNavigationProp<MoreStackParamList, 'PaymentMethods'>
 
@@ -18,7 +21,7 @@ const s = strings.paymentMethods
 
 export default function PaymentMethodsScreen() {
   const { theme } = useTheme()
-  const styles    = useMemo(() => makeStyles(theme), [theme])
+  const styles = useMemo(() => makeStyles(theme), [theme])
   const navigation = useNavigation<Nav>()
 
   const { data: methods, isLoading } = usePaymentMethods()
@@ -37,7 +40,7 @@ export default function PaymentMethodsScreen() {
       <Text style={styles.header}>{s.header}</Text>
 
       {isLoading ? (
-        <ActivityIndicator color={theme.colors.primary} style={{ marginTop: 40 }} />
+        SKELETON_KEYS.map(key => <PaymentMethodSkeleton key={key} />)
       ) : (
         <SectionList
           sections={sections}
