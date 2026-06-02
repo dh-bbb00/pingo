@@ -32,8 +32,9 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   footer:   { paddingVertical: 16 },
 
   // 섹션 헤더
-  sectionHeader: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  sectionTitle:  { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.secondary },
+  sectionHeader:      { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+  sectionTitle:       { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.secondary },
+  skeletonSectionTitle: { width: 60, height: 12, borderRadius: 4, backgroundColor: t.colors.surfaceVariant },
 
   // FAB
   fab:     { position: 'absolute', right: 24, bottom: 24, width: 52, height: 52, borderRadius: 16, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center', elevation: 3 },

@@ -10,6 +10,7 @@ import { strings } from '@/constants/strings'
 import { useTransactions } from '@/hooks/queries/useTransactions'
 import type { Transaction } from '@/api/endpoints/transactions.api'
 import TransactionItem from './components/TransactionItem'
+import TransactionItemSkeleton from './components/TransactionItemSkeleton'
 import { useHistoryFilter } from './hooks/useHistoryFilter'
 import type { HistoryDateTab } from './types'
 import DateNavigator from '@/components/DateNavigator'
@@ -25,6 +26,8 @@ const dp = strings.datePicker
 const DATE_TABS: HistoryDateTab[] = [s.tabDay, s.tabMonth, s.tabYear]
 
 type Section = { title: string; data: Transaction[] }
+
+const SKELETON_KEYS = Array.from({ length: 7 }, (_, i) => `sk-${i}`)
 
 
 function groupTransactions(transactions: Transaction[], tab: HistoryDateTab): Section[] {
@@ -196,30 +199,41 @@ export default function HistoryScreen() {
         </View>
       )}
 
-      <SectionList
-        sections={sections}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-        ItemSeparatorComponent={() => <View style={styles.divider} />}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        stickySectionHeadersEnabled={false}
-        ListEmptyComponent={
-          !isLoading ? (
+      {isLoading && !data ? (
+        <View style={styles.list}>
+          {SKELETON_KEYS.map((key, i) => (
+            <React.Fragment key={key}>
+              {i === 0 && <View style={styles.sectionHeader}><View style={styles.skeletonSectionTitle} /></View>}
+              {i === 3 && <View style={styles.sectionHeader}><View style={styles.skeletonSectionTitle} /></View>}
+              <TransactionItemSkeleton />
+              {i < SKELETON_KEYS.length - 1 && <View style={styles.divider} />}
+            </React.Fragment>
+          ))}
+        </View>
+      ) : (
+        <SectionList
+          sections={sections}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          renderSectionHeader={renderSectionHeader}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          stickySectionHeadersEnabled={false}
+          ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Text style={styles.empty}>{s.empty}</Text>
             </View>
-          ) : null
-        }
-        ListFooterComponent={
-          isFetchingNextPage
-            ? <ActivityIndicator style={styles.footer} color={theme.colors.primary} />
-            : null
-        }
-        onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
-        onEndReachedThreshold={0.3}
-      />
+          }
+          ListFooterComponent={
+            isFetchingNextPage
+              ? <ActivityIndicator style={styles.footer} color={theme.colors.primary} />
+              : null
+          }
+          onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
+          onEndReachedThreshold={0.3}
+        />
+      )}
 
       <TouchableOpacity
         style={styles.fab}
