@@ -4,7 +4,7 @@ import { queryKeys } from '@/constants/queryKeys'
 
 export function useCategoriesAll() {
   return useQuery({
-    queryKey: queryKeys.categories.list('name_asc'),
+    queryKey: [...queryKeys.categories.all, 'flat'] as const,
     queryFn: () =>
       categoriesApi.getList({ page: 1, pageSize: 200, sort: 'name_asc' }).then(r => r.data.data),
   })

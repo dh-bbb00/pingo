@@ -236,6 +236,7 @@ export default function HistoryScreen() {
         onClose={() => setShowCategoryPicker(false)}
       />
       <PaymentMethodPickerModal
+        mode="multi"
         visible={showPaymentMethodPicker}
         committedIds={filter.paymentMethodIds}
         onConfirm={setPaymentMethodIds}

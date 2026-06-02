@@ -2,13 +2,8 @@ import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useTheme } from '@/theme'
 import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
+import { PAYMENT_METHOD_EMOJI } from '@/constants/emojis'
 import { makeStyles } from './PaymentMethodItem.styles'
-
-const TYPE_EMOJI: Record<string, string> = {
-  CASH:      '💰',
-  GIFT_CARD: '🎁',
-  CARD:      '💳',
-}
 
 interface Props {
   item:     PaymentMethod
@@ -22,7 +17,7 @@ export default function PaymentMethodItem({ item, onPress }: Props) {
   const inner = (
     <>
       <View style={styles.iconWrap}>
-        <Text style={styles.iconEmoji}>{TYPE_EMOJI[item.type]}</Text>
+        <Text style={styles.iconEmoji}>{PAYMENT_METHOD_EMOJI[item.type]}</Text>
       </View>
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>

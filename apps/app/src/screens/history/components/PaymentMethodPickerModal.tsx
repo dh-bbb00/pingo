@@ -1,106 +1,151 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, FlatList, StyleSheet } from 'react-native'
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator, SectionList, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
+import { PAYMENT_METHOD_EMOJI } from '@/constants/emojis'
 import { makeStyles } from './PaymentMethodPickerModal.styles'
 
-const s = strings.history
+const s = strings.transactionEdit
+const sf = strings.history
 
-interface Props {
-  visible:    boolean
+type SingleProps = {
+  mode:      'single'
+  selectedId: string
+  onSelect:  (id: string) => void
+  onAddCard: () => void
+}
+
+type MultiProps = {
+  mode:         'multi'
   committedIds: string[]
-  onConfirm:  (ids: string[]) => void
-  onClose:    () => void
+  onConfirm:    (ids: string[]) => void
 }
 
-const TYPE_EMOJI: Record<string, string> = {
-  CASH:      '💰',
-  GIFT_CARD: '🎁',
-  CARD:      '💳',
-}
+type Props = { visible: boolean; onClose: () => void } & (SingleProps | MultiProps)
 
-export default function PaymentMethodPickerModal({ visible, committedIds, onConfirm, onClose }: Props) {
+export default function PaymentMethodPickerModal(props: Props) {
+  const { visible, onClose } = props
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const { data: methods = [], isLoading } = usePaymentMethods()
+  const { data: methods, isLoading } = usePaymentMethods()
 
-  // 모달 열릴 때 현재 커밋된 선택으로 초기화
-  const [localIds, setLocalIds] = useState<string[]>(committedIds)
+  // 멀티 모드 전용 로컬 상태
+  const [localIds, setLocalIds] = useState<string[]>([])
   useEffect(() => {
-    if (visible) setLocalIds(committedIds)
+    if (visible && props.mode === 'multi') setLocalIds(props.committedIds)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible])  // visible 변화(열림) 시점 스냅샷만 사용 — committedIds 의도적 제외
+  }, [visible])
 
-  function toggle(id: string) {
-    setLocalIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    )
+  const sections = useMemo(() => {
+    if (!methods) return []
+    const fixed = methods.filter(m => m.type === 'CASH' || m.type === 'GIFT_CARD')
+    const cards = methods.filter(m => m.type === 'CARD')
+    const result = []
+    if (fixed.length > 0) result.push({ title: s.paymentMethodSectionFixed, data: fixed })
+    result.push({ title: s.paymentMethodSectionCard, data: cards })
+    return result
+  }, [methods])
+
+  function handleItemPress(id: string) {
+    if (props.mode === 'single') {
+      props.onSelect(id)
+      onClose()
+    } else {
+      setLocalIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+    }
   }
 
   function handleConfirm() {
-    onConfirm(localIds)
+    if (props.mode === 'multi') props.onConfirm(localIds)
     onClose()
   }
 
-  function handleClose() {
-    onClose()  // 확인 없이 닫기 — localIds 버림
-  }
-
   const renderItem = ({ item }: { item: PaymentMethod }) => {
-    const isSelected = localIds.includes(item.id)
+    const isSelected = props.mode === 'single'
+      ? item.id === props.selectedId
+      : localIds.includes(item.id)
+
     return (
       <TouchableOpacity
         style={[styles.item, isSelected && styles.itemSelected]}
-        onPress={() => toggle(item.id)}
+        onPress={() => handleItemPress(item.id)}
         activeOpacity={0.7}
       >
-        <Text style={styles.typeTag}>{TYPE_EMOJI[item.type]}</Text>
-        <View style={styles.itemBody}>
-          <Text style={[styles.itemName, isSelected && styles.itemNameSelected]} numberOfLines={1}>
-            {item.name}
-            {item.cardNumber ? <Text style={styles.cardNumber}> ({item.cardNumber})</Text> : null}
-          </Text>
-        </View>
-        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-          {isSelected && <Text style={styles.checkmark}>✓</Text>}
-        </View>
+        <Text style={styles.typeTag}>{PAYMENT_METHOD_EMOJI[item.type]}</Text>
+        <Text style={[styles.itemName, isSelected && styles.itemNameSelected]} numberOfLines={1}>
+          {item.name}
+          {item.cardNumber ? <Text style={styles.cardNumber}> ({item.cardNumber})</Text> : null}
+        </Text>
+        {props.mode === 'single'
+          ? isSelected && <View style={styles.checkDot} />
+          : <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+              {isSelected && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+        }
       </TouchableOpacity>
     )
   }
 
+  const renderSectionHeader = ({ section }: { section: { title: string } }) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionText}>{section.title}</Text>
+    </View>
+  )
+
+  const renderSectionFooter = ({ section }: { section: { title: string; data: PaymentMethod[] } }) => {
+    if (props.mode !== 'single') return null
+    if (section.title !== s.paymentMethodSectionCard || section.data.length > 0) return null
+    return (
+      <View style={styles.noCardWrap}>
+        <Text style={styles.emptyText}>{strings.paymentMethods.noCards}</Text>
+        <TouchableOpacity style={styles.addCardBtn} onPress={() => { onClose(); props.onAddCard() }} activeOpacity={0.7}>
+          <Text style={styles.addCardText}>{strings.paymentMethods.addCard}</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={handleClose} activeOpacity={1} />
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={styles.sheet}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{s.filterPaymentPickerTitle}</Text>
-            <TouchableOpacity onPress={() => setLocalIds([])} activeOpacity={0.7}>
-              <Text style={[styles.clearBtn, localIds.length === 0 && styles.clearBtnDisabled]}>
-                {s.filterAll}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {props.mode === 'single' ? (
+            <Text style={styles.title}>{s.paymentMethodPickerTitle}</Text>
+          ) : (
+            <View style={styles.header}>
+              <Text style={styles.title}>{sf.filterPaymentPickerTitle}</Text>
+              <TouchableOpacity onPress={() => setLocalIds([])} activeOpacity={0.7}>
+                <Text style={[styles.clearBtn, localIds.length === 0 && styles.clearBtnDisabled]}>
+                  {sf.filterAll}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <View style={styles.listWrap}>
             {isLoading ? (
               <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
             ) : (
-              <FlatList
-                data={methods}
+              <SectionList
+                sections={sections}
                 keyExtractor={item => item.id}
                 renderItem={renderItem}
+                renderSectionHeader={renderSectionHeader}
+                renderSectionFooter={renderSectionFooter}
                 showsVerticalScrollIndicator={false}
               />
             )}
           </View>
 
-          <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} activeOpacity={0.8}>
-            <Text style={styles.confirmText}>{s.filterPickerConfirm}</Text>
-          </TouchableOpacity>
+          {props.mode === 'multi' && (
+            <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} activeOpacity={0.8}>
+              <Text style={styles.confirmText}>{sf.filterPickerConfirm}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Modal>
