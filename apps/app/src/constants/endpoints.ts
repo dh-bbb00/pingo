@@ -31,6 +31,7 @@ export const endpoints = {
     byDate:      `${V1}/stats/by-date`,
     byMonth:     `${V1}/stats/by-month`,
     byHour:      `${V1}/stats/by-hour`,
+    top10:       `${V1}/stats/top10`,
   },
   users: {
     base:      `${V1}/users`,

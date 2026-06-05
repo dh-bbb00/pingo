@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
+import { DATE_TAB } from '../types'
 import type { StatsDateTab } from '../types'
 import { formatDateLabel } from '../utils'
 
@@ -16,8 +17,8 @@ export default function DateNavigator({ dateTab, date, onPrev, onNext, onPress }
   const { theme } = useTheme()
   const isToday = (() => {
     const now = new Date()
-    if (dateTab === '일') return date.toDateString() === now.toDateString()
-    if (dateTab === '월') return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()
+    if (dateTab === DATE_TAB.DAY)   return date.toDateString() === now.toDateString()
+    if (dateTab === DATE_TAB.MONTH) return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()
     return date.getFullYear() === now.getFullYear()
   })()
 

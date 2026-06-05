@@ -37,3 +37,12 @@ export function useStatsByHour(params: StatsParams | null) {
     staleTime: 60_000,
   })
 }
+
+export function useStatsTop10(params: StatsParams | null) {
+  return useQuery({
+    queryKey:  queryKeys.stats.top10(params),
+    queryFn:   () => statsApi.getTop10(params!).then(r => r.data.data),
+    enabled:   !!params,
+    staleTime: 60_000,
+  })
+}

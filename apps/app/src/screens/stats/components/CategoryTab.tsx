@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
-import { useStatsByCategory, useStatsByDate, useStatsByMonth } from '@/hooks/queries/useStatsData'
+import { useStatsByCategory, useStatsByDate, useStatsByMonth, useStatsTop10 } from '@/hooks/queries/useStatsData'
 import { useCategoriesAll } from '@/hooks/queries/useCategoriesAll'
 import { getDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } from '../utils'
+import { DATE_TAB } from '../types'
 import type { StatsDateTab } from '../types'
 import SummaryCard from './SummaryCard'
 import TrendBarChart from './TrendBarChart'
+import TopTransactionList from './TopTransactionList'
 import { strings } from '@/constants/strings'
 import { useTheme } from '@/theme'
 
@@ -30,16 +32,17 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
 
   const { data: catData,     isLoading: catLoading  } = useStatsByCategory(params)
   const { data: prevCatData }                         = useStatsByCategory(prevParams)
-  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate(dateTab === '월' && params ? params : null)
-  const { data: byMonthData, isLoading: monthLoading } = useStatsByMonth(dateTab === '년' && params ? params : null)
+  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate(dateTab === DATE_TAB.MONTH && params ? params : null)
+  const { data: byMonthData, isLoading: monthLoading } = useStatsByMonth(dateTab === DATE_TAB.YEAR  && params ? params : null)
+  const { data: top10Data,   isLoading: top10Loading  } = useStatsTop10(params)
 
   const chartLoading =
-    (dateTab === '월' && dateLoading) ||
-    (dateTab === '년' && monthLoading)
+    (dateTab === DATE_TAB.MONTH && dateLoading) ||
+    (dateTab === DATE_TAB.YEAR  && monthLoading)
 
   const barData = useMemo(() => {
-    if (dateTab === '월' && byDateData) return buildMonthlyBarData(byDateData, date.getFullYear(), date.getMonth())
-    if (dateTab === '년' && byMonthData) return buildYearlyBarData(byMonthData)
+    if (dateTab === DATE_TAB.MONTH && byDateData)  return buildMonthlyBarData(byDateData, date.getFullYear(), date.getMonth())
+    if (dateTab === DATE_TAB.YEAR  && byMonthData) return buildYearlyBarData(byMonthData)
     return null
   }, [dateTab, date, byDateData, byMonthData])
 
@@ -77,13 +80,17 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
             dateTab={dateTab}
             isLoading={catLoading}
           />
-          {(dateTab === '월' || dateTab === '년') && (
+          {(dateTab === DATE_TAB.MONTH || dateTab === DATE_TAB.YEAR) && (
             <TrendBarChart
               data={barData ?? []}
               isLoading={chartLoading}
               title={s.trendTitle}
             />
           )}
+          <TopTransactionList
+            items={top10Data ?? []}
+            isLoading={top10Loading}
+          />
         </View>
       )}
     </ScrollView>

@@ -60,6 +60,15 @@ export interface ByHourResult {
   amount: number
 }
 
+export interface Top10Item {
+  id:              string
+  merchantName:    string
+  amount:          number
+  transactionDate: string
+  category:      { id: string; name: string; icon: string; color: string } | null
+  paymentMethod: { id: string; name: string; type: string } | null
+}
+
 export const statsApi = {
   getHomeSummary: () =>
     apiClient.get<{ success: boolean; data: HomeSummary }>(endpoints.stats.homeSummary),
@@ -75,4 +84,7 @@ export const statsApi = {
 
   getByHour: (params: StatsParams) =>
     apiClient.get<{ success: boolean; data: ByHourResult[] }>(endpoints.stats.byHour, { params }),
+
+  getTop10: (params: StatsParams) =>
+    apiClient.get<{ success: boolean; data: Top10Item[] }>(endpoints.stats.top10, { params }),
 }

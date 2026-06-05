@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { DATE_TAB } from '../types'
 import type { StatsFilter, StatsMainTab, StatsDateTab } from '../types'
 
 function defaultRangeStart() {
@@ -9,7 +10,7 @@ function defaultRangeStart() {
 export function useStatsFilter() {
   const [filter, setFilter] = useState<StatsFilter>({
     mainTab:                 'period',
-    dateTab:                 '일',
+    dateTab:                 DATE_TAB.DAY,
     date:                    new Date(),
     rangeStart:              defaultRangeStart(),
     rangeEnd:                new Date(),

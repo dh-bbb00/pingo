@@ -191,6 +191,23 @@ export class StatsService {
     };
   }
 
+  /** 기간 내 금액 기준 상위 10건 거래 */
+  async getTop10(userId: string, query: StatsQueryDto) {
+    return this.prisma.transaction.findMany({
+      where:   this.buildWhere(userId, query),
+      orderBy: { amount: 'desc' },
+      take:    10,
+      select: {
+        id:              true,
+        merchantName:    true,
+        amount:          true,
+        transactionDate: true,
+        category:      { select: { id: true, name: true, icon: true, color: true } },
+        paymentMethod: { select: { id: true, name: true, type: true } },
+      },
+    })
+  }
+
   private buildWhere(userId: string, query: StatsQueryDto) {
     return {
       userId,

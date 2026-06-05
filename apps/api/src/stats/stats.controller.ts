@@ -56,6 +56,17 @@ export class StatsController {
     return { success: true, data };
   }
 
+  /** 금액 기준 상위 10건 거래 */
+  @Get('top10')
+  @ApiOperation({ summary: '금액 TOP 10 거래' })
+  async top10(
+    @CurrentUser() user: { id: string },
+    @Query() query: StatsQueryDto,
+  ): Promise<BasicResponse<unknown>> {
+    const data = await this.statsService.getTop10(user.id, query);
+    return { success: true, data };
+  }
+
   /** 월별 지출 추이 — 선 그래프 데이터 */
   @Get('by-month')
   @ApiOperation({ summary: '월별 지출 통계' })

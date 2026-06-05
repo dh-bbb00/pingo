@@ -2,10 +2,17 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
+import { DATE_TAB } from '../types'
 import type { StatsDateTab } from '../types'
 
-const TABS: StatsDateTab[] = ['일', '월', '년', '기간']
-const s = strings.stats
+const TABS: StatsDateTab[] = [DATE_TAB.DAY, DATE_TAB.MONTH, DATE_TAB.YEAR, DATE_TAB.RANGE]
+
+const TAB_LABEL: Record<StatsDateTab, string> = {
+  [DATE_TAB.DAY]:   strings.stats.tabDay,
+  [DATE_TAB.MONTH]: strings.stats.tabMonth,
+  [DATE_TAB.YEAR]:  strings.stats.tabYear,
+  [DATE_TAB.RANGE]: strings.stats.tabRange,
+}
 
 interface Props {
   activeTab: StatsDateTab
@@ -27,7 +34,7 @@ export default function DateSubTabs({ activeTab, onTabChange }: Props) {
             { color: activeTab === tab ? theme.colors.text.primary : theme.colors.text.secondary },
             activeTab === tab && { fontWeight: '600' },
           ]}>
-            {tab === '일' ? s.tabDay : tab === '월' ? s.tabMonth : tab === '년' ? s.tabYear : s.tabRange}
+            {TAB_LABEL[tab]}
           </Text>
         </TouchableOpacity>
       ))}

@@ -25,6 +25,7 @@ export const queryKeys = {
     byDate:      (params: unknown) => ['stats', 'by-date',     params] as const,
     byMonth:     (params: unknown) => ['stats', 'by-month',    params] as const,
     byHour:      (params: unknown) => ['stats', 'by-hour',     params] as const,
+    top10:       (params: unknown) => ['stats', 'top10',       params] as const,
   },
   adminUsers: {
     all:  ['admin-users'] as const,

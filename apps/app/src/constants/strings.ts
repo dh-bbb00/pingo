@@ -304,6 +304,7 @@ export const strings = {
     totalExpense:        '총 지출',
     categoryBreakdown:   '카테고리별 지출',
     trendTitle:          '지출 추이',
+    top10Title:          '금액 TOP 10',
     selectCategory:      '카테고리를 선택하세요',
     selectPaymentMethod: '결제수단을 선택하세요',
     vsPrev:              (period: string, sign: '+' | '-' | '', pct: number) => `전${period} 대비 ${sign}${pct}%`,

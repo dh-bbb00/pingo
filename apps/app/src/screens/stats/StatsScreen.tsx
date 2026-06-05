@@ -6,6 +6,7 @@ import type { RouteProp } from '@react-navigation/native'
 import type { UserTabParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
+import { DATE_TAB } from './types'
 import type { StatsMainTab } from './types'
 import { useStatsFilter } from './hooks/useStatsFilter'
 import { makeStyles } from './StatsScreen.styles'
@@ -67,8 +68,8 @@ export default function StatsScreen() {
     const y = date.getFullYear()
     const m = date.getMonth()
     const d = date.getDate()
-    if (dateTab === '일') setDate(new Date(y, m, d + 1))
-    else if (dateTab === '월') setDate(new Date(y, m + 1, 1))
+    if (dateTab === DATE_TAB.DAY)        setDate(new Date(y, m, d + 1))
+    else if (dateTab === DATE_TAB.MONTH) setDate(new Date(y, m + 1, 1))
     else setDate(new Date(y + 1, m, d))
   }
 
@@ -94,7 +95,7 @@ export default function StatsScreen() {
       {/* 일/월/년/기간 서브 탭 */}
       <View style={styles.subTabWrap}>
         <DateSubTabs activeTab={filter.dateTab} onTabChange={setDateTab} />
-        {filter.dateTab === '기간' ? (
+        {filter.dateTab === DATE_TAB.RANGE ? (
           <View style={styles.rangeRow}>
             <TouchableOpacity
               style={[styles.rangeBtn, { backgroundColor: theme.colors.surface }]}
@@ -129,7 +130,7 @@ export default function StatsScreen() {
         )}
       </View>
 
-      {filter.dateTab === '일' && (
+      {filter.dateTab === DATE_TAB.DAY && (
         <DatePickerModal
           visible={pickerVisible}
           selectedDate={filter.date}
@@ -137,19 +138,19 @@ export default function StatsScreen() {
           onClose={() => setPickerVisible(false)}
         />
       )}
-      {(filter.dateTab === '월' || filter.dateTab === '년') && (
+      {(filter.dateTab === DATE_TAB.MONTH || filter.dateTab === DATE_TAB.YEAR) && (
         <MonthPickerModal
           visible={pickerVisible}
           selectedYear={filter.date.getFullYear()}
           selectedMonth={filter.date.getMonth()}
           onSelect={(year, month) => {
-            if (filter.dateTab === '년') setDate(new Date(year, 0, 1))
+            if (filter.dateTab === DATE_TAB.YEAR) setDate(new Date(year, 0, 1))
             else setDate(new Date(year, month, 1))
           }}
           onClose={() => setPickerVisible(false)}
         />
       )}
-      {filter.dateTab === '기간' && (
+      {filter.dateTab === DATE_TAB.RANGE && (
         <DatePickerModal
           visible={pickerVisible}
           selectedDate={rangePickerTarget === 'start' ? filter.rangeStart : filter.rangeEnd}

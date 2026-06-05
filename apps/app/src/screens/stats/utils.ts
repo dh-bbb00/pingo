@@ -1,3 +1,4 @@
+import { DATE_TAB } from './types'
 import type { StatsDateTab } from './types'
 
 export interface DateRange {
@@ -11,13 +12,13 @@ export function getDateRange(dateTab: StatsDateTab, date: Date): DateRange {
   const m = date.getMonth()
   const d = date.getDate()
 
-  if (dateTab === '일') {
+  if (dateTab === DATE_TAB.DAY) {
     return {
       startDate: new Date(y, m, d, 0, 0, 0, 0).toISOString(),
       endDate:   new Date(y, m, d, 23, 59, 59, 999).toISOString(),
     }
   }
-  if (dateTab === '월') {
+  if (dateTab === DATE_TAB.MONTH) {
     return {
       startDate: new Date(y, m, 1).toISOString(),
       endDate:   new Date(y, m + 1, 0, 23, 59, 59, 999).toISOString(),
@@ -59,8 +60,8 @@ export function getPrevDate(dateTab: StatsDateTab, date: Date): Date {
   const y = date.getFullYear()
   const m = date.getMonth()
   const d = date.getDate()
-  if (dateTab === '일') return new Date(y, m, d - 1)
-  if (dateTab === '월') return new Date(y, m - 1, 1)
+  if (dateTab === DATE_TAB.DAY)   return new Date(y, m, d - 1)
+  if (dateTab === DATE_TAB.MONTH) return new Date(y, m - 1, 1)
   return new Date(y - 1, m, d)
 }
 
@@ -69,8 +70,8 @@ export function formatDateLabel(dateTab: StatsDateTab, date: Date): string {
   const y = date.getFullYear()
   const m = date.getMonth() + 1
   const d = date.getDate()
-  if (dateTab === '일') return `${y}년 ${m}월 ${d}일`
-  if (dateTab === '월') return `${y}년 ${m}월`
+  if (dateTab === DATE_TAB.DAY)   return `${y}년 ${m}월 ${d}일`
+  if (dateTab === DATE_TAB.MONTH) return `${y}년 ${m}월`
   return `${y}년`
 }
 
