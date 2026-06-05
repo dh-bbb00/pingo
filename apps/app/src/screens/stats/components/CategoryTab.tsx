@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useStatsByCategory, useStatsByDate, useStatsByMonth, useStatsTop10 } from '@/hooks/queries/useStatsData'
 import { useCategoriesAll } from '@/hooks/queries/useCategoriesAll'
@@ -23,6 +23,12 @@ interface Props {
 export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelectCategory }: Props) {
   const { theme } = useTheme()
   const { data: categories = [] } = useCategoriesAll()
+
+  useEffect(() => {
+    if (!selectedCategoryId && categories.length > 0) {
+      onSelectCategory(categories[0].id)
+    }
+  }, [categories]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const range     = useMemo(() => selectedCategoryId ? getDateRange(dateTab, date) : null, [dateTab, date, selectedCategoryId])
   const prevRange = useMemo(() => selectedCategoryId ? getDateRange(dateTab, getPrevDate(dateTab, date)) : null, [dateTab, date, selectedCategoryId])
