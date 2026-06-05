@@ -241,15 +241,15 @@ function CategoryBar({
   styles: ReturnType<typeof import('./HomeScreen.styles').makeStyles>
   theme: any
 }) {
-  const barRatio = item.amount / maxAmount
+  const barRatio  = item.amount / maxAmount
   const budgetPct = item.budget ? (item.amount / item.budget) * 100 : null
-  const barColor = budgetPct === null
-    ? (item.category?.color ?? theme.colors.primary)
-    : budgetPct >= OVER_PCT
-      ? theme.colors.semantic.error
-      : budgetPct >= WARN_PCT
-        ? theme.colors.primary
-        : (item.category?.color ?? theme.colors.primary)
+  const isOver    = budgetPct !== null && budgetPct >= OVER_PCT
+
+  const barColor = budgetPct !== null && budgetPct >= WARN_PCT && !isOver
+    ? theme.colors.primary
+    : (item.category?.color ?? theme.colors.primary)
+
+  const catColor = item.category?.color ?? theme.colors.primary
 
   return (
     <View style={styles.catRow}>
@@ -260,13 +260,20 @@ function CategoryBar({
           <Text style={styles.catAmount}>{item.amount.toLocaleString()}원</Text>
         </View>
         <View style={styles.catBarTrack}>
-          <View style={[styles.catBar, { width: `${Math.round(barRatio * 100)}%`, backgroundColor: barColor }]} />
-          {item.budget != null && (
-            <Text style={styles.catBudgetHint}>
-              예산 {Math.min(Math.round(budgetPct!), 999)}%
-            </Text>
+          {isOver ? (
+            <>
+              <View style={[styles.catBar, { width: `${(item.budget! / maxAmount) * 100}%`, backgroundColor: catColor }]} />
+              <View style={[styles.catBar, { width: `${((item.amount - item.budget!) / maxAmount) * 100}%`, backgroundColor: theme.colors.semantic.error }]} />
+            </>
+          ) : (
+            <View style={[styles.catBar, { width: `${Math.round(barRatio * 100)}%`, backgroundColor: barColor }]} />
           )}
         </View>
+        {budgetPct !== null && (
+          <Text style={[styles.catBudgetHint, isOver && { color: theme.colors.semantic.error }]}>
+            {Math.round(budgetPct)}%
+          </Text>
+        )}
       </View>
     </View>
   )

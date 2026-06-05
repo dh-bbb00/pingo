@@ -37,9 +37,9 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   catTopRow:       { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   catName:         { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.primary, flex: 1, marginRight: 8 },
   catAmount:       { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
-  catBarTrack:     { height: 6, backgroundColor: t.colors.divider, borderRadius: 3, overflow: 'hidden' },
+  catBarTrack:     { height: 6, backgroundColor: t.colors.divider, borderRadius: 3, overflow: 'hidden', flexDirection: 'row' },
   catBar:          { height: 6, borderRadius: 3 },
-  catBudgetHint:   { fontSize: t.fontSize.xs, color: t.colors.text.disabled, marginTop: 3, textAlign: 'right' },
+  catBudgetHint:   { fontSize: t.fontSize.xs, color: t.colors.text.disabled, marginTop: 4, textAlign: 'right' },
 
   // 최근 거래
   txDivider: { height: 1, backgroundColor: t.colors.divider, marginVertical: 2 },
