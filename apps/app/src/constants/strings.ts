@@ -101,10 +101,13 @@ export const strings = {
     deleteBtn:           '카드 삭제',
     deleteConfirmTitle:  '카드 삭제',
     deleteConfirmMsg:    '이 카드를 삭제하시겠습니까?',
-    errNameEmpty:        '카드사를 입력해주세요.',
-    successCreate:       '카드가 등록됐습니다.',
-    successUpdate:       '카드가 수정됐습니다.',
-    successDelete:       '카드가 삭제됐습니다.',
+    errNameEmpty:               '카드사를 입력해주세요.',
+    successCreate:              '카드가 등록됐습니다.',
+    successUpdate:              '카드가 수정됐습니다.',
+    successDelete:              '카드가 삭제됐습니다.',
+    isDefaultLabel:             '기본 결제수단으로 설정',
+    changeDefaultConfirmTitle:  '기본 결제수단 변경',
+    changeDefaultConfirmMsg:    (prevName: string) => `기존 기본 결제수단 "${prevName}"이 해제됩니다. 변경하시겠습니까?`,
   },
 
   myInfo: {
@@ -244,6 +247,7 @@ export const strings = {
     successUpdate:       '내역이 수정됐습니다.',
     successDelete:       '내역이 삭제됐습니다.',
     errAmountEmpty:      '금액을 입력해주세요.',
+    errAmountZero:       '금액은 1원 이상이어야 합니다.',
     errMerchantEmpty:    '가맹점명을 입력해주세요.',
   },
 

@@ -16,7 +16,7 @@ export const paymentMethodsApi = {
   getList: () =>
     apiClient.get<{ success: boolean; data: PaymentMethod[] }>(endpoints.paymentMethods.base),
 
-  create: (payload: { name: string; cardNumber?: string }) =>
+  create: (payload: { name: string; cardNumber?: string; isDefault?: boolean }) =>
     apiClient.post<{ success: boolean; data: PaymentMethod }>(endpoints.paymentMethods.base, payload),
 
   update: (id: string, payload: { name?: string; isDefault?: boolean }) =>

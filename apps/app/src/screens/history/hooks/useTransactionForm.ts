@@ -17,7 +17,7 @@ export function useTransactionForm(defaultData?: Partial<TransactionForm>) {
   }
 
   function isValid() {
-    return form.amount !== '' && form.merchantName.trim() !== ''
+    return form.amount !== '' && parseInt(form.amount, 10) > 0 && form.merchantName.trim() !== ''
   }
 
   return { form, setField, setForm, isValid }

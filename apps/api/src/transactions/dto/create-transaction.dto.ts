@@ -12,7 +12,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({ description: '원 단위' })
   @IsNumber({}, { message: VM.number })
-  @Min(0, { message: VM.min(0) })
+  @Min(1, { message: VM.min(1) })
   amount: number;
 
   @ApiProperty({ description: '가맹점명' })

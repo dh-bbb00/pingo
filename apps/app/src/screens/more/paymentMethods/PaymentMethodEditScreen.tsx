@@ -33,6 +33,7 @@ export default function PaymentMethodEditScreen() {
 
   const [name,       setName]       = useState(() => existing?.name       ?? '')
   const [cardNumber, setCardNumber] = useState(() => existing?.cardNumber ?? '')
+  const [isDefault,  setIsDefault]  = useState(() => existing?.isDefault  ?? false)
   const [submitted,  setSubmitted]  = useState(false)
 
   // 캐시가 늦게 도착하면 1회 세팅
@@ -40,6 +41,7 @@ export default function PaymentMethodEditScreen() {
     if (existing && name === '' && cardNumber === '') {
       setName(existing.name)
       setCardNumber(existing.cardNumber ?? '')
+      setIsDefault(existing.isDefault)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existing])
@@ -51,10 +53,26 @@ export default function PaymentMethodEditScreen() {
   const isPending  = creating || updating || deleting
   const nameError  = submitted && name.trim() === '' ? s.errNameEmpty : undefined
 
+  function handleToggleDefault() {
+    if (isDefault) {
+      setIsDefault(false)
+      return
+    }
+    const prevDefault = methods?.find(m => m.isDefault && m.id !== params?.id)
+    if (prevDefault) {
+      Alert.alert(s.changeDefaultConfirmTitle, s.changeDefaultConfirmMsg(prevDefault.name), [
+        { text: strings.common.cancel, style: 'cancel' },
+        { text: strings.common.confirm, onPress: () => setIsDefault(true) },
+      ])
+    } else {
+      setIsDefault(true)
+    }
+  }
+
   const handleSubmit = () => {
     setSubmitted(true)
     if (name.trim() === '') return
-    const payload = { name: name.trim(), cardNumber: cardNumber.trim() || undefined }
+    const payload = { name: name.trim(), cardNumber: cardNumber.trim() || undefined, isDefault }
     if (isEdit) update(payload)
     else        create(payload)
   }
@@ -100,6 +118,15 @@ export default function PaymentMethodEditScreen() {
           keyboardType="number-pad"
           maxLength={4}
         />
+
+        <View style={styles.gap} />
+
+        <TouchableOpacity style={styles.toggleRow} onPress={handleToggleDefault} activeOpacity={0.7}>
+          <Text style={styles.toggleLabel}>{s.isDefaultLabel}</Text>
+          <View style={[styles.checkbox, isDefault && styles.checkboxActive]}>
+            {isDefault && <Text style={styles.checkmark}>✓</Text>}
+          </View>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.submitBtn, isPending && styles.btnDisabled]}

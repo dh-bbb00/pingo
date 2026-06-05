@@ -43,7 +43,8 @@ export default function TransactionEditScreen() {
   const { mutate: update,  isPending: updating  } = useUpdateTransaction(params?.id ?? '')
   const { mutate: deleteTx, isPending: deleting } = useDeleteTransaction(params?.id ?? '')
 
-  const initialized = useRef(false)
+  const initialized      = useRef(false)
+  const defaultPMApplied = useRef(false)
 
   // 결제수단 등록 후 복귀: 저장된 폼 + 새 결제수단 ID 복원 (1회 실행)
   useEffect(() => {
@@ -57,6 +58,17 @@ export default function TransactionEditScreen() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // 신규 등록 시 기본 결제수단 자동 세팅 (1회)
+  useEffect(() => {
+    if (isEdit || defaultPMApplied.current || form.paymentMethodId !== '') return
+    const defaultMethod = paymentMethods?.find(m => m.isDefault)
+    if (defaultMethod) {
+      defaultPMApplied.current = true
+      setField('paymentMethodId', defaultMethod.id)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentMethods])
 
   // edit 모드에서 기존 데이터를 폼에 1회 세팅
   useEffect(() => {
@@ -85,7 +97,9 @@ export default function TransactionEditScreen() {
 
   const isPending = creating || updating || deleting
 
-  const amountError   = submitted && form.amount === ''          ? s.errAmountEmpty   : undefined
+  const amountError   = submitted && form.amount === ''            ? s.errAmountEmpty
+                      : submitted && parseInt(form.amount, 10) <= 0 ? s.errAmountZero
+                      : undefined
   const merchantError = submitted && form.merchantName.trim() === '' ? s.errMerchantEmpty : undefined
 
   const handleSubmit = () => {
@@ -215,7 +229,11 @@ export default function TransactionEditScreen() {
           activeOpacity={0.7}
         >
           <Text style={[styles.pickerText, !form.paymentMethodId && styles.pickerPlaceholder]}>
-            {selectedPaymentMethod ? selectedPaymentMethod.name : s.paymentMethodPlaceholder}
+            {selectedPaymentMethod
+              ? selectedPaymentMethod.cardNumber
+                ? `${selectedPaymentMethod.name} (${selectedPaymentMethod.cardNumber})`
+                : selectedPaymentMethod.name
+              : s.paymentMethodPlaceholder}
           </Text>
           <Text style={styles.pickerChevron}>›</Text>
         </TouchableOpacity>

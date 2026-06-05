@@ -17,7 +17,7 @@ export function useCreatePaymentMethod(returnToTransaction: boolean) {
   const pendingStore = usePendingTransactionStore()
 
   return useMutation({
-    mutationFn: (payload: { name: string; cardNumber?: string }) =>
+    mutationFn: (payload: { name: string; cardNumber?: string; isDefault?: boolean }) =>
       paymentMethodsApi.create(payload),
     onSuccess: async (res) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.paymentMethods.all })
