@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, StyleSheet, Dimensions } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { PieChart } from 'react-native-gifted-charts'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
@@ -18,7 +18,6 @@ interface Props {
 
 const DONUT_R  = 72
 const DONUT_IR = 50
-const SCREEN_W = Dimensions.get('window').width
 
 function fmtAmount(n: number): string {
   if (n >= 100_000_000) return `${(n / 100_000_000).toFixed(1)}억`
@@ -26,7 +25,9 @@ function fmtAmount(n: number): string {
   return n.toLocaleString()
 }
 
-const SKELETON_LEGEND_WIDTHS = [90, 110, 70, 100, 80]
+const FALLBACK_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6']
+
+const SKELETON_ROWS = [100, 130, 80, 110, 70, 90]
 
 export default function CategoryBreakdown({ total, byCategory, prevByCategory, title, isLoading }: Props) {
   const { theme } = useTheme()
@@ -35,8 +36,7 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, t
     if (!prevByCategory) return null
     const map: Record<string, number> = {}
     for (const item of prevByCategory) {
-      const key = item.category?.id ?? '__none__'
-      map[key] = item.amount
+      map[item.category?.id ?? '__none__'] = item.amount
     }
     return map
   }, [prevByCategory])
@@ -58,13 +58,18 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, t
     return (
       <View style={[ss.wrap, { backgroundColor: theme.colors.surface }]}>
         {title && <Text style={[ss.title, { color: theme.colors.text.secondary }]}>{title}</Text>}
-        <View style={ss.chartRow}>
+        <View style={ss.donutWrap}>
           <SkeletonBox width={DONUT_R * 2} height={DONUT_R * 2} radius={DONUT_R} />
-          <View style={ss.legend}>
-            {SKELETON_LEGEND_WIDTHS.map((w, i) => (
-              <SkeletonBox key={i} width={w} height={12} />
-            ))}
-          </View>
+        </View>
+        <View style={ss.list}>
+          {SKELETON_ROWS.map((w, i) => (
+            <View key={i} style={ss.row}>
+              <SkeletonBox width={8} height={8} radius={4} />
+              <SkeletonBox width={w} height={11} radius={4} style={ss.skName} />
+              <SkeletonBox width={56} height={11} radius={4} />
+              <SkeletonBox width={28} height={11} radius={4} />
+            </View>
+          ))}
         </View>
       </View>
     )
@@ -73,9 +78,9 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, t
   const hasData = byCategory.length > 0 && total > 0
 
   const pieData = byCategory.slice(0, 8).map((item, i) => ({
-    value:      item.amount,
-    color:      item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
-    text:       item.category?.icon ?? '',
+    value: item.amount,
+    color: item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+    text:  item.category?.icon ?? '',
   }))
 
   return (
@@ -84,11 +89,11 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, t
 
       {!hasData ? (
         <View style={ss.emptyWrap}>
-          <Text style={[ss.emptyText, { color: theme.colors.text.disabled }]}>{strings.stats.noData}</Text>
+          <Text style={[ss.emptyText, { color: theme.colors.text.disabled }]}>{s.noData}</Text>
         </View>
       ) : (
         <>
-          <View style={ss.chartRow}>
+          <View style={ss.donutWrap}>
             <PieChart
               data={pieData}
               donut
@@ -99,78 +104,54 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, t
                   <Text style={[ss.centerAmount, { color: theme.colors.text.primary }]}>
                     {fmtAmount(total)}
                   </Text>
-                  <Text style={[ss.centerLabel, { color: theme.colors.text.disabled }]}>{strings.stats.currencyUnit}</Text>
+                  <Text style={[ss.centerLabel, { color: theme.colors.text.disabled }]}>{s.currencyUnit}</Text>
                 </View>
               )}
             />
-            <View style={ss.legend}>
-              {byCategory.slice(0, 5).map((item, i) => {
-                const diff = getDiff(item)
-                return (
-                  <View key={item.category?.id ?? i} style={ss.legendRow}>
-                    <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length] }]} />
-                    <View style={ss.legendInfo}>
-                      <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
-                        {item.category ? `${item.category.icon} ${item.category.name}` : s.other}
-                      </Text>
-                      {diff !== null && (
-                        <Text style={[ss.legendDiff, { color: diff.color }]}>{diff.text}</Text>
-                      )}
-                    </View>
-                    <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
-                  </View>
-                )
-              })}
-            </View>
           </View>
 
-          {byCategory.length > 5 && (
-            <View style={[ss.moreList, { borderTopColor: theme.colors.divider }]}>
-              {byCategory.slice(5).map((item, i) => {
-                const diff = getDiff(item)
-                return (
-                  <View key={item.category?.id ?? i} style={ss.moreRow}>
-                    <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[(i + 5) % FALLBACK_COLORS.length] }]} />
-                    <View style={ss.legendInfo}>
-                      <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
-                        {item.category ? `${item.category.icon} ${item.category.name}` : s.other}
-                      </Text>
-                      {diff !== null && (
-                        <Text style={[ss.legendDiff, { color: diff.color }]}>{diff.text}</Text>
-                      )}
-                    </View>
-                    <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
-                    <Text style={[ss.legendAmount, { color: theme.colors.text.secondary }]}>{item.amount.toLocaleString()}{s.currencyUnit}</Text>
+          <View style={ss.list}>
+            {byCategory.map((item, i) => {
+              const diff  = getDiff(item)
+              const color = item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length]
+              return (
+                <React.Fragment key={item.category?.id ?? i}>
+                  {i > 0 && <View style={[ss.sep, { backgroundColor: theme.colors.divider }]} />}
+                  <View style={ss.row}>
+                    <View style={[ss.dot, { backgroundColor: color }]} />
+                    <Text style={[ss.name, { color: theme.colors.text.primary }]} numberOfLines={1}>
+                      {item.category ? `${item.category.icon} ${item.category.name}` : s.other}
+                    </Text>
+                    {diff !== null && (
+                      <Text style={[ss.diff, { color: diff.color }]}>{diff.text}</Text>
+                    )}
+                    <Text style={[ss.pct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
                   </View>
-                )
-              })}
-            </View>
-          )}
+                </React.Fragment>
+              )
+            })}
+          </View>
         </>
       )}
     </View>
   )
 }
 
-const FALLBACK_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6']
-
 const ss = StyleSheet.create({
   wrap:         { borderRadius: 16, padding: 16, marginHorizontal: 16, marginBottom: 12 },
   title:        { fontSize: 13, fontWeight: '600', marginBottom: 12 },
   emptyWrap:    { height: 80, alignItems: 'center', justifyContent: 'center' },
   emptyText:    { fontSize: 13 },
-  chartRow:     { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  donutWrap:    { alignItems: 'center', marginBottom: 16 },
   center:       { alignItems: 'center' },
   centerAmount: { fontSize: 16, fontWeight: '700' },
   centerLabel:  { fontSize: 11 },
-  legend:       { flex: 1, gap: 6 },
-  legendRow:    { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  dot:          { width: 8, height: 8, borderRadius: 4 },
-  legendInfo:   { flex: 1 },
-  legendName:   { fontSize: 12 },
-  legendDiff:   { fontSize: 10, marginTop: 1 },
-  legendPct:    { fontSize: 12, minWidth: 36, textAlign: 'right' },
-  legendAmount: { fontSize: 11, minWidth: 64, textAlign: 'right' },
-  moreList:     { marginTop: 12, paddingTop: 12, borderTopWidth: 1, gap: 8 },
-  moreRow:      { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  list:         { marginTop: 4 },
+  sep:          { height: StyleSheet.hairlineWidth },
+  row:          { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
+  dot:          { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
+  name:         { flex: 1, fontSize: 13 },
+  diff:         { fontSize: 12, minWidth: 88, textAlign: 'right' },
+  pct:          { fontSize: 13, minWidth: 36, textAlign: 'right' },
+  skName:       { flex: 1 },
 })
