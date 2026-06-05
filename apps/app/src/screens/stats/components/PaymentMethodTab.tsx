@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useStatsByCategory, useStatsByDate, useStatsByMonth, useStatsTop10 } from '@/hooks/queries/useStatsData'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
@@ -25,6 +25,13 @@ interface Props {
 export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodId, onSelectPaymentMethod }: Props) {
   const { theme } = useTheme()
   const { data: methods = [] } = usePaymentMethods()
+
+  useEffect(() => {
+    if (!selectedPaymentMethodId && methods.length > 0) {
+      const defaultMethod = methods.find(m => m.isDefault) ?? methods.find(m => m.type === 'CASH')
+      if (defaultMethod) onSelectPaymentMethod(defaultMethod.id)
+    }
+  }, [methods]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const range     = useMemo(() => selectedPaymentMethodId ? getDateRange(dateTab, date) : null, [dateTab, date, selectedPaymentMethodId])
   const prevRange = useMemo(() => selectedPaymentMethodId ? getDateRange(dateTab, getPrevDate(dateTab, date)) : null, [dateTab, date, selectedPaymentMethodId])
