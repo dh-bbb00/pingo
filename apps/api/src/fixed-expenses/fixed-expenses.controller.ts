@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { FixedExpensesService } from './fixed-expenses.service';
 import { CreateFixedExpenseDto } from './dto/create-fixed-expense.dto';
@@ -41,6 +41,27 @@ export class FixedExpensesController {
     @Body() dto: UpdateFixedExpenseDto,
   ): Promise<BasicResponse<unknown>> {
     const data = await this.fixedExpensesService.update(user.id, id, dto);
+    return { success: true, data };
+  }
+
+  @Get(':id/this-month-status')
+  @ApiOperation({ summary: '이번 달 고정 지출 등록 여부 확인' })
+  async getThisMonthStatus(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ): Promise<BasicResponse<{ registered: boolean }>> {
+    const data = await this.fixedExpensesService.getThisMonthStatus(user.id, id);
+    return { success: true, data };
+  }
+
+  @Post(':id/register-this-month')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '이번 달 고정 지출 즉시 등록' })
+  async registerThisMonth(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ): Promise<BasicResponse<unknown>> {
+    const data = await this.fixedExpensesService.registerThisMonthTransaction(user.id, id);
     return { success: true, data };
   }
 

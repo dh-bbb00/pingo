@@ -21,8 +21,10 @@ export const endpoints = {
     detail: (id: string) => `${V1}/payment-methods/${id}`,
   },
   fixedExpenses: {
-    base:   `${V1}/fixed-expenses`,
-    detail: (id: string) => `${V1}/fixed-expenses/${id}`,
+    base:             `${V1}/fixed-expenses`,
+    detail:           (id: string) => `${V1}/fixed-expenses/${id}`,
+    thisMonthStatus:  (id: string) => `${V1}/fixed-expenses/${id}/this-month-status`,
+    registerThisMonth:(id: string) => `${V1}/fixed-expenses/${id}/register-this-month`,
   },
   stats: {
     base:        `${V1}/stats`,

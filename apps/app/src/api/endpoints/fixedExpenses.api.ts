@@ -26,4 +26,10 @@ export const fixedExpensesApi = {
 
   delete: (id: string) =>
     apiClient.delete(endpoints.fixedExpenses.detail(id)),
+
+  getThisMonthStatus: (id: string) =>
+    apiClient.get<{ success: boolean; data: { registered: boolean } }>(endpoints.fixedExpenses.thisMonthStatus(id)),
+
+  registerThisMonth: (id: string) =>
+    apiClient.post<{ success: boolean; data: unknown }>(endpoints.fixedExpenses.registerThisMonth(id)),
 }

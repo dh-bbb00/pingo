@@ -357,8 +357,13 @@ export const strings = {
     errMerchantEmpty:       '가맹점명을 입력해 주세요.',
     errAmountEmpty:         '금액을 입력해 주세요.',
     errDayEmpty:            '1~31 사이의 날짜를 입력해 주세요.',
-    successCreate:          '고정 지출이 등록되었습니다.',
-    successUpdate:          '저장되었습니다.',
+    successCreate:              '고정 지출이 등록되었습니다.',
+    successUpdate:              '저장되었습니다.',
+    registerThisMonthTitle:     '이번 달 내역 등록',
+    registerThisMonthMsg:       (name: string) => `이번 달 ${name} 내역이 없습니다. 지금 등록하시겠습니까?`,
+    registerThisMonthOk:        '등록',
+    successCreateAndRegister:   '고정 지출 등록 및 이번 달 내역이 추가되었습니다.',
+    successUpdateAndRegister:   '저장 완료 및 이번 달 내역이 추가되었습니다.',
   },
 
   userManagement: {

@@ -12,6 +12,7 @@ import { strings } from '@/constants/strings'
 import { useFixedExpenseForm } from './hooks/useFixedExpenseForm'
 import { makeStyles } from './FixedExpenseEditScreen.styles'
 import { useFixedExpenses, useCreateFixedExpense, useUpdateFixedExpense, useDeleteFixedExpense } from '@/hooks/queries/useFixedExpenses'
+import { fixedExpensesApi } from '@/api/endpoints/fixedExpenses.api'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import { useCategoryById } from '@/screens/category/hooks/useCategoryById'
 import CategoryPickerModal from '@/screens/history/components/CategoryPickerModal'
@@ -74,6 +75,55 @@ export default function FixedExpenseEditScreen() {
   const amountError    = submitted && form.amount === ''
   const dayError       = submitted && form.dayOfMonth === ''
 
+  // 저장 후 자동등록 체크 및 컨펌 흐름
+  const handlePostSave = async (fixedExpenseId: string, baseSuccessText: string) => {
+    if (!form.isActive) {
+      Toast.show({ type: 'success', text1: baseSuccessText })
+      navigation.goBack()
+      return
+    }
+    try {
+      const { data: statusRes } = await fixedExpensesApi.getThisMonthStatus(fixedExpenseId)
+      if (statusRes.data.registered) {
+        Toast.show({ type: 'success', text1: baseSuccessText })
+        navigation.goBack()
+        return
+      }
+      Alert.alert(
+        s.registerThisMonthTitle,
+        s.registerThisMonthMsg(form.merchantName.trim()),
+        [
+          {
+            text: strings.common.cancel,
+            style: 'cancel',
+            onPress: () => {
+              Toast.show({ type: 'success', text1: baseSuccessText })
+              navigation.goBack()
+            },
+          },
+          {
+            text: s.registerThisMonthOk,
+            onPress: async () => {
+              try {
+                await fixedExpensesApi.registerThisMonth(fixedExpenseId)
+                Toast.show({
+                  type: 'success',
+                  text1: isEdit ? s.successUpdateAndRegister : s.successCreateAndRegister,
+                })
+              } catch {
+                Toast.show({ type: 'success', text1: baseSuccessText })
+              }
+              navigation.goBack()
+            },
+          },
+        ],
+      )
+    } catch {
+      Toast.show({ type: 'success', text1: baseSuccessText })
+      navigation.goBack()
+    }
+  }
+
   const handleSubmit = () => {
     setSubmitted(true)
     if (!isValid()) return
@@ -90,13 +140,13 @@ export default function FixedExpenseEditScreen() {
       update(
         { id: params!.id!, payload },
         {
-          onSuccess: () => { Toast.show({ type: 'success', text1: s.successUpdate }); navigation.goBack() },
+          onSuccess: () => handlePostSave(params!.id!, s.successUpdate),
           onError:   (e) => handleApiError(e),
         },
       )
     } else {
       create(payload, {
-        onSuccess: () => { Toast.show({ type: 'success', text1: s.successCreate }); navigation.goBack() },
+        onSuccess: (data) => handlePostSave(data.data.data.id, s.successCreate),
         onError:   (e) => handleApiError(e),
       })
     }

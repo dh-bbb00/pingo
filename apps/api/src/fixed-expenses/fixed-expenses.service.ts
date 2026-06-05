@@ -42,6 +42,43 @@ export class FixedExpensesService {
     return this.prisma.fixedExpense.delete({ where: { id } });
   }
 
+  async getThisMonthStatus(userId: string, id: string): Promise<{ registered: boolean }> {
+    const fe = await this.findOneOrThrow(userId, id);
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const existing = await this.prisma.transaction.findFirst({
+      where: {
+        userId,
+        merchantName: fe.merchantName,
+        amount:       fe.amount,
+        categoryId:   fe.categoryId,
+        transactionDate: { gte: startOfMonth, lte: endOfMonth },
+      },
+    });
+    return { registered: !!existing };
+  }
+
+  async registerThisMonthTransaction(userId: string, id: string) {
+    const fe = await this.findOneOrThrow(userId, id);
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const day = Math.min(fe.dayOfMonth, daysInMonth);
+    return this.prisma.transaction.create({
+      data: {
+        userId,
+        categoryId:      fe.categoryId,
+        paymentMethodId: fe.paymentMethodId,
+        amount:          fe.amount,
+        merchantName:    fe.merchantName,
+        memo:            fe.memo,
+        transactionDate: new Date(year, month, day),
+      },
+    });
+  }
+
   /** 매월 1일 스케줄러 호출 — isActive 항목의 Transaction을 해당 월의 dayOfMonth일로 생성 */
   async generateMonthlyTransactions() {
     const now = new Date();
