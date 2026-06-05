@@ -66,6 +66,7 @@ export default function PeriodTab({ dateTab, date, rangeStart, rangeEnd }: Props
       <CategoryBreakdown
         total={catData?.total ?? 0}
         byCategory={catData?.byCategory ?? []}
+        prevByCategory={prevCatData?.byCategory}
         title={s.categoryBreakdown}
         isLoading={catLoading}
       />

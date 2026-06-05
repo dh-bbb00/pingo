@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, StyleSheet, Dimensions } from 'react-native'
 import { PieChart } from 'react-native-gifted-charts'
 import { useTheme } from '@/theme'
@@ -6,11 +6,14 @@ import { strings } from '@/constants/strings'
 import type { CategoryStatItem } from '@/api/endpoints/stats.api'
 import SkeletonBox from '@/components/containers/SkeletonBox'
 
+const s = strings.stats
+
 interface Props {
-  total:      number
-  byCategory: CategoryStatItem[]
-  title?:     string
-  isLoading?: boolean
+  total:           number
+  byCategory:      CategoryStatItem[]
+  prevByCategory?: CategoryStatItem[]
+  title?:          string
+  isLoading?:      boolean
 }
 
 const DONUT_R  = 72
@@ -25,8 +28,31 @@ function fmtAmount(n: number): string {
 
 const SKELETON_LEGEND_WIDTHS = [90, 110, 70, 100, 80]
 
-export default function CategoryBreakdown({ total, byCategory, title, isLoading }: Props) {
+export default function CategoryBreakdown({ total, byCategory, prevByCategory, title, isLoading }: Props) {
   const { theme } = useTheme()
+
+  const prevMap = useMemo(() => {
+    if (!prevByCategory) return null
+    const map: Record<string, number> = {}
+    for (const item of prevByCategory) {
+      const key = item.category?.id ?? '__none__'
+      map[key] = item.amount
+    }
+    return map
+  }, [prevByCategory])
+
+  function getDiff(item: CategoryStatItem): { text: string; color: string } | null {
+    if (!prevMap) return null
+    const key  = item.category?.id ?? '__none__'
+    const prev = prevMap[key]
+    if (prev === undefined) {
+      return { text: s.categoryDiffNoPrev, color: theme.colors.text.disabled }
+    }
+    const diff = item.amount - prev
+    if (diff === 0) return { text: s.categoryDiffNone, color: theme.colors.text.disabled }
+    if (diff > 0)   return { text: s.categoryDiffFmt('+', diff), color: theme.colors.semantic.error }
+    return { text: s.categoryDiffFmt('-', Math.abs(diff)), color: theme.colors.semantic.income }
+  }
 
   if (isLoading) {
     return (
@@ -78,30 +104,46 @@ export default function CategoryBreakdown({ total, byCategory, title, isLoading 
               )}
             />
             <View style={ss.legend}>
-              {byCategory.slice(0, 5).map((item, i) => (
-                <View key={item.category?.id ?? i} style={ss.legendRow}>
-                  <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length] }]} />
-                  <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
-                    {item.category ? `${item.category.icon} ${item.category.name}` : strings.stats.other}
-                  </Text>
-                  <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
-                </View>
-              ))}
+              {byCategory.slice(0, 5).map((item, i) => {
+                const diff = getDiff(item)
+                return (
+                  <View key={item.category?.id ?? i} style={ss.legendRow}>
+                    <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length] }]} />
+                    <View style={ss.legendInfo}>
+                      <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
+                        {item.category ? `${item.category.icon} ${item.category.name}` : s.other}
+                      </Text>
+                      {diff !== null && (
+                        <Text style={[ss.legendDiff, { color: diff.color }]}>{diff.text}</Text>
+                      )}
+                    </View>
+                    <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
+                  </View>
+                )
+              })}
             </View>
           </View>
 
           {byCategory.length > 5 && (
             <View style={[ss.moreList, { borderTopColor: theme.colors.divider }]}>
-              {byCategory.slice(5).map((item, i) => (
-                <View key={item.category?.id ?? i} style={ss.moreRow}>
-                  <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[(i + 5) % FALLBACK_COLORS.length] }]} />
-                  <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
-                    {item.category ? `${item.category.icon} ${item.category.name}` : strings.stats.other}
-                  </Text>
-                  <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
-                  <Text style={[ss.legendAmount, { color: theme.colors.text.secondary }]}>{item.amount.toLocaleString()}{strings.stats.currencyUnit}</Text>
-                </View>
-              ))}
+              {byCategory.slice(5).map((item, i) => {
+                const diff = getDiff(item)
+                return (
+                  <View key={item.category?.id ?? i} style={ss.moreRow}>
+                    <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[(i + 5) % FALLBACK_COLORS.length] }]} />
+                    <View style={ss.legendInfo}>
+                      <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
+                        {item.category ? `${item.category.icon} ${item.category.name}` : s.other}
+                      </Text>
+                      {diff !== null && (
+                        <Text style={[ss.legendDiff, { color: diff.color }]}>{diff.text}</Text>
+                      )}
+                    </View>
+                    <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
+                    <Text style={[ss.legendAmount, { color: theme.colors.text.secondary }]}>{item.amount.toLocaleString()}{s.currencyUnit}</Text>
+                  </View>
+                )
+              })}
             </View>
           )}
         </>
@@ -124,7 +166,9 @@ const ss = StyleSheet.create({
   legend:       { flex: 1, gap: 6 },
   legendRow:    { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot:          { width: 8, height: 8, borderRadius: 4 },
-  legendName:   { flex: 1, fontSize: 12 },
+  legendInfo:   { flex: 1 },
+  legendName:   { fontSize: 12 },
+  legendDiff:   { fontSize: 10, marginTop: 1 },
   legendPct:    { fontSize: 12, minWidth: 36, textAlign: 'right' },
   legendAmount: { fontSize: 11, minWidth: 64, textAlign: 'right' },
   moreList:     { marginTop: 12, paddingTop: 12, borderTopWidth: 1, gap: 8 },

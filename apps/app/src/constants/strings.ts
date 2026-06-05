@@ -310,6 +310,9 @@ export const strings = {
     vsPrev:              (period: string, sign: '+' | '-' | '', pct: number) => `전${period} 대비 ${sign}${pct}%`,
     vsPrevSame:          (period: string) => `전${period}과 동일`,
     vsPrevNone:          (period: string) => `전${period} 지출 없음`,
+    categoryDiffFmt:     (sign: '+' | '-', amount: number) => `${sign}${amount.toLocaleString()}원`,
+    categoryDiffNone:    '-',
+    categoryDiffNoPrev:  '이전 지출 없음',
   },
 
   fixedExpenses: {

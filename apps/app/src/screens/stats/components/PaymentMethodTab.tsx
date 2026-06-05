@@ -88,6 +88,7 @@ export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodI
           <CategoryBreakdown
             total={catData?.total ?? 0}
             byCategory={catData?.byCategory ?? []}
+            prevByCategory={prevCatData?.byCategory}
             title={s.categoryBreakdown}
             isLoading={catLoading}
           />
