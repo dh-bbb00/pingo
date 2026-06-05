@@ -30,6 +30,7 @@ export const endpoints = {
     byCategory:  `${V1}/stats/by-category`,
     byDate:      `${V1}/stats/by-date`,
     byMonth:     `${V1}/stats/by-month`,
+    byHour:      `${V1}/stats/by-hour`,
   },
   users: {
     base:      `${V1}/users`,

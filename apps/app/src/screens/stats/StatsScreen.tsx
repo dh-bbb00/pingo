@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute } from '@react-navigation/native'
@@ -15,6 +15,8 @@ import PeriodTab from './components/PeriodTab'
 import CategoryTab from './components/CategoryTab'
 import PaymentMethodTab from './components/PaymentMethodTab'
 import { getPrevDate } from './utils'
+import DatePickerModal from '@/components/DatePickerModal'
+import MonthPickerModal from '@/components/MonthPickerModal'
 
 const s = strings.stats
 
@@ -34,10 +36,16 @@ export default function StatsScreen() {
     setMainTab,
     setDateTab,
     setDate,
+    setRangeStart,
+    setRangeEnd,
     setSelectedCategoryId,
     setSelectedPaymentMethodId,
     applyParams,
   } = useStatsFilter()
+
+  const [pickerVisible,      setPickerVisible]      = useState(false)
+  // '기간' 모드에서 시작일/종료일 중 어느쪽 피커를 여는지
+  const [rangePickerTarget,  setRangePickerTarget]  = useState<'start' | 'end'>('start')
 
   // 다른 화면에서 네비게이션 params로 탭/선택 항목 전달받을 때 적용
   useEffect(() => {
@@ -83,15 +91,84 @@ export default function StatsScreen() {
         ))}
       </View>
 
-      {/* 일/월/년 서브 탭 */}
+      {/* 일/월/년/기간 서브 탭 */}
       <View style={styles.subTabWrap}>
         <DateSubTabs activeTab={filter.dateTab} onTabChange={setDateTab} />
-        <DateNavigator dateTab={filter.dateTab} date={filter.date} onPrev={handlePrev} onNext={handleNext} />
+        {filter.dateTab === '기간' ? (
+          <View style={styles.rangeRow}>
+            <TouchableOpacity
+              style={[styles.rangeBtn, { backgroundColor: theme.colors.surface }]}
+              onPress={() => { setRangePickerTarget('start'); setPickerVisible(true) }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.rangeLabel, { color: theme.colors.text.secondary }]}>{s.rangeStart}</Text>
+              <Text style={[styles.rangeDate, { color: theme.colors.text.primary }]}>
+                {filter.rangeStart.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+              </Text>
+            </TouchableOpacity>
+            <Text style={[styles.rangeSep, { color: theme.colors.text.disabled }]}>{s.rangeSeparator}</Text>
+            <TouchableOpacity
+              style={[styles.rangeBtn, { backgroundColor: theme.colors.surface }]}
+              onPress={() => { setRangePickerTarget('end'); setPickerVisible(true) }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.rangeLabel, { color: theme.colors.text.secondary }]}>{s.rangeEnd}</Text>
+              <Text style={[styles.rangeDate, { color: theme.colors.text.primary }]}>
+                {filter.rangeEnd.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <DateNavigator
+            dateTab={filter.dateTab}
+            date={filter.date}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onPress={() => setPickerVisible(true)}
+          />
+        )}
       </View>
+
+      {filter.dateTab === '일' && (
+        <DatePickerModal
+          visible={pickerVisible}
+          selectedDate={filter.date}
+          onSelect={setDate}
+          onClose={() => setPickerVisible(false)}
+        />
+      )}
+      {(filter.dateTab === '월' || filter.dateTab === '년') && (
+        <MonthPickerModal
+          visible={pickerVisible}
+          selectedYear={filter.date.getFullYear()}
+          selectedMonth={filter.date.getMonth()}
+          onSelect={(year, month) => {
+            if (filter.dateTab === '년') setDate(new Date(year, 0, 1))
+            else setDate(new Date(year, month, 1))
+          }}
+          onClose={() => setPickerVisible(false)}
+        />
+      )}
+      {filter.dateTab === '기간' && (
+        <DatePickerModal
+          visible={pickerVisible}
+          selectedDate={rangePickerTarget === 'start' ? filter.rangeStart : filter.rangeEnd}
+          onSelect={(date) => {
+            if (rangePickerTarget === 'start') setRangeStart(date)
+            else setRangeEnd(date)
+          }}
+          onClose={() => setPickerVisible(false)}
+        />
+      )}
 
       {/* 탭별 콘텐츠 */}
       {filter.mainTab === 'period' && (
-        <PeriodTab dateTab={filter.dateTab} date={filter.date} />
+        <PeriodTab
+          dateTab={filter.dateTab}
+          date={filter.date}
+          rangeStart={filter.rangeStart}
+          rangeEnd={filter.rangeEnd}
+        />
       )}
       {filter.mainTab === 'category' && (
         <CategoryTab

@@ -30,10 +30,14 @@ export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodI
   const params     = useMemo(() => range     ? { ...range,     paymentMethodId: selectedPaymentMethodId! } : null, [range,     selectedPaymentMethodId])
   const prevParams = useMemo(() => prevRange ? { ...prevRange, paymentMethodId: selectedPaymentMethodId! } : null, [prevRange, selectedPaymentMethodId])
 
-  const { data: catData }     = useStatsByCategory(params)
-  const { data: prevCatData } = useStatsByCategory(prevParams)
-  const { data: byDateData }  = useStatsByDate(dateTab === '월' && params ? params : null)
-  const { data: byMonthData } = useStatsByMonth(dateTab === '년' && params ? params : null)
+  const { data: catData,     isLoading: catLoading  } = useStatsByCategory(params)
+  const { data: prevCatData }                         = useStatsByCategory(prevParams)
+  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate(dateTab === '월' && params ? params : null)
+  const { data: byMonthData, isLoading: monthLoading } = useStatsByMonth(dateTab === '년' && params ? params : null)
+
+  const chartLoading =
+    (dateTab === '월' && dateLoading) ||
+    (dateTab === '년' && monthLoading)
 
   const barData = useMemo(() => {
     if (dateTab === '월' && byDateData) return buildMonthlyBarData(byDateData, date.getFullYear(), date.getMonth())
@@ -75,12 +79,21 @@ export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodI
           <SummaryCard
             total={catData?.total ?? 0}
             prevTotal={prevCatData?.total ?? 0}
+            dateTab={dateTab}
+            isLoading={catLoading}
           />
-          {barData && <TrendBarChart data={barData} title={s.trendTitle} />}
+          {(dateTab === '월' || dateTab === '년') && (
+            <TrendBarChart
+              data={barData ?? []}
+              isLoading={chartLoading}
+              title={s.trendTitle}
+            />
+          )}
           <CategoryBreakdown
             total={catData?.total ?? 0}
             byCategory={catData?.byCategory ?? []}
             title={s.categoryBreakdown}
+            isLoading={catLoading}
           />
         </View>
       )}

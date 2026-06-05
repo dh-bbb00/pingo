@@ -4,11 +4,13 @@ import { PieChart } from 'react-native-gifted-charts'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { CategoryStatItem } from '@/api/endpoints/stats.api'
+import SkeletonBox from '@/components/containers/SkeletonBox'
 
 interface Props {
   total:      number
   byCategory: CategoryStatItem[]
   title?:     string
+  isLoading?: boolean
 }
 
 const DONUT_R  = 72
@@ -21,8 +23,26 @@ function fmtAmount(n: number): string {
   return n.toLocaleString()
 }
 
-export default function CategoryBreakdown({ total, byCategory, title }: Props) {
+const SKELETON_LEGEND_WIDTHS = [90, 110, 70, 100, 80]
+
+export default function CategoryBreakdown({ total, byCategory, title, isLoading }: Props) {
   const { theme } = useTheme()
+
+  if (isLoading) {
+    return (
+      <View style={[ss.wrap, { backgroundColor: theme.colors.surface }]}>
+        {title && <Text style={[ss.title, { color: theme.colors.text.secondary }]}>{title}</Text>}
+        <View style={ss.chartRow}>
+          <SkeletonBox width={DONUT_R * 2} height={DONUT_R * 2} radius={DONUT_R} />
+          <View style={ss.legend}>
+            {SKELETON_LEGEND_WIDTHS.map((w, i) => (
+              <SkeletonBox key={i} width={w} height={12} />
+            ))}
+          </View>
+        </View>
+      </View>
+    )
+  }
 
   const hasData = byCategory.length > 0 && total > 0
 
@@ -53,7 +73,7 @@ export default function CategoryBreakdown({ total, byCategory, title }: Props) {
                   <Text style={[ss.centerAmount, { color: theme.colors.text.primary }]}>
                     {fmtAmount(total)}
                   </Text>
-                  <Text style={[ss.centerLabel, { color: theme.colors.text.disabled }]}>원</Text>
+                  <Text style={[ss.centerLabel, { color: theme.colors.text.disabled }]}>{strings.stats.currencyUnit}</Text>
                 </View>
               )}
             />
@@ -62,7 +82,7 @@ export default function CategoryBreakdown({ total, byCategory, title }: Props) {
                 <View key={item.category?.id ?? i} style={ss.legendRow}>
                   <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length] }]} />
                   <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
-                    {item.category ? `${item.category.icon} ${item.category.name}` : '기타'}
+                    {item.category ? `${item.category.icon} ${item.category.name}` : strings.stats.other}
                   </Text>
                   <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
                 </View>
@@ -76,10 +96,10 @@ export default function CategoryBreakdown({ total, byCategory, title }: Props) {
                 <View key={item.category?.id ?? i} style={ss.moreRow}>
                   <View style={[ss.dot, { backgroundColor: item.category?.color ?? FALLBACK_COLORS[(i + 5) % FALLBACK_COLORS.length] }]} />
                   <Text style={[ss.legendName, { color: theme.colors.text.primary }]} numberOfLines={1}>
-                    {item.category ? `${item.category.icon} ${item.category.name}` : '기타'}
+                    {item.category ? `${item.category.icon} ${item.category.name}` : strings.stats.other}
                   </Text>
                   <Text style={[ss.legendPct, { color: theme.colors.text.secondary }]}>{item.ratio}%</Text>
-                  <Text style={[ss.legendAmount, { color: theme.colors.text.secondary }]}>{item.amount.toLocaleString()}원</Text>
+                  <Text style={[ss.legendAmount, { color: theme.colors.text.secondary }]}>{item.amount.toLocaleString()}{strings.stats.currencyUnit}</Text>
                 </View>
               ))}
             </View>

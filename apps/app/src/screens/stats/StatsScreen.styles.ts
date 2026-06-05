@@ -10,4 +10,9 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   mainTabText:   { fontSize: t.fontSize.sm, color: t.colors.text.disabled, fontWeight: t.fontWeight.medium },
   mainTabTextActive: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
   subTabWrap:    { paddingTop: 12 },
+  rangeRow:      { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8 },
+  rangeBtn:      { flex: 1, borderRadius: t.radius.md, paddingVertical: 10, paddingHorizontal: 14 },
+  rangeLabel:    { fontSize: t.fontSize.xs, marginBottom: 2 },
+  rangeDate:     { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold },
+  rangeSep:      { fontSize: t.fontSize.md, marginHorizontal: 8 },
 })

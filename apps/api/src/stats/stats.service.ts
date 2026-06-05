@@ -90,6 +90,33 @@ export class StatsService {
     }));
   }
 
+  /**
+   * 특정 하루 내 시간대별 지출 합계 (0~23시)
+   * 클라이언트는 이 데이터로 일별 시간대 막대 차트를 구성
+   */
+  async getByHour(userId: string, query: StatsQueryDto) {
+    const categoryFilter    = query.categoryId      ? Prisma.sql`AND "categoryId" = ${query.categoryId}`           : Prisma.empty;
+    const paymentFilter     = query.paymentMethodId ? Prisma.sql`AND "paymentMethodId" = ${query.paymentMethodId}` : Prisma.empty;
+
+    const rows = await this.prisma.$queryRaw<{ hour: number; amount: bigint }[]>`
+      SELECT EXTRACT(hour FROM "transactionDate")::int AS hour,
+             SUM(amount)::bigint AS amount
+      FROM "Transaction"
+      WHERE "userId" = ${userId}
+        AND "transactionDate" >= ${new Date(query.startDate)}
+        AND "transactionDate" <= ${new Date(query.endDate)}
+        ${categoryFilter}
+        ${paymentFilter}
+      GROUP BY hour
+      ORDER BY hour ASC
+    `;
+
+    return rows.map((r) => ({
+      hour:   r.hour,
+      amount: Number(r.amount),
+    }));
+  }
+
   async getHomeSummary(userId: string) {
     const now   = new Date();
     const year  = now.getFullYear();

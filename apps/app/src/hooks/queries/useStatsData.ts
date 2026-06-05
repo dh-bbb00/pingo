@@ -28,3 +28,12 @@ export function useStatsByMonth(params: StatsParams | null) {
     staleTime: 60_000,
   })
 }
+
+export function useStatsByHour(params: StatsParams | null) {
+  return useQuery({
+    queryKey:  queryKeys.stats.byHour(params),
+    queryFn:   () => statsApi.getByHour(params!).then(r => r.data.data),
+    enabled:   !!params,
+    staleTime: 60_000,
+  })
+}

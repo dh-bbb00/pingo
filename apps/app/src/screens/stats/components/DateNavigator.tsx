@@ -5,13 +5,14 @@ import type { StatsDateTab } from '../types'
 import { formatDateLabel } from '../utils'
 
 interface Props {
-  dateTab: StatsDateTab
-  date:    Date
-  onPrev:  () => void
-  onNext:  () => void
+  dateTab:  StatsDateTab
+  date:     Date
+  onPrev:   () => void
+  onNext:   () => void
+  onPress?: () => void
 }
 
-export default function DateNavigator({ dateTab, date, onPrev, onNext }: Props) {
+export default function DateNavigator({ dateTab, date, onPrev, onNext, onPress }: Props) {
   const { theme } = useTheme()
   const isToday = (() => {
     const now = new Date()
@@ -25,9 +26,11 @@ export default function DateNavigator({ dateTab, date, onPrev, onNext }: Props) 
       <TouchableOpacity onPress={onPrev} style={ss.arrowBtn} activeOpacity={0.6}>
         <Text style={[ss.arrow, { color: theme.colors.text.secondary }]}>‹</Text>
       </TouchableOpacity>
-      <Text style={[ss.label, { color: theme.colors.text.primary }]}>
-        {formatDateLabel(dateTab, date)}
-      </Text>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} disabled={!onPress} style={ss.labelBtn}>
+        <Text style={[ss.label, { color: theme.colors.text.primary }]}>
+          {formatDateLabel(dateTab, date)}
+        </Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={onNext} style={ss.arrowBtn} activeOpacity={0.6} disabled={isToday}>
         <Text style={[ss.arrow, { color: isToday ? theme.colors.text.disabled : theme.colors.text.secondary }]}>›</Text>
       </TouchableOpacity>
@@ -36,8 +39,9 @@ export default function DateNavigator({ dateTab, date, onPrev, onNext }: Props) 
 }
 
 const ss = StyleSheet.create({
-  row:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
-  arrowBtn: { paddingHorizontal: 20, paddingVertical: 4 },
+  row:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12 },
+  arrowBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   arrow:    { fontSize: 28, lineHeight: 32 },
-  label:    { fontSize: 16, fontWeight: '600', minWidth: 140, textAlign: 'center' },
+  labelBtn: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  label:    { fontSize: 16, fontWeight: '600', textAlign: 'center' },
 })

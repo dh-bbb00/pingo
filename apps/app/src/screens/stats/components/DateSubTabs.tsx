@@ -4,7 +4,7 @@ import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { StatsDateTab } from '../types'
 
-const TABS: StatsDateTab[] = ['일', '월', '년']
+const TABS: StatsDateTab[] = ['일', '월', '년', '기간']
 const s = strings.stats
 
 interface Props {
@@ -27,7 +27,7 @@ export default function DateSubTabs({ activeTab, onTabChange }: Props) {
             { color: activeTab === tab ? theme.colors.text.primary : theme.colors.text.secondary },
             activeTab === tab && { fontWeight: '600' },
           ]}>
-            {tab === '일' ? s.tabDay : tab === '월' ? s.tabMonth : s.tabYear}
+            {tab === '일' ? s.tabDay : tab === '월' ? s.tabMonth : tab === '년' ? s.tabYear : s.tabRange}
           </Text>
         </TouchableOpacity>
       ))}

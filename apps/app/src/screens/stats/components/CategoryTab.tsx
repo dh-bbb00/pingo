@@ -28,10 +28,14 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
   const params     = useMemo(() => range     ? { ...range,     categoryId: selectedCategoryId! } : null, [range,     selectedCategoryId])
   const prevParams = useMemo(() => prevRange ? { ...prevRange, categoryId: selectedCategoryId! } : null, [prevRange, selectedCategoryId])
 
-  const { data: catData }     = useStatsByCategory(params)
-  const { data: prevCatData } = useStatsByCategory(prevParams)
-  const { data: byDateData }  = useStatsByDate(dateTab === '월' && params ? params : null)
-  const { data: byMonthData } = useStatsByMonth(dateTab === '년' && params ? params : null)
+  const { data: catData,     isLoading: catLoading  } = useStatsByCategory(params)
+  const { data: prevCatData }                         = useStatsByCategory(prevParams)
+  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate(dateTab === '월' && params ? params : null)
+  const { data: byMonthData, isLoading: monthLoading } = useStatsByMonth(dateTab === '년' && params ? params : null)
+
+  const chartLoading =
+    (dateTab === '월' && dateLoading) ||
+    (dateTab === '년' && monthLoading)
 
   const barData = useMemo(() => {
     if (dateTab === '월' && byDateData) return buildMonthlyBarData(byDateData, date.getFullYear(), date.getMonth())
@@ -70,8 +74,16 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
           <SummaryCard
             total={catData?.total ?? 0}
             prevTotal={prevCatData?.total ?? 0}
+            dateTab={dateTab}
+            isLoading={catLoading}
           />
-          {barData && <TrendBarChart data={barData} title={s.trendTitle} />}
+          {(dateTab === '월' || dateTab === '년') && (
+            <TrendBarChart
+              data={barData ?? []}
+              isLoading={chartLoading}
+              title={s.trendTitle}
+            />
+          )}
         </View>
       )}
     </ScrollView>

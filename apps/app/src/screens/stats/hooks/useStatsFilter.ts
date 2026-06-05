@@ -1,11 +1,18 @@
 import { useState, useCallback } from 'react'
 import type { StatsFilter, StatsMainTab, StatsDateTab } from '../types'
 
+function defaultRangeStart() {
+  const d = new Date()
+  return new Date(d.getFullYear(), d.getMonth(), 1)
+}
+
 export function useStatsFilter() {
   const [filter, setFilter] = useState<StatsFilter>({
     mainTab:                 'period',
-    dateTab:                 '월',
+    dateTab:                 '일',
     date:                    new Date(),
+    rangeStart:              defaultRangeStart(),
+    rangeEnd:                new Date(),
     selectedCategoryId:      null,
     selectedPaymentMethodId: null,
   })
@@ -16,6 +23,14 @@ export function useStatsFilter() {
 
   const setDateTab = useCallback((dateTab: StatsDateTab) => {
     setFilter(prev => ({ ...prev, dateTab, date: new Date() }))
+  }, [])
+
+  const setRangeStart = useCallback((rangeStart: Date) => {
+    setFilter(prev => ({ ...prev, rangeStart }))
+  }, [])
+
+  const setRangeEnd = useCallback((rangeEnd: Date) => {
+    setFilter(prev => ({ ...prev, rangeEnd }))
   }, [])
 
   const setDate = useCallback((date: Date) => {
@@ -48,6 +63,8 @@ export function useStatsFilter() {
     setMainTab,
     setDateTab,
     setDate,
+    setRangeStart,
+    setRangeEnd,
     setSelectedCategoryId,
     setSelectedPaymentMethodId,
     applyParams,

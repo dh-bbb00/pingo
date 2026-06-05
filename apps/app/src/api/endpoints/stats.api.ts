@@ -55,6 +55,11 @@ export interface ByMonthResult {
   amount: number
 }
 
+export interface ByHourResult {
+  hour:   number
+  amount: number
+}
+
 export const statsApi = {
   getHomeSummary: () =>
     apiClient.get<{ success: boolean; data: HomeSummary }>(endpoints.stats.homeSummary),
@@ -67,4 +72,7 @@ export const statsApi = {
 
   getByMonth: (params: StatsParams) =>
     apiClient.get<{ success: boolean; data: ByMonthResult[] }>(endpoints.stats.byMonth, { params }),
+
+  getByHour: (params: StatsParams) =>
+    apiClient.get<{ success: boolean; data: ByHourResult[] }>(endpoints.stats.byHour, { params }),
 }
