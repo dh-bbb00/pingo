@@ -4,6 +4,7 @@ import { PieChart } from 'react-native-gifted-charts'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { CategoryStatItem } from '@/api/endpoints/stats.api'
+import type { StatsDateTab } from '../types'
 import SkeletonBox from '@/components/containers/SkeletonBox'
 
 const s = strings.stats
@@ -12,6 +13,7 @@ interface Props {
   total:           number
   byCategory:      CategoryStatItem[]
   prevByCategory?: CategoryStatItem[]
+  dateTab?:        StatsDateTab
   title?:          string
   isLoading?:      boolean
 }
@@ -29,7 +31,7 @@ const FALLBACK_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', 
 
 const SKELETON_ROWS = [100, 130, 80, 110, 70, 90]
 
-export default function CategoryBreakdown({ total, byCategory, prevByCategory, title, isLoading }: Props) {
+export default function CategoryBreakdown({ total, byCategory, prevByCategory, dateTab, title, isLoading }: Props) {
   const { theme } = useTheme()
 
   const prevMap = useMemo(() => {
@@ -41,17 +43,19 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, t
     return map
   }, [prevByCategory])
 
+  const period = dateTab ?? ''
+
   function getDiff(item: CategoryStatItem): { text: string; color: string } | null {
     if (!prevMap) return null
     const key  = item.category?.id ?? '__none__'
     const prev = prevMap[key]
     if (prev === undefined) {
-      return { text: s.categoryDiffNoPrev, color: theme.colors.text.disabled }
+      return { text: s.vsPrevNone(period), color: theme.colors.text.disabled }
     }
     const diff = item.amount - prev
-    if (diff === 0) return { text: s.categoryDiffNone, color: theme.colors.text.disabled }
-    if (diff > 0)   return { text: s.categoryDiffFmt('+', diff), color: theme.colors.semantic.error }
-    return { text: s.categoryDiffFmt('-', Math.abs(diff)), color: theme.colors.semantic.income }
+    if (diff === 0) return { text: s.vsPrevSame(period), color: theme.colors.text.disabled }
+    if (diff > 0)   return { text: s.categoryDiffFmt(period, '+', diff),        color: theme.colors.semantic.error }
+    return { text: s.categoryDiffFmt(period, '-', Math.abs(diff)), color: theme.colors.semantic.income }
   }
 
   if (isLoading) {
