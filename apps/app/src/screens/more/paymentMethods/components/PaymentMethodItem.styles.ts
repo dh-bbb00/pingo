@@ -13,4 +13,5 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   name:       { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
   cardNumber: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.regular, color: t.colors.text.secondary },
   defaultTag: { fontSize: t.fontSize.xs, color: t.colors.primary, fontWeight: t.fontWeight.medium, marginLeft: 8 },
+  statsBtn:   { paddingHorizontal: 10, paddingVertical: 10 },
 })

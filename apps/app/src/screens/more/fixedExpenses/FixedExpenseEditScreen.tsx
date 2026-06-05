@@ -289,6 +289,7 @@ export default function FixedExpenseEditScreen() {
       />
 
       <PaymentMethodPickerModal
+        mode="single"
         visible={showPaymentMethodPicker}
         selectedId={form.paymentMethodId}
         onSelect={(id) => setField('paymentMethodId', id)}

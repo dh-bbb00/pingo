@@ -27,6 +27,9 @@ export const endpoints = {
   stats: {
     base:        `${V1}/stats`,
     homeSummary: `${V1}/stats/home-summary`,
+    byCategory:  `${V1}/stats/by-category`,
+    byDate:      `${V1}/stats/by-date`,
+    byMonth:     `${V1}/stats/by-month`,
   },
   users: {
     base:      `${V1}/users`,

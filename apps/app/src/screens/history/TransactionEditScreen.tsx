@@ -266,6 +266,7 @@ export default function TransactionEditScreen() {
       />
 
       <PaymentMethodPickerModal
+        mode="single"
         visible={showPaymentMethodPicker}
         selectedId={form.paymentMethodId}
         onSelect={(id) => setField('paymentMethodId', id)}

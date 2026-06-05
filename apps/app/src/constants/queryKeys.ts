@@ -21,6 +21,9 @@ export const queryKeys = {
     all:         ['stats'] as const,
     homeSummary: () => ['stats', 'home-summary'] as const,
     monthly:     (year: number, month: number) => ['stats', year, month] as const,
+    byCategory:  (params: unknown) => ['stats', 'by-category', params] as const,
+    byDate:      (params: unknown) => ['stats', 'by-date',     params] as const,
+    byMonth:     (params: unknown) => ['stats', 'by-month',    params] as const,
   },
   adminUsers: {
     all:  ['admin-users'] as const,

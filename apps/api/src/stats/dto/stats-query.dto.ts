@@ -16,4 +16,9 @@ export class StatsQueryDto {
   @IsOptional()
   @IsString({ message: VM.string })
   categoryId?: string;
+
+  @ApiProperty({ required: false, description: '특정 결제수단 ID로 범위 제한' })
+  @IsOptional()
+  @IsString({ message: VM.string })
+  paymentMethodId?: string;
 }

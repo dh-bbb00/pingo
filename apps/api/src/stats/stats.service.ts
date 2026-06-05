@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StatsQueryDto } from './dto/stats-query.dto';
 
@@ -68,6 +69,8 @@ export class StatsService {
     const where = this.buildWhere(userId, query);
 
     // Prisma groupBy는 date_trunc 미지원이므로 raw query 사용
+    const categoryFilter    = query.categoryId     ? Prisma.sql`AND "categoryId" = ${query.categoryId}`         : Prisma.empty;
+    const paymentFilter     = query.paymentMethodId ? Prisma.sql`AND "paymentMethodId" = ${query.paymentMethodId}` : Prisma.empty;
     const rows = await this.prisma.$queryRaw<{ month: Date; amount: bigint }[]>`
       SELECT date_trunc('month', "transactionDate") AS month,
              SUM(amount)::bigint AS amount
@@ -75,6 +78,8 @@ export class StatsService {
       WHERE "userId" = ${userId}
         AND "transactionDate" >= ${new Date(query.startDate)}
         AND "transactionDate" <= ${new Date(query.endDate)}
+        ${categoryFilter}
+        ${paymentFilter}
       GROUP BY month
       ORDER BY month ASC
     `;
@@ -162,7 +167,8 @@ export class StatsService {
   private buildWhere(userId: string, query: StatsQueryDto) {
     return {
       userId,
-      ...(query.categoryId && { categoryId: query.categoryId }),
+      ...(query.categoryId      && { categoryId:      query.categoryId }),
+      ...(query.paymentMethodId && { paymentMethodId: query.paymentMethodId }),
       transactionDate: {
         gte: new Date(query.startDate),
         lte: new Date(query.endDate),

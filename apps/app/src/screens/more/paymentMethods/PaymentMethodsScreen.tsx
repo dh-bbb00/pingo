@@ -12,6 +12,7 @@ import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
 import PaymentMethodItem from './components/PaymentMethodItem'
 import PaymentMethodSkeleton from './components/PaymentMethodSkeleton'
 import { makeStyles } from './PaymentMethodsScreen.styles'
+import { navigationRef } from '@/navigation/navigationRef'
 
 const SKELETON_KEYS = Array.from({ length: 4 }, (_, i) => `sk-${i}`)
 
@@ -35,6 +36,13 @@ export default function PaymentMethodsScreen() {
     ]
   }, [methods])
 
+  function handleStatsPress(method: PaymentMethod) {
+    navigationRef.navigate(Screens.Root.UserTabs, {
+      screen: Screens.UserTab.Stats,
+      params: { initialTab: 'paymentMethod', paymentMethodId: method.id },
+    })
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <Text style={styles.header}>{s.header}</Text>
@@ -52,16 +60,15 @@ export default function PaymentMethodsScreen() {
                 ? () => navigation.navigate(Screens.More.PaymentMethodEdit, { id: item.id })
                 : undefined
               }
+              onStatsPress={() => handleStatsPress(item)}
             />
           )}
           renderSectionFooter={({ section }) => {
-            // fixed 섹션 아래에만 구분선 표시
             if (section.key !== 'fixed') return null
             return <View style={styles.divider} />
           }}
           ListEmptyComponent={null}
           renderSectionHeader={() => null}
-          // 카드 섹션이 비어있을 때 안내 문구
           ListFooterComponent={
             !isLoading && (methods ?? []).filter(m => m.type === 'CARD').length === 0
               ? <View style={styles.emptyWrap}><Text style={styles.emptyText}>{s.noCards}</Text></View>

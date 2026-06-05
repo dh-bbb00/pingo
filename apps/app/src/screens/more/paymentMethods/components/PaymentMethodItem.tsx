@@ -3,14 +3,16 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { useTheme } from '@/theme'
 import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
 import { PAYMENT_METHOD_EMOJI } from '@/constants/emojis'
+import BarChartIcon from '@/components/icons/BarChartIcon'
 import { makeStyles } from './PaymentMethodItem.styles'
 
 interface Props {
-  item:     PaymentMethod
-  onPress?: () => void
+  item:          PaymentMethod
+  onPress?:      () => void
+  onStatsPress?: () => void
 }
 
-export default function PaymentMethodItem({ item, onPress }: Props) {
+export default function PaymentMethodItem({ item, onPress, onStatsPress }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
@@ -35,14 +37,20 @@ export default function PaymentMethodItem({ item, onPress }: Props) {
         <TouchableOpacity style={[styles.card, { flex: 1 }]} onPress={onPress} activeOpacity={0.7}>
           {inner}
         </TouchableOpacity>
+        <TouchableOpacity style={styles.statsBtn} onPress={onStatsPress} activeOpacity={0.5}>
+          <BarChartIcon color={theme.colors.text.disabled} />
+        </TouchableOpacity>
       </View>
     )
   }
 
-  // 비활성 항목(현금·상품권): 카드 배경 없이 플랫 행으로 표시
+  // 비활성 항목(현금·상품권): 플랫 행 + 차트 아이콘
   return (
     <View style={styles.outerRow}>
-      <View style={styles.flatRow}>{inner}</View>
+      <View style={[styles.flatRow, { flex: 1 }]}>{inner}</View>
+      <TouchableOpacity style={styles.statsBtn} onPress={onStatsPress} activeOpacity={0.5}>
+        <BarChartIcon color={theme.colors.text.disabled} />
+      </TouchableOpacity>
     </View>
   )
 }

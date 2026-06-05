@@ -1,19 +1,55 @@
-import { useState } from 'react'
-import type { StatsDateTab, StatsFilter } from '../types'
+import { useState, useCallback } from 'react'
+import type { StatsFilter, StatsMainTab, StatsDateTab } from '../types'
 
 export function useStatsFilter() {
   const [filter, setFilter] = useState<StatsFilter>({
-    tab:  '일',
-    date: new Date(),
+    mainTab:                 'period',
+    dateTab:                 '월',
+    date:                    new Date(),
+    selectedCategoryId:      null,
+    selectedPaymentMethodId: null,
   })
 
-  function setTab(tab: StatsDateTab) {
-    setFilter({ tab, date: new Date() })
-  }
+  const setMainTab = useCallback((mainTab: StatsMainTab) => {
+    setFilter(prev => ({ ...prev, mainTab }))
+  }, [])
 
-  function setDate(date: Date) {
-    setFilter((prev) => ({ ...prev, date }))
-  }
+  const setDateTab = useCallback((dateTab: StatsDateTab) => {
+    setFilter(prev => ({ ...prev, dateTab, date: new Date() }))
+  }, [])
 
-  return { filter, setTab, setDate }
+  const setDate = useCallback((date: Date) => {
+    setFilter(prev => ({ ...prev, date }))
+  }, [])
+
+  const setSelectedCategoryId = useCallback((id: string | null) => {
+    setFilter(prev => ({ ...prev, selectedCategoryId: id }))
+  }, [])
+
+  const setSelectedPaymentMethodId = useCallback((id: string | null) => {
+    setFilter(prev => ({ ...prev, selectedPaymentMethodId: id }))
+  }, [])
+
+  const applyParams = useCallback((params: {
+    initialTab?:      StatsMainTab
+    categoryId?:      string
+    paymentMethodId?: string
+  }) => {
+    setFilter(prev => ({
+      ...prev,
+      ...(params.initialTab      && { mainTab: params.initialTab }),
+      ...(params.categoryId      && { selectedCategoryId: params.categoryId }),
+      ...(params.paymentMethodId && { selectedPaymentMethodId: params.paymentMethodId }),
+    }))
+  }, [])
+
+  return {
+    filter,
+    setMainTab,
+    setDateTab,
+    setDate,
+    setSelectedCategoryId,
+    setSelectedPaymentMethodId,
+    applyParams,
+  }
 }

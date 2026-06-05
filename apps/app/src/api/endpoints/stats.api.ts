@@ -27,7 +27,44 @@ export interface HomeSummary {
   monthlyTrend:       { month: string; amount: number }[]
 }
 
+export interface StatsParams {
+  startDate:       string
+  endDate:         string
+  categoryId?:     string
+  paymentMethodId?: string
+}
+
+export interface CategoryStatItem {
+  category: { id: string; name: string; icon: string; color: string } | null
+  amount:   number
+  ratio:    number
+}
+
+export interface ByCategoryResult {
+  total:      number
+  byCategory: CategoryStatItem[]
+}
+
+export interface ByDateResult {
+  date:   string
+  amount: number
+}
+
+export interface ByMonthResult {
+  month:  string
+  amount: number
+}
+
 export const statsApi = {
   getHomeSummary: () =>
     apiClient.get<{ success: boolean; data: HomeSummary }>(endpoints.stats.homeSummary),
+
+  getByCategory: (params: StatsParams) =>
+    apiClient.get<{ success: boolean; data: ByCategoryResult }>(endpoints.stats.byCategory, { params }),
+
+  getByDate: (params: StatsParams) =>
+    apiClient.get<{ success: boolean; data: ByDateResult[] }>(endpoints.stats.byDate, { params }),
+
+  getByMonth: (params: StatsParams) =>
+    apiClient.get<{ success: boolean; data: ByMonthResult[] }>(endpoints.stats.byMonth, { params }),
 }

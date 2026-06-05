@@ -1,0 +1,99 @@
+import React, { useMemo } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { useStatsByCategory, useStatsByDate, useStatsByMonth } from '@/hooks/queries/useStatsData'
+import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
+import { getDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } from '../utils'
+import type { StatsDateTab } from '../types'
+import SummaryCard from './SummaryCard'
+import TrendBarChart from './TrendBarChart'
+import CategoryBreakdown from './CategoryBreakdown'
+import { strings } from '@/constants/strings'
+import { useTheme } from '@/theme'
+import { PAYMENT_METHOD_EMOJI } from '@/constants/emojis'
+
+const s = strings.stats
+
+interface Props {
+  dateTab:                StatsDateTab
+  date:                   Date
+  selectedPaymentMethodId: string | null
+  onSelectPaymentMethod:   (id: string | null) => void
+}
+
+export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodId, onSelectPaymentMethod }: Props) {
+  const { theme } = useTheme()
+  const { data: methods = [] } = usePaymentMethods()
+
+  const range     = useMemo(() => selectedPaymentMethodId ? getDateRange(dateTab, date) : null, [dateTab, date, selectedPaymentMethodId])
+  const prevRange = useMemo(() => selectedPaymentMethodId ? getDateRange(dateTab, getPrevDate(dateTab, date)) : null, [dateTab, date, selectedPaymentMethodId])
+
+  const params     = useMemo(() => range     ? { ...range,     paymentMethodId: selectedPaymentMethodId! } : null, [range,     selectedPaymentMethodId])
+  const prevParams = useMemo(() => prevRange ? { ...prevRange, paymentMethodId: selectedPaymentMethodId! } : null, [prevRange, selectedPaymentMethodId])
+
+  const { data: catData }     = useStatsByCategory(params)
+  const { data: prevCatData } = useStatsByCategory(prevParams)
+  const { data: byDateData }  = useStatsByDate(dateTab === '월' && params ? params : null)
+  const { data: byMonthData } = useStatsByMonth(dateTab === '년' && params ? params : null)
+
+  const barData = useMemo(() => {
+    if (dateTab === '월' && byDateData) return buildMonthlyBarData(byDateData, date.getFullYear(), date.getMonth())
+    if (dateTab === '년' && byMonthData) return buildYearlyBarData(byMonthData)
+    return null
+  }, [dateTab, date, byDateData, byMonthData])
+
+  return (
+    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      {/* 결제수단 선택 칩 */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={ss.chipList}>
+        {methods.map(method => {
+          const active = selectedPaymentMethodId === method.id
+          return (
+            <TouchableOpacity
+              key={method.id}
+              style={[ss.chip, {
+                backgroundColor: active ? theme.colors.primary : theme.colors.surfaceVariant,
+              }]}
+              onPress={() => onSelectPaymentMethod(active ? null : method.id)}
+              activeOpacity={0.7}
+            >
+              <Text style={ss.chipIcon}>{PAYMENT_METHOD_EMOJI[method.type]}</Text>
+              <Text style={[ss.chipText, { color: active ? '#fff' : theme.colors.text.primary }]} numberOfLines={1}>
+                {method.name}
+                {method.cardNumber ? <Text style={ss.chipSub}> ({method.cardNumber})</Text> : null}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
+      </ScrollView>
+
+      {!selectedPaymentMethodId ? (
+        <View style={ss.emptyWrap}>
+          <Text style={[ss.emptyText, { color: theme.colors.text.disabled }]}>{s.selectPaymentMethod}</Text>
+        </View>
+      ) : (
+        <View style={{ paddingTop: 12 }}>
+          <SummaryCard
+            total={catData?.total ?? 0}
+            prevTotal={prevCatData?.total ?? 0}
+          />
+          {barData && <TrendBarChart data={barData} title={s.trendTitle} />}
+          <CategoryBreakdown
+            total={catData?.total ?? 0}
+            byCategory={catData?.byCategory ?? []}
+            title={s.categoryBreakdown}
+          />
+        </View>
+      )}
+    </ScrollView>
+  )
+}
+
+const ss = StyleSheet.create({
+  chipList: { paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
+  chip:     { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
+  chipIcon: { fontSize: 14 },
+  chipText: { fontSize: 13, fontWeight: '500', maxWidth: 100 },
+  chipSub:  { fontSize: 11, fontWeight: '400' },
+  emptyWrap:{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 80 },
+  emptyText:{ fontSize: 14 },
+})

@@ -287,11 +287,21 @@ export const strings = {
   },
 
   stats: {
-    header:      '통계',
-    placeholder: (tab: string) => `${tab} 통계 준비 중`,
-    tabDay:      '일',
-    tabMonth:    '월',
-    tabYear:     '년',
+    header:              '통계',
+    tabPeriod:           '기간',
+    tabCategory:         '카테고리',
+    tabPaymentMethod:    '결제수단',
+    tabDay:              '일',
+    tabMonth:            '월',
+    tabYear:             '년',
+    noData:              '해당 기간에 지출 내역이 없습니다.',
+    totalExpense:        '총 지출',
+    categoryBreakdown:   '카테고리별 지출',
+    trendTitle:          '지출 추이',
+    selectCategory:      '카테고리를 선택하세요',
+    selectPaymentMethod: '결제수단을 선택하세요',
+    vsPrev:              (sign: '+' | '-' | '', pct: number) => `전기간 대비 ${sign}${pct}%`,
+    vsPrevSame:          '전기간과 동일',
   },
 
   fixedExpenses: {

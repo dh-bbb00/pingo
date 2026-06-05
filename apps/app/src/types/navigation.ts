@@ -36,7 +36,7 @@ export type AdminTabParamList = {
 export type UserTabParamList = {
   Home:     undefined
   History:  NavigatorScreenParams<HistoryStackParamList>
-  Stats:    undefined
+  Stats:    { initialTab?: 'period' | 'category' | 'paymentMethod'; categoryId?: string; paymentMethodId?: string } | undefined
   Category: NavigatorScreenParams<CategoryStackParamList>
   More:     NavigatorScreenParams<MoreStackParamList>
 }

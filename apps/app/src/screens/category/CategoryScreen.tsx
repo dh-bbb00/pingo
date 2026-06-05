@@ -14,6 +14,7 @@ import SortArrowIcon from '@/components/icons/SortArrowIcon'
 import SkeletonBox from '@/components/containers/SkeletonBox'
 import type { CategorySort } from './types'
 import { makeStyles } from './CategoryScreen.styles'
+import { navigationRef } from '@/navigation/navigationRef'
 
 type Nav = NativeStackNavigationProp<CategoryStackParamList, 'CategoryMain'>
 
@@ -107,7 +108,12 @@ export default function CategoryScreen() {
             <CategoryItem
               item={item}
               onPress={() => navigation.navigate(Screens.Category.CategoryEdit, { id: item.id })}
-              onStatsPress={() => { /* TODO: 오늘 날짜 + 해당 카테고리로 통계 탭 이동 */ }}
+              onStatsPress={() => {
+              navigationRef.navigate(Screens.Root.UserTabs, {
+                screen: Screens.UserTab.Stats,
+                params: { initialTab: 'category', categoryId: item.id },
+              })
+            }}
             />
           )}
           ListHeaderComponent={SortHeader}
