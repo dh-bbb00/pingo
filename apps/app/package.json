@@ -5,6 +5,8 @@
   "scripts": {
     "android": "ENVFILE=.env.development react-native run-android",
     "android:prod": "ENVFILE=.env.production react-native run-android",
+    "apk:debug": "cd android && ENVFILE=../.env.development ./gradlew assembleDebug",
+    "apk:release": "cd android && ENVFILE=../.env.production ./gradlew assembleRelease",
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",
     "lint": "eslint .",

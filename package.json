@@ -18,6 +18,8 @@
     "db:seed": "pnpm --filter @pingo/api prisma:seed",
     "app:start": "pnpm --filter @pingo/app start",
     "app:android": "pnpm --filter @pingo/app android",
+    "app:apk:debug": "pnpm --filter @pingo/app apk:debug",
+    "app:apk:release": "pnpm --filter @pingo/app apk:release",
     "adb:reset": "adb kill-server && adb start-server"
   },
   "devDependencies": {
