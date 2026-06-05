@@ -12,6 +12,7 @@ import { Screens } from '@/constants/screens'
 import { useHomeSummary } from './hooks/useHomeSummary'
 import { makeStyles } from './HomeScreen.styles'
 import type { HomeSummaryCategory, HomeSummaryTransaction } from '@/api/endpoints/stats.api'
+import { DATE_TAB } from '@/screens/stats/types'
 
 type Nav = BottomTabNavigationProp<UserTabParamList, 'Home'>
 
@@ -159,7 +160,7 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               style={styles.linkRow}
-              onPress={() => navigation.navigate(Screens.UserTab.Stats as any)}
+              onPress={() => navigation.navigate(Screens.UserTab.Stats as any, { initialTab: 'category', dateTab: DATE_TAB.DAY })}
               activeOpacity={0.7}
             >
               <Text style={styles.linkText}>{s.toStats}</Text>

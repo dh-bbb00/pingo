@@ -54,6 +54,7 @@ export default function StatsScreen() {
     if (!params) return
     applyParams({
       initialTab:      params.initialTab,
+      dateTab:         params.dateTab,
       categoryId:      params.categoryId,
       paymentMethodId: params.paymentMethodId,
     })

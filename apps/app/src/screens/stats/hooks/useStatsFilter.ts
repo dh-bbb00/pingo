@@ -48,12 +48,14 @@ export function useStatsFilter() {
 
   const applyParams = useCallback((params: {
     initialTab?:      StatsMainTab
+    dateTab?:         StatsDateTab
     categoryId?:      string
     paymentMethodId?: string
   }) => {
     setFilter(prev => ({
       ...prev,
       ...(params.initialTab      && { mainTab: params.initialTab }),
+      ...(params.dateTab         && { dateTab: params.dateTab }),
       ...(params.categoryId      && { selectedCategoryId: params.categoryId }),
       ...(params.paymentMethodId && { selectedPaymentMethodId: params.paymentMethodId }),
     }))

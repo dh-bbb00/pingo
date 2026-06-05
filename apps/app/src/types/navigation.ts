@@ -36,7 +36,7 @@ export type AdminTabParamList = {
 export type UserTabParamList = {
   Home:     undefined
   History:  NavigatorScreenParams<HistoryStackParamList>
-  Stats:    { initialTab?: 'period' | 'category' | 'paymentMethod'; categoryId?: string; paymentMethodId?: string } | undefined
+  Stats:    { initialTab?: 'period' | 'category' | 'paymentMethod'; dateTab?: '일' | '월' | '년' | '기간'; categoryId?: string; paymentMethodId?: string } | undefined
   Category: NavigatorScreenParams<CategoryStackParamList>
   More:     NavigatorScreenParams<MoreStackParamList>
 }
