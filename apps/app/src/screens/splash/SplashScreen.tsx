@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { apiClient } from '@/api/client'
@@ -83,7 +83,7 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>{s.logo}</Text>
+      <Image source={require('@/assets/pingo_logo_icon.png')} style={styles.logo} />
       <Text style={styles.title}>{s.title}</Text>
     </View>
   )
