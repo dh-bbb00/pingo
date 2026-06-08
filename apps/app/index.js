@@ -12,12 +12,18 @@ import { setupNotificationChannel, displayDetectedNotification } from './src/uti
 
 AppRegistry.registerComponent(appName, () => App);
 
+const PINGO_PACKAGE = 'com.pingo';
+const PINGO_NOTIFICATION_TITLE = 'Pingo 알림감지';
+
 // 알림 감지 헤드리스 태스크 — 앱이 백그라운드/종료 상태에서도 호출됨
 AppRegistry.registerHeadlessTask(
   RNAndroidNotificationListenerHeadlessJsName,
   () => async (notification) => {
-    // 자기 앱 알림 무시 — Pingo가 띄운 알림을 다시 감지하는 무한 루프 방지
-    if (notification.app === 'com.pingo') return;
+    // 자기 앱 알림 무시 — 패키지명 또는 제목으로 이중 필터링 (무한 루프 방지)
+    if (
+      notification.app === PINGO_PACKAGE ||
+      String(notification.title ?? '') === PINGO_NOTIFICATION_TITLE
+    ) return;
 
     await setupNotificationChannel();
     saveDetectedNotification(notification);
