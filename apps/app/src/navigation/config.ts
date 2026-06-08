@@ -21,6 +21,7 @@ import CategoryScreen           from '@/screens/category/CategoryScreen'
 import CategoryEditScreen       from '@/screens/category/CategoryEditScreen'
 
 import MoreScreen                  from '@/screens/more/MoreScreen'
+import NotificationLogScreen       from '@/screens/more/notificationLog/NotificationLogScreen'
 import FixedExpensesScreen         from '@/screens/more/fixedExpenses/FixedExpensesScreen'
 import FixedExpenseDetailScreen    from '@/screens/more/fixedExpenses/FixedExpenseDetailScreen'
 import FixedExpenseEditScreen      from '@/screens/more/fixedExpenses/FixedExpenseEditScreen'
@@ -94,8 +95,9 @@ export const moreRoutes: StackRoute[] = [
   { name: 'FixedExpenseEdit',   component: FixedExpenseEditScreen,   options: backHeader },
   { name: 'PaymentMethods',    component: PaymentMethodsScreen,     options: backHeader },
   { name: 'PaymentMethodEdit', component: PaymentMethodEditScreen,  options: backHeader },
-  { name: 'MyInfo',            component: MyInfoScreen,             options: backHeader },
+  { name: 'MyInfo',             component: MyInfoScreen,             options: backHeader },
   { name: 'PasswordChange',     component: PasswordChangeScreen,     options: backHeader },
+  { name: 'NotificationLog',    component: NotificationLogScreen,    options: backHeader },
 ]
 
 export const userTabRoutes: TabRoute[] = [

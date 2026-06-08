@@ -85,6 +85,16 @@ export const strings = {
     fixedExpenses:   '고정 지출 관리',
     paymentMethods:  '결제수단 관리',
     myInfo:          '내 정보',
+    notificationLog: '알림 (임시)',
+  },
+
+  notificationLog: {
+    header:    '알림 감지 로그',
+    empty:     '감지된 알림이 없습니다.',
+    clearBtn:  '전체 삭제',
+    appLabel:  '앱',
+    timeLabel: '시간',
+    rawLabel:  '원본 데이터',
   },
 
   paymentMethods: {

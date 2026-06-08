@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 import { navigationRef } from '@/navigation/navigationRef'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
+import { storage, StorageKeys } from '@/utils/storage'
 
 export function useLogin() {
   const { setTokens, setUserInfo, setDeviceAccessToken } = useAuthStore()
@@ -27,7 +28,16 @@ export function useLogin() {
       if (role === 'ADMIN') {
         navigationRef.navigate(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
       } else {
-        navigationRef.navigate(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
+        const pending = storage.getString(StorageKeys.PENDING_DEEPLINK)
+        if (pending === 'NotificationLog') {
+          storage.delete(StorageKeys.PENDING_DEEPLINK)
+          navigationRef.navigate(Screens.Root.UserTabs, {
+            screen: Screens.UserTab.More,
+            params: { screen: Screens.More.NotificationLog },
+          } as any)
+        } else {
+          navigationRef.navigate(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
+        }
       }
     },
     onError: (error) => handleApiError(error, {

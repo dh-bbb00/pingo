@@ -58,5 +58,6 @@ export const Screens = {
     PaymentMethodEdit:  'PaymentMethodEdit',
     MyInfo:             'MyInfo',
     PasswordChange:     'PasswordChange',
+    NotificationLog:    'NotificationLog',
   } satisfies Record<string, keyof MoreStackParamList>,
 } as const

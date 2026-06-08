@@ -60,4 +60,5 @@ export type MoreStackParamList = {
   PaymentMethodEdit:   { id?: string; returnToTransaction?: boolean }
   MyInfo:              undefined
   PasswordChange:      undefined
+  NotificationLog:     undefined
 }
