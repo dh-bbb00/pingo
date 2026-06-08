@@ -30,6 +30,7 @@ export default function PasswordChangeScreen() {
       <TextInput
         style={[styles.input, errors.current ? styles.inputError : styles.inputNormal]}
         placeholder={s.currentPassword}
+        placeholderTextColor={theme.colors.text.disabled}
         value={form.current}
         onChangeText={(v) => setField('current', v)}
         onBlur={() => markTouched('current')}
@@ -40,6 +41,7 @@ export default function PasswordChangeScreen() {
       <TextInput
         style={[styles.input, errors.next ? styles.inputError : styles.inputNormal]}
         placeholder={s.newPassword}
+        placeholderTextColor={theme.colors.text.disabled}
         value={form.next}
         onChangeText={(v) => setField('next', v)}
         onBlur={() => markTouched('next')}
@@ -50,6 +52,7 @@ export default function PasswordChangeScreen() {
       <TextInput
         style={[styles.input, errors.confirm ? styles.inputError : styles.inputNormal]}
         placeholder={s.confirmPassword}
+        placeholderTextColor={theme.colors.text.disabled}
         value={form.confirm}
         onChangeText={(v) => setField('confirm', v)}
         onBlur={() => markTouched('confirm')}

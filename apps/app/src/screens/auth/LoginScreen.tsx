@@ -32,6 +32,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder={s.email}
+        placeholderTextColor={theme.colors.text.disabled}
         value={form.email}
         onChangeText={(v) => setField('email', v)}
         keyboardType="email-address"
@@ -40,6 +41,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder={s.password}
+        placeholderTextColor={theme.colors.text.disabled}
         value={form.password}
         onChangeText={(v) => setField('password', v)}
         secureTextEntry
@@ -47,12 +49,22 @@ export default function LoginScreen() {
 
       <View style={styles.options}>
         <View style={styles.row}>
-          <Text>{s.saveEmail}</Text>
-          <Switch value={form.saveEmail} onValueChange={(v) => setField('saveEmail', v)} />
+          <Text style={styles.optionLabel}>{s.saveEmail}</Text>
+          <Switch
+            value={form.saveEmail}
+            onValueChange={(v) => setField('saveEmail', v)}
+            trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+            thumbColor={theme.colors.text.inverse}
+          />
         </View>
         <View style={styles.row}>
-          <Text>{s.autoLogin}</Text>
-          <Switch value={form.autoLogin} onValueChange={(v) => setField('autoLogin', v)} />
+          <Text style={styles.optionLabel}>{s.autoLogin}</Text>
+          <Switch
+            value={form.autoLogin}
+            onValueChange={(v) => setField('autoLogin', v)}
+            trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+            thumbColor={theme.colors.text.inverse}
+          />
         </View>
       </View>
 

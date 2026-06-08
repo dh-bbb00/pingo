@@ -24,6 +24,7 @@ export default function ApprovalRequestScreen() {
       <TextInput
         style={styles.input}
         placeholder={s.email}
+        placeholderTextColor={theme.colors.text.disabled}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -32,6 +33,7 @@ export default function ApprovalRequestScreen() {
       <TextInput
         style={styles.input}
         placeholder={s.password}
+        placeholderTextColor={theme.colors.text.disabled}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
