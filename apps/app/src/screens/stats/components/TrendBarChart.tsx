@@ -250,7 +250,7 @@ export default function TrendBarChart({ data, title, isLoading }: Props) {
       </View>
 
       {scrollable ? (
-        <View {...scrollPanResponder.panHandlers} style={ss.chartWrap}>
+        <View style={ss.chartWrap}>
           <View style={ss.scrollRow}>
             {/* y축: zIndex 로 막대 오버플로우 위에 렌더링, backgroundColor 로 가림 */}
             <View style={yAxisWrapStyle}>
@@ -275,9 +275,10 @@ export default function TrendBarChart({ data, title, isLoading }: Props) {
             </View>
           </View>
           {crosshair}
+          <View {...scrollPanResponder.panHandlers} style={StyleSheet.absoluteFill} />
         </View>
       ) : (
-        <View {...panResponder.panHandlers} style={ss.chartWrap}>
+        <View style={ss.chartWrap}>
           <BarChart
             {...baseChartProps}
             width={CHART_W}
@@ -286,6 +287,8 @@ export default function TrendBarChart({ data, title, isLoading }: Props) {
             formatYLabel={formatYAxisLabel}
           />
           {crosshair}
+          {/* 바 자체의 터치 핸들러보다 위에서 제스처를 캡처하기 위한 오버레이 */}
+          <View {...panResponder.panHandlers} style={StyleSheet.absoluteFill} />
         </View>
       )}
     </View>
