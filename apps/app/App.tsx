@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { AppState, NavigationContainer } from 'react-native'
+import { AppState } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import BootSplash from 'react-native-bootsplash'
 import notifee, { EventType } from '@notifee/react-native'
@@ -10,7 +11,6 @@ import { Screens } from './src/constants/screens'
 import { setupNotificationChannel } from './src/utils/notification'
 import {
   checkAndRequestNotificationListenerPermission,
-  checkAndRequestBatteryOptimization,
   checkAndRequestBatteryOptimizationIfAuthorized,
 } from './src/utils/notificationPermission'
 import { useAuthStore } from './src/store/authStore'
@@ -34,7 +34,7 @@ export default function App() {
     BootSplash.hide({ fade: true })
     setupNotificationChannel()
 
-    void (async () => {
+    const initAsync = async () => {
       // POST_NOTIFICATIONS 런타임 권한 요청 (Android 13+, Pingo 알림 표시용)
       await notifee.requestPermission()
 
@@ -46,12 +46,13 @@ export default function App() {
       if (initial?.pressAction?.id === 'notification-log') {
         setTimeout(navigateToNotificationLog, 500)
       }
-    })()
+    }
+    initAsync()
 
     // 설정 갔다 돌아올 때 권한 재확인 → 새로 허용됐으면 배터리 최적화 안내
     const appStateSub = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
-        void checkAndRequestBatteryOptimizationIfAuthorized()
+        checkAndRequestBatteryOptimizationIfAuthorized()
       }
     })
 
