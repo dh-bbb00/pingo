@@ -16,11 +16,7 @@ const queryClient = new QueryClient({
 function AppStatusBar() {
   const { mode } = useTheme()
   return (
-    <StatusBar
-      translucent
-      backgroundColor="transparent"
-      barStyle={mode === 'light' ? 'dark-content' : 'light-content'}
-    />
+    <StatusBar barStyle={mode === 'light' ? 'dark-content' : 'light-content'} />
   )
 }
 
