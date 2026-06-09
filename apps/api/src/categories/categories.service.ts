@@ -150,10 +150,10 @@ export class CategoriesService {
   }
 
   /** isBudgetFixed=true인 카테고리의 전월 예산을 이번 달로 복사 (매월 1일 스케줄러 호출) */
-  async rolloverFixedBudgets() {
+  async rolloverFixedBudgets(targetYear?: number, targetMonth?: number) {
     const now = new Date();
-    const thisYear  = now.getFullYear();
-    const thisMonth = now.getMonth() + 1;
+    const thisYear  = targetYear  ?? now.getFullYear();
+    const thisMonth = targetMonth ?? now.getMonth() + 1;
     const prevYear  = thisMonth === 1 ? thisYear - 1 : thisYear;
     const prevMonth = thisMonth === 1 ? 12 : thisMonth - 1;
 

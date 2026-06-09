@@ -112,23 +112,27 @@ export class SchedulerController {
   /** 특정 타입 스케줄러 단독 수동 실행 */
   @Post('run-monthly/:type')
   @ApiOperation({ summary: '타입별 스케줄러 수동 실행 (어드민 전용)' })
+  @ApiQuery({ name: 'year',  required: false, type: Number })
+  @ApiQuery({ name: 'month', required: false, type: Number })
   async runMonthlyByType(
     @Param('type') type: SchedulerLogType,
+    @Query('year')  yearStr?:  string,
+    @Query('month') monthStr?: string,
   ): Promise<BasicResponse<{ totalCount: number; successCount: number }>> {
     const now   = new Date();
-    const year  = now.getFullYear();
-    const month = now.getMonth() + 1;
+    const year  = yearStr  ? Number(yearStr)  : now.getFullYear();
+    const month = monthStr ? Number(monthStr) : now.getMonth() + 1;
 
-    this.logger.log(`스케줄러 수동 실행: ${type}`, 'SchedulerController');
+    this.logger.log(`스케줄러 수동 실행: ${type} (${year}년 ${month}월)`, 'SchedulerController');
 
     let result = { totalCount: 0, successCount: 0 };
     try {
       if (type === SchedulerLogType.BUDGET_ROLLOVER) {
-        result = await this.categoriesService.rolloverFixedBudgets();
+        result = await this.categoriesService.rolloverFixedBudgets(year, month);
       } else if (type === SchedulerLogType.FIXED_EXPENSES) {
-        result = await this.fixedExpensesService.generateMonthlyTransactions();
+        result = await this.fixedExpensesService.generateMonthlyTransactions(year, month);
       } else if (type === SchedulerLogType.INSTALLMENTS) {
-        result = await this.transactionsService.generateInstallmentTransactions();
+        result = await this.transactionsService.generateInstallmentTransactions(year, month);
       }
       await this.schedulerLogService.writeLog({
         type, year, month, triggeredBy: SchedulerTrigger.MANUAL,

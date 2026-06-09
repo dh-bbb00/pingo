@@ -94,7 +94,8 @@ export function useRunMonthlyScheduler() {
 export function useRunSchedulerByType() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (type: SchedulerLogType) => schedulerLogsApi.runByType(type),
+    mutationFn: ({ type, year, month }: { type: SchedulerLogType; year?: number; month?: number }) =>
+      schedulerLogsApi.runByType(type, year, month),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.schedulerLogs.all })
       Toast.show({ type: 'success', text1: strings.schedulerManagement.runSuccess })

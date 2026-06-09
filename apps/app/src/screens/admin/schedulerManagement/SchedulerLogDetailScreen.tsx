@@ -77,9 +77,9 @@ function TypeDetailScreen({ type, year, month, styles, t }: {
   }, [logsData, type])
 
   function handleRun() {
-    Alert.alert(s.runBtn, s.runConfirm, [
+    Alert.alert(s.runByTypeBtn, s.runByTypeConfirm(s.types[type]), [
       { text: strings.common.cancel, style: 'cancel' },
-      { text: strings.common.confirm, onPress: () => run(type, { onSuccess: () => refetch() }) },
+      { text: strings.common.confirm, onPress: () => run({ type, year, month }, { onSuccess: () => refetch() }) },
     ])
   }
 
@@ -114,7 +114,7 @@ function TypeDetailScreen({ type, year, month, styles, t }: {
         <TouchableOpacity style={styles.runButton} onPress={handleRun} disabled={isPending}>
           {isPending
             ? <ActivityIndicator size="small" color={t.colors.text.inverse} />
-            : <Text style={styles.runButtonText}>{`${s.types[type]} ${s.runBtn}`}</Text>
+            : <Text style={styles.runButtonText}>{`${s.types[type]} ${s.runByTypeBtn}`}</Text>
           }
         </TouchableOpacity>
       </View>
@@ -138,7 +138,18 @@ export default function SchedulerLogDetailScreen({ route }: Props) {
 }
 
 function IdDetailScreen({ id, styles, t }: { id: string; styles: any; t: any }) {
-  const { data: log, isLoading } = useSchedulerLogDetail(id)
+  const { data: log, isLoading, refetch } = useSchedulerLogDetail(id)
+  const { mutate: run, isPending } = useRunSchedulerByType()
+
+  const s = strings.schedulerManagement
+
+  function handleRun() {
+    if (!log) return
+    Alert.alert(s.runByTypeBtn, s.runByTypeConfirm(s.types[log.type]), [
+      { text: strings.common.cancel, style: 'cancel' },
+      { text: strings.common.confirm, onPress: () => run({ type: log.type, year: log.year, month: log.month }, { onSuccess: () => refetch() }) },
+    ])
+  }
 
   if (isLoading) {
     return (
@@ -155,6 +166,15 @@ function IdDetailScreen({ id, styles, t }: { id: string; styles: any; t: any }) 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <LogCard log={log} t={t} styles={styles} />
       </ScrollView>
+
+      <View style={styles.runButtonWrapper}>
+        <TouchableOpacity style={styles.runButton} onPress={handleRun} disabled={isPending}>
+          {isPending
+            ? <ActivityIndicator size="small" color={t.colors.text.inverse} />
+            : <Text style={styles.runButtonText}>{`${s.types[log.type]} ${s.runByTypeBtn}`}</Text>
+          }
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }

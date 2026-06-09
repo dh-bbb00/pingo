@@ -96,10 +96,10 @@ export class TransactionsService {
   }
 
   /** 매월 1일 스케줄러 호출 — 할부 원거래 기준으로 해당 월 납입 내역 자동 생성 */
-  async generateInstallmentTransactions(): Promise<{ totalCount: number; successCount: number }> {
+  async generateInstallmentTransactions(targetYear?: number, targetMonth?: number): Promise<{ totalCount: number; successCount: number }> {
     const now   = new Date();
-    const year  = now.getFullYear();
-    const month = now.getMonth(); // 0-based
+    const year  = targetYear  ?? now.getFullYear();
+    const month = targetMonth != null ? targetMonth - 1 : now.getMonth(); // 0-based
 
     const monthStart = new Date(year, month, 1);
     const monthEnd   = new Date(year, month + 1, 0, 23, 59, 59, 999);

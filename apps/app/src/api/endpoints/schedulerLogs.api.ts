@@ -81,9 +81,11 @@ export const schedulerLogsApi = {
       params: { year, month },
     }),
 
-  /** 타입별 단독 수동 실행 */
-  runByType: (type: SchedulerLogType) =>
-    apiClient.post<BasicResponse<RunByTypeResult>>(endpoints.scheduler.runByType(type)),
+  /** 타입별 단독 수동 실행 (year/month 미지정 시 현재 월) */
+  runByType: (type: SchedulerLogType, year?: number, month?: number) =>
+    apiClient.post<BasicResponse<RunByTypeResult>>(endpoints.scheduler.runByType(type), null, {
+      params: { year, month },
+    }),
 
   /** 단건 조회 */
   getById: (id: string) =>

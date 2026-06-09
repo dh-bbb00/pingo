@@ -90,10 +90,10 @@ export class FixedExpensesService {
   }
 
   /** 매월 1일 스케줄러 호출 — isActive 항목의 Transaction을 해당 월의 dayOfMonth일로 생성 */
-  async generateMonthlyTransactions(): Promise<{ totalCount: number; successCount: number }> {
+  async generateMonthlyTransactions(targetYear?: number, targetMonth?: number): Promise<{ totalCount: number; successCount: number }> {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth(); // 0-based
+    const year  = targetYear  ?? now.getFullYear();
+    const month = targetMonth != null ? targetMonth - 1 : now.getMonth(); // 0-based
 
     const monthStart = new Date(year, month, 1);
     const monthEnd   = new Date(year, month + 1, 0, 23, 59, 59, 999);
