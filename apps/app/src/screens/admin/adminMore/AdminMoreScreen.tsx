@@ -39,8 +39,6 @@ export default function AdminMoreScreen() {
         <Text style={styles.menuChevron}>{'›'}</Text>
       </TouchableOpacity>
 
-      <View style={styles.menuDivider} />
-
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>{s.logout}</Text>
       </TouchableOpacity>
