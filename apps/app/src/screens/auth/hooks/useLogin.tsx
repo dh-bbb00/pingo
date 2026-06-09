@@ -30,7 +30,7 @@ export function useLogin() {
       } else {
         const pending = storage.getString(StorageKeys.PENDING_DEEPLINK)
         if (pending === 'NotificationLog') {
-          storage.delete(StorageKeys.PENDING_DEEPLINK)
+          storage.remove(StorageKeys.PENDING_DEEPLINK)
           navigationRef.navigate(Screens.Root.UserTabs, {
             screen: Screens.UserTab.More,
             params: { screen: Screens.More.NotificationLog },

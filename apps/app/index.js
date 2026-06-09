@@ -9,26 +9,39 @@ import { RNAndroidNotificationListenerHeadlessJsName } from 'react-native-androi
 import notifee from '@notifee/react-native';
 import { saveDetectedNotification } from './src/store/notificationLogStore';
 import { setupNotificationChannel, displayDetectedNotification } from './src/utils/notification';
+import { isCardUsageNotification } from './src/utils/cardNotificationParser';
 
 AppRegistry.registerComponent(appName, () => App);
 
-const PINGO_PACKAGE = 'com.pingo';
-const PINGO_NOTIFICATION_TITLE = 'Pingo 알림감지';
-
 // 알림 감지 헤드리스 태스크 — 앱이 백그라운드/종료 상태에서도 호출됨
+// 라이브러리가 실제 알림 데이터를 rawTask.notification 키에 JSON 문자열로 래핑해서 전달
 AppRegistry.registerHeadlessTask(
   RNAndroidNotificationListenerHeadlessJsName,
-  () => async (notification) => {
-    // 자기 앱 알림 무시 — 패키지명 또는 제목으로 이중 필터링 (무한 루프 방지)
+  () => async (rawTask) => {
+    let notification = {};
+    try { notification = JSON.parse(String(rawTask.notification ?? '{}')); } catch { return; }
+
+    const app   = String(notification.app   ?? '');
+    const title = String(notification.title ?? '');
+    const text  = String(notification.text  ?? '');
+
+    // 자기 앱 알림 무시 — 패키지명·앱명·제목 체크 (무한 루프 방지)
     if (
-      notification.app === PINGO_PACKAGE ||
-      String(notification.title ?? '') === PINGO_NOTIFICATION_TITLE
+      app.includes('com.pingo') ||
+      app === 'Pingo'            ||
+      title.includes('Pingo 알림감지')
     ) return;
+
+    // 불필요한 알림 제외
+    if (title.includes('95%') || text.includes('95%')) return;
+
+    // 카드사용 알림만 처리
+    if (!isCardUsageNotification(title, text)) return;
 
     await setupNotificationChannel();
     saveDetectedNotification(notification);
     await displayDetectedNotification(
-      String(notification.app  ?? '알 수 없음'),
+      app || '알 수 없음',
       String(notification.text ?? ''),
     );
   },

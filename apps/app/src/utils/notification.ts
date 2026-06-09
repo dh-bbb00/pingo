@@ -24,7 +24,7 @@ export async function displayDetectedNotification(app: string, text: string) {
     body:  `[${app}] ${text}`,
     android: {
       channelId:   CHANNEL_ID,
-      pressAction: { id: 'notification-log' },
+      pressAction: { id: 'notification-log', launchActivity: 'default' },
     },
   })
 }

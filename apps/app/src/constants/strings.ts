@@ -95,6 +95,13 @@ export const strings = {
     appLabel:  '앱',
     timeLabel: '시간',
     rawLabel:  '원본 데이터',
+    card: {
+      issuer:   '카드사',
+      amount:   '사용금액',
+      date:     '날짜',
+      time:     '시간',
+      merchant: '가맹점명',
+    },
   },
 
   paymentMethods: {

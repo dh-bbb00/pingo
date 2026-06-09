@@ -71,7 +71,16 @@ export default function SplashScreen() {
         if (role === 'ADMIN') {
           navigation.replace(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
         } else {
-          navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
+          const pending = storage.getString(StorageKeys.PENDING_DEEPLINK)
+          if (pending === 'NotificationLog') {
+            storage.remove(StorageKeys.PENDING_DEEPLINK)
+            navigation.replace(Screens.Root.UserTabs, {
+              screen: Screens.UserTab.More,
+              params: { screen: Screens.More.NotificationLog },
+            } as any)
+          } else {
+            navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
+          }
         }
       } catch {
         navigation.replace(Screens.Root.Auth, { screen: Screens.Auth.Login })

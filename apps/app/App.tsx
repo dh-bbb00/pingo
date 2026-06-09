@@ -16,13 +16,10 @@ import {
 import { useAuthStore } from './src/store/authStore'
 import { storage, StorageKeys } from './src/utils/storage'
 
+// 포그라운드 전용 — 앱이 열린 상태에서 알림 탭 시 호출
 function navigateToNotificationLog() {
   const { accessToken } = useAuthStore.getState()
-  if (!accessToken) {
-    // 로그인 전이면 pending 저장 — 로그인 성공 후 이동
-    storage.set(StorageKeys.PENDING_DEEPLINK, 'NotificationLog')
-    return
-  }
+  if (!accessToken) return
   navigationRef.navigate(Screens.Root.UserTabs, {
     screen: Screens.UserTab.More,
     params: { screen: Screens.More.NotificationLog },
@@ -41,10 +38,10 @@ export default function App() {
       // 알림 접근 권한 확인 → 미허용 시 설정 이동 안내
       await checkAndRequestNotificationListenerPermission()
 
-      // 앱이 알림 탭으로 실행된 경우 (killed 상태에서 탭)
+      // 앱이 알림 탭으로 실행된 경우 (killed 상태) — 인증 흐름 완료 후 처리하도록 pending 저장
       const initial = await notifee.getInitialNotification()
       if (initial?.pressAction?.id === 'notification-log') {
-        setTimeout(navigateToNotificationLog, 500)
+        storage.set(StorageKeys.PENDING_DEEPLINK, 'NotificationLog')
       }
     }
     initAsync()
