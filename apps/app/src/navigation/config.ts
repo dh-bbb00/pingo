@@ -13,6 +13,8 @@ import RejectedAccountScreen    from '@/screens/auth/RejectedAccountScreen'
 import UserManagementScreen     from '@/screens/admin/userManagement/UserManagementScreen'
 import ApprovalManagementScreen from '@/screens/admin/approvalManagement/ApprovalManagementScreen'
 import AdminMoreScreen          from '@/screens/admin/adminMore/AdminMoreScreen'
+import SchedulerManagementScreen from '@/screens/admin/schedulerManagement/SchedulerManagementScreen'
+import SchedulerLogDetailScreen  from '@/screens/admin/schedulerManagement/SchedulerLogDetailScreen'
 
 import HistoryScreen            from '@/screens/history/HistoryScreen'
 import TransactionEditScreen    from '@/screens/history/TransactionEditScreen'
@@ -33,12 +35,13 @@ import HomeScreen               from '@/screens/home/HomeScreen'
 import StatsScreen              from '@/screens/stats/StatsScreen'
 import SplashScreen             from '@/screens/splash/SplashScreen'
 
-import { AuthNavigator }     from './AuthNavigator'
-import { AdminTabNavigator } from './AdminTabNavigator'
-import { UserTabNavigator }  from './UserTabNavigator'
-import { HistoryNavigator }  from './HistoryNavigator'
-import { CategoryNavigator } from './CategoryNavigator'
-import { MoreNavigator }     from './MoreNavigator'
+import { AuthNavigator }      from './AuthNavigator'
+import { AdminTabNavigator }  from './AdminTabNavigator'
+import { AdminMoreNavigator } from './AdminMoreNavigator'
+import { UserTabNavigator }   from './UserTabNavigator'
+import { HistoryNavigator }   from './HistoryNavigator'
+import { CategoryNavigator }  from './CategoryNavigator'
+import { MoreNavigator }      from './MoreNavigator'
 
 export interface StackRoute {
   name: string
@@ -75,7 +78,13 @@ export const authRoutes: StackRoute[] = [
 export const adminTabRoutes: TabRoute[] = [
   { name: 'UserManagement',     component: UserManagementScreen,     options: { title: strings.adminTabs.userManagement } },
   { name: 'ApprovalManagement', component: ApprovalManagementScreen, options: { title: strings.adminTabs.approvalManagement } },
-  { name: 'AdminMore',          component: AdminMoreScreen,          options: { title: strings.adminTabs.more } },
+  { name: 'AdminMore',          component: AdminMoreNavigator,       options: { title: strings.adminTabs.more } },
+]
+
+export const adminMoreRoutes: StackRoute[] = [
+  { name: 'AdminMoreMain',       component: AdminMoreScreen },
+  { name: 'SchedulerManagement', component: SchedulerManagementScreen, options: backHeader },
+  { name: 'SchedulerLogDetail',  component: SchedulerLogDetailScreen,  options: backHeader },
 ]
 
 export const historyRoutes: StackRoute[] = [

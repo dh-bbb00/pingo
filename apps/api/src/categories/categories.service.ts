@@ -175,7 +175,8 @@ export class CategoriesService {
       ),
     );
 
-    return prevBudgets.length;
+    // upsert는 항상 성공하므로 totalCount = successCount
+    return { totalCount: prevBudgets.length, successCount: prevBudgets.length };
   }
 
   private async upsertCurrentBudget(categoryId: string, budget: number) {

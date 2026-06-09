@@ -2,6 +2,7 @@ import type {
   RootStackParamList,
   AuthStackParamList,
   AdminTabParamList,
+  AdminMoreStackParamList,
   UserTabParamList,
   HistoryStackParamList,
   CategoryStackParamList,
@@ -30,6 +31,12 @@ export const Screens = {
     ApprovalManagement: 'ApprovalManagement',
     AdminMore:          'AdminMore',
   } satisfies Record<string, keyof AdminTabParamList>,
+
+  AdminMore: {
+    AdminMoreMain:       'AdminMoreMain',
+    SchedulerManagement: 'SchedulerManagement',
+    SchedulerLogDetail:  'SchedulerLogDetail',
+  } satisfies Record<string, keyof AdminMoreStackParamList>,
 
   UserTab: {
     Home:     'Home',

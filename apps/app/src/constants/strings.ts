@@ -164,8 +164,47 @@ export const strings = {
   },
 
   adminMore: {
-    header: '전체',
-    logout: '로그아웃',
+    header:              '전체',
+    schedulerManagement: '스케줄러 관리',
+    logout:              '로그아웃',
+  },
+
+  schedulerManagement: {
+    header:     '스케줄러 관리',
+    runBtn:     '수동 실행',
+    runConfirm: '월간 스케줄러를 수동으로 실행하시겠습니까?',
+    types: {
+      BUDGET_ROLLOVER: '예산 이월',
+      FIXED_EXPENSES:  '고정 지출',
+      INSTALLMENTS:    '할부 납입',
+    },
+    triggers: {
+      CRON:   '자동',
+      MANUAL: '수동',
+    },
+    tabs: {
+      all:     '전체',
+      success: '성공',
+      failure: '실패',
+      notRun:  '미실행',
+    },
+    statusCard: {
+      success: '성공',
+      failure: '실패',
+      notRun:  '미실행',
+    },
+    detail: {
+      type:         '스케줄러',
+      yearMonth:    '실행 월',
+      runAt:        '실행 시각',
+      trigger:      '실행 방식',
+      status:       '결과',
+      totalCount:   '대상 건수',
+      successCount: '생성 건수',
+      error:        '오류 내용',
+    },
+    empty:      '실행 기록이 없습니다.',
+    runSuccess: '스케줄러 실행이 완료됐습니다.',
   },
 
   approvalManagement: {

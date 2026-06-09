@@ -27,7 +27,13 @@ export type AuthStackParamList = {
 export type AdminTabParamList = {
   UserManagement:     undefined
   ApprovalManagement: undefined
-  AdminMore:          undefined
+  AdminMore:          NavigatorScreenParams<AdminMoreStackParamList>
+}
+
+export type AdminMoreStackParamList = {
+  AdminMoreMain:       undefined
+  SchedulerManagement: undefined
+  SchedulerLogDetail:  { id: string } | { type: string; year: number; month: number }
 }
 
 // ────────────────────────────────────────────────

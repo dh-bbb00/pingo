@@ -39,4 +39,11 @@ export const queryKeys = {
     me:      ['users', 'me'] as const,
     devices: ['users', 'devices'] as const,
   },
+  schedulerLogs: {
+    all:          ['schedulerLogs'] as const,
+    list:         (params?: unknown) => ['schedulerLogs', 'list', params] as const,
+    currentMonth: ['schedulerLogs', 'currentMonth'] as const,
+    notRun:       (params?: unknown) => ['schedulerLogs', 'notRun', params] as const,
+    detail:       (id: string) => ['schedulerLogs', id] as const,
+  },
 } as const

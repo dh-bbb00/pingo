@@ -53,4 +53,11 @@ export const endpoints = {
     reject:  (id: string) => `${V1}/approvals/${id}/reject`,
     delete:  (id: string) => `${V1}/approvals/${id}`,
   },
+  scheduler: {
+    runMonthly:   `${V1}/scheduler/run-monthly`,
+    logs:         `${V1}/scheduler/logs`,
+    currentMonth: `${V1}/scheduler/logs/current-month`,
+    notRun:       `${V1}/scheduler/logs/not-run`,
+    logDetail:    (id: string) => `${V1}/scheduler/logs/${id}`,
+  },
 } as const

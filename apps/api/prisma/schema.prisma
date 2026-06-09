@@ -212,6 +212,36 @@ model Transaction {
 }
 
 
+// ==================== Scheduler ====================
+
+enum SchedulerLogType {
+  BUDGET_ROLLOVER // 예산 이월
+  FIXED_EXPENSES  // 고정 지출 자동 생성
+  INSTALLMENTS    // 할부 납입 내역 자동 생성
+}
+
+enum SchedulerTrigger {
+  CRON   // 자동 실행 (cron)
+  MANUAL // 수동 실행 (어드민 API)
+}
+
+/// 스케줄러 실행 로그. 매월 자동/수동 실행 결과를 기록.
+model SchedulerLog {
+  id           String           @id @default(cuid())
+  type         SchedulerLogType
+  year         Int
+  month        Int              // 1-12
+  runAt        DateTime         @default(now())
+  success      Boolean
+  totalCount   Int              // 처리 대상 전체 건수
+  successCount Int              // 실제 생성된 건수
+  error        String?          // 실패 시 에러 메시지
+  triggeredBy  SchedulerTrigger
+
+  @@index([type, year, month])
+  @@index([year, month])
+}
+
 /// 고정 지출 항목. 스케줄러가 매월 1일에 실행되어 isActive 항목의 Transaction을 생성.
 /// Transaction의 transactionDate는 해당 월의 dayOfMonth일로 설정됨.
 model FixedExpense {

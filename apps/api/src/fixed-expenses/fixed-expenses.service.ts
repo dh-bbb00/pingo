@@ -90,7 +90,7 @@ export class FixedExpensesService {
   }
 
   /** 매월 1일 스케줄러 호출 — isActive 항목의 Transaction을 해당 월의 dayOfMonth일로 생성 */
-  async generateMonthlyTransactions() {
+  async generateMonthlyTransactions(): Promise<{ totalCount: number; successCount: number }> {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth(); // 0-based
@@ -100,7 +100,7 @@ export class FixedExpensesService {
 
     const actives = await this.prisma.fixedExpense.findMany({ where: { isActive: true } });
 
-    const creates: ReturnType<typeof this.prisma.transaction.create>[] = [];
+    const results: Awaited<ReturnType<typeof this.prisma.transaction.create>>[] = [];
 
     for (const fe of actives) {
       // 이번달에 이미 생성된 내역이 있으면 스킵 (중복 방지)
@@ -112,7 +112,7 @@ export class FixedExpensesService {
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const day = Math.min(fe.dayOfMonth, daysInMonth);
 
-      creates.push(this.prisma.transaction.create({
+      const created = await this.prisma.transaction.create({
         data: {
           userId:          fe.userId,
           categoryId:      fe.categoryId,
@@ -123,11 +123,11 @@ export class FixedExpensesService {
           transactionDate: new Date(year, month, day),
           fixedExpenseId:  fe.id,
         },
-      }));
+      });
+      results.push(created);
     }
 
-    if (creates.length === 0) return [];
-    return this.prisma.$transaction(creates);
+    return { totalCount: actives.length, successCount: results.length };
   }
 
   private async findOneOrThrow(userId: string, id: string) {

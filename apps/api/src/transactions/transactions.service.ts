@@ -96,7 +96,7 @@ export class TransactionsService {
   }
 
   /** 매월 1일 스케줄러 호출 — 할부 원거래 기준으로 해당 월 납입 내역 자동 생성 */
-  async generateInstallmentTransactions() {
+  async generateInstallmentTransactions(): Promise<{ totalCount: number; successCount: number }> {
     const now   = new Date();
     const year  = now.getFullYear();
     const month = now.getMonth(); // 0-based
@@ -145,7 +145,7 @@ export class TransactionsService {
       results.push(created);
     }
 
-    return results;
+    return { totalCount: installments.length, successCount: results.length };
   }
 
   private async findOneOrThrow(userId: string, id: string) {
