@@ -37,7 +37,13 @@ export default function NotificationLogScreen() {
           <>
             {([
               { label: cs.issuer,   value: `${parsed.issuer} (${parsed.last4})` },
-              { label: cs.amount,   value: parsed.amount },
+              { label: cs.amount,   value: parsed.amountStr },
+              {
+                label: cs.payType,
+                value: parsed.isInstallment
+                  ? (parsed.installmentMonths ? `${parsed.installmentMonths}개월 할부` : '할부')
+                  : '일시불',
+              },
               { label: cs.date,     value: parsed.date },
               { label: cs.time,     value: parsed.time },
               { label: cs.merchant, value: parsed.merchant },

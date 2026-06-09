@@ -95,6 +95,59 @@ export class TransactionsService {
     return this.prisma.transaction.delete({ where: { id } });
   }
 
+  /** 매월 1일 스케줄러 호출 — 할부 원거래 기준으로 해당 월 납입 내역 자동 생성 */
+  async generateInstallmentTransactions() {
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = now.getMonth(); // 0-based
+
+    const monthStart = new Date(year, month, 1);
+    const monthEnd   = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+    // 원거래인 할부 내역: originalTransactionId 없고, installmentEndDate가 이번달 이후
+    const installments = await this.prisma.transaction.findMany({
+      where: {
+        installmentMonths:     { not: null },
+        installmentEndDate:    { gte: monthStart },
+        originalTransactionId: null,
+      },
+    });
+
+    const results: Awaited<ReturnType<typeof this.prisma.transaction.create>>[] = [];
+
+    for (const tx of installments) {
+      // 이번달에 이미 생성된 자식 내역이 있으면 스킵 (중복 방지)
+      const existing = await this.prisma.transaction.findFirst({
+        where: {
+          originalTransactionId: tx.id,
+          transactionDate: { gte: monthStart, lte: monthEnd },
+        },
+      });
+      if (existing) continue;
+
+      // 월 납입금: (원금 - 첫달 납입액) / (할부개월수 - 1)
+      const monthlyAmount = Math.round(
+        ((tx.totalAmount ?? tx.amount) - tx.amount) / ((tx.installmentMonths ?? 2) - 1),
+      );
+
+      const created = await this.prisma.transaction.create({
+        data: {
+          userId:               tx.userId,
+          categoryId:           tx.categoryId,
+          paymentMethodId:      tx.paymentMethodId,
+          amount:               monthlyAmount,
+          merchantName:         tx.merchantName,
+          memo:                 tx.memo,
+          transactionDate:      new Date(year, month, 1),
+          originalTransactionId: tx.id,
+        },
+      });
+      results.push(created);
+    }
+
+    return results;
+  }
+
   private async findOneOrThrow(userId: string, id: string) {
     const tx = await this.prisma.transaction.findFirst({ where: { id, userId } });
     if (!tx) throw new NotFoundException(MSG.common.notFound);

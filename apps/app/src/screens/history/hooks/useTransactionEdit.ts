@@ -10,13 +10,35 @@ import type { TransactionForm } from '../types'
 const s = strings.transactionEdit
 
 function toPayload(form: TransactionForm) {
+  const months       = parseInt(form.installmentMonths || '0', 10)
+  const isInstallment = months >= 2
+  const total        = Number(form.amount)
+
+  let amount             = total
+  let totalAmount: number | null        = null
+  let installmentEndDate: string | null = null
+
+  if (isInstallment) {
+    // 균등 월 납입금 (2번째 달~) / 첫달에 나머지 흡수
+    const monthly = Math.floor(total / months)
+    amount        = total - monthly * (months - 1)
+    totalAmount   = total
+
+    // 마지막 납부월: 거래일 기준 (months - 1)달 뒤 1일
+    const d = form.transactionDate
+    installmentEndDate = new Date(d.getFullYear(), d.getMonth() + months - 1, 1).toISOString()
+  }
+
   return {
-    merchantName:    form.merchantName.trim(),
-    amount:          Number(form.amount),
-    categoryId:      form.categoryId      !== '' ? form.categoryId      : null,
-    paymentMethodId: form.paymentMethodId !== '' ? form.paymentMethodId : null,
-    memo:            form.memo.trim()        || undefined,
-    transactionDate: form.transactionDate.toISOString(),
+    merchantName:       form.merchantName.trim(),
+    amount,
+    categoryId:         form.categoryId      !== '' ? form.categoryId      : null,
+    paymentMethodId:    form.paymentMethodId !== '' ? form.paymentMethodId : null,
+    memo:               form.memo.trim()        || undefined,
+    transactionDate:    form.transactionDate.toISOString(),
+    installmentMonths:  isInstallment ? months : null,
+    totalAmount,
+    installmentEndDate,
   }
 }
 

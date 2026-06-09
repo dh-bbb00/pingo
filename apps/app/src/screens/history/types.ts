@@ -10,10 +10,11 @@ export interface HistoryFilter {
 }
 
 export interface TransactionForm {
-  amount:          string   // 숫자 문자열
-  merchantName:    string
-  categoryId:      string   // '' = null (기타)
-  paymentMethodId: string   // '' = null (미지정)
-  memo:            string
-  transactionDate: Date
+  amount:             string   // 숫자 문자열
+  merchantName:       string
+  categoryId:         string   // '' = null (기타)
+  paymentMethodId:    string   // '' = null (미지정)
+  memo:               string
+  transactionDate:    Date
+  installmentMonths:  string   // '' = 일시불(null), 숫자 문자열 = 할부 개월수
 }

@@ -43,6 +43,11 @@ export default function TransactionEditScreen() {
   const { mutate: update,  isPending: updating  } = useUpdateTransaction(params?.id ?? '')
   const { mutate: deleteTx, isPending: deleting } = useDeleteTransaction(params?.id ?? '')
 
+  const pendingStore                = usePendingTransactionStore()
+  const { data: selectedCategory } = useCategoryById(form.categoryId || undefined)
+  const { data: paymentMethods }   = usePaymentMethods()
+  const selectedPaymentMethod      = paymentMethods?.find(m => m.id === form.paymentMethodId)
+
   const initialized      = useRef(false)
   const defaultPMApplied = useRef(false)
 
@@ -75,27 +80,26 @@ export default function TransactionEditScreen() {
     if (isEdit && txData && !initialized.current) {
       initialized.current = true
       setForm({
-        amount:          txData.amount.toString(),
-        merchantName:    txData.merchantName,
-        categoryId:      txData.categoryId      ?? '',
-        paymentMethodId: txData.paymentMethodId ?? '',
-        memo:            txData.memo            ?? '',
-        transactionDate: new Date(txData.transactionDate),
+        // 할부 원거래는 totalAmount(원금)를, 일시불/할부자식은 amount를 금액 필드에 복원
+        amount:            (txData.installmentMonths != null && txData.totalAmount != null)
+                             ? txData.totalAmount.toString()
+                             : txData.amount.toString(),
+        merchantName:      txData.merchantName,
+        categoryId:        txData.categoryId      ?? '',
+        paymentMethodId:   txData.paymentMethodId ?? '',
+        memo:              txData.memo            ?? '',
+        transactionDate:   new Date(txData.transactionDate),
+        installmentMonths: txData.installmentMonths != null ? txData.installmentMonths.toString() : '',
       })
     }
   }, [txData, isEdit, setForm])
-
-  const pendingStore = usePendingTransactionStore()
-
-  const { data: selectedCategory } = useCategoryById(form.categoryId || undefined)
-  const { data: paymentMethods }   = usePaymentMethods()
-  const selectedPaymentMethod      = paymentMethods?.find(m => m.id === form.paymentMethodId)
 
   const [showCategoryPicker,       setShowCategoryPicker]       = useState(false)
   const [showPaymentMethodPicker,  setShowPaymentMethodPicker]  = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const isPending = creating || updating || deleting
+  const isPending             = creating || updating || deleting
+  const isInstallmentEnabled  = parseInt(form.amount || '0', 10) >= 50000
 
   const amountError   = submitted && form.amount === ''            ? s.errAmountEmpty
                       : submitted && parseInt(form.amount, 10) <= 0 ? s.errAmountZero
@@ -163,6 +167,30 @@ export default function TransactionEditScreen() {
             </View>
           </View>
         )}
+
+        {/* ── 할부 (금액 5만원 이상일 때만 활성화) ── */}
+        <Text style={styles.label}>{s.installmentLabel}</Text>
+        <View style={[styles.installmentRow, !isInstallmentEnabled && styles.installmentDisabled]}>
+          <TextInput
+            style={styles.installmentInput}
+            placeholder={s.installmentLumpSum}
+            placeholderTextColor={theme.colors.text.disabled}
+            value={form.installmentMonths}
+            onChangeText={(v) => setField('installmentMonths', v.replace(/[^0-9]/g, ''))}
+            onBlur={() => {
+              if (!form.installmentMonths || parseInt(form.installmentMonths, 10) <= 0) {
+                setField('installmentMonths', '')
+              }
+            }}
+            keyboardType="number-pad"
+            editable={isInstallmentEnabled}
+          />
+          {form.installmentMonths !== '' && (
+            <Text style={styles.installmentUnit}>개월</Text>
+          )}
+        </View>
+
+        <View style={styles.smallGap} />
 
         {/* ── 금액 ── */}
         <Text style={styles.label}>{s.amountLabel}</Text>

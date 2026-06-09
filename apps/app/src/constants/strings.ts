@@ -98,6 +98,7 @@ export const strings = {
     card: {
       issuer:   '카드사',
       amount:   '사용금액',
+      payType:  '결제유형',
       date:     '날짜',
       time:     '시간',
       merchant: '가맹점명',
@@ -239,6 +240,8 @@ export const strings = {
   transactionEdit: {
     headerCreate:        '내역 추가',
     headerEdit:          '내역 수정',
+    installmentLabel:    '할부',
+    installmentLumpSum:  '일시불',
     amountLabel:         '금액',
     amountPlaceholder:   '0',
     merchantLabel:       '가맹점',

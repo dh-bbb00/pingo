@@ -15,16 +15,20 @@ export interface TransactionPaymentMethod {
 }
 
 export interface Transaction {
-  id:              string
-  categoryId:      string | null
-  paymentMethodId: string | null
-  amount:          number
-  merchantName:    string
-  memo:            string | null
-  transactionDate: string
-  createdAt:       string
-  category:        TransactionCategory | null
-  paymentMethod:   TransactionPaymentMethod | null
+  id:                    string
+  categoryId:            string | null
+  paymentMethodId:       string | null
+  amount:                number
+  merchantName:          string
+  memo:                  string | null
+  transactionDate:       string
+  createdAt:             string
+  installmentMonths:     number | null
+  totalAmount:           number | null
+  installmentEndDate:    string | null
+  originalTransactionId: string | null
+  category:              TransactionCategory | null
+  paymentMethod:         TransactionPaymentMethod | null
 }
 
 export interface TransactionPagination {
@@ -45,12 +49,15 @@ export interface TransactionListParams {
 }
 
 export interface TransactionPayload {
-  merchantName:    string
-  amount:          number
-  categoryId?:     string | null
-  paymentMethodId?: string | null
-  memo?:           string
-  transactionDate: string
+  merchantName:        string
+  amount:              number
+  categoryId?:         string | null
+  paymentMethodId?:    string | null
+  memo?:               string
+  transactionDate:     string
+  installmentMonths?:  number | null
+  totalAmount?:        number | null
+  installmentEndDate?: string | null
 }
 
 export const transactionsApi = {

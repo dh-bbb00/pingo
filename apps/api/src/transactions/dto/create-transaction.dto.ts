@@ -10,7 +10,7 @@ export class CreateTransactionDto {
   @IsString({ message: VM.string })
   categoryId?: string | null;
 
-  @ApiProperty({ description: '원 단위' })
+  @ApiProperty({ description: '원 단위. 할부인 경우 월 납입금' })
   @IsNumber({}, { message: VM.number })
   @Min(1, { message: VM.min(1) })
   amount: number;
@@ -33,4 +33,30 @@ export class CreateTransactionDto {
   @ApiProperty({ description: '실제 거래 일시 (ISO 8601)' })
   @IsDateString({}, { message: VM.dateString })
   transactionDate: string;
+
+  @ApiProperty({ required: false, nullable: true, description: '할부 개월수 (2 이상). null = 일시불' })
+  @IsOptional()
+  @ValidateIf((o) => o.installmentMonths !== null)
+  @IsNumber({}, { message: VM.number })
+  @Min(2, { message: VM.min(2) })
+  installmentMonths?: number | null;
+
+  @ApiProperty({ required: false, nullable: true, description: '할부 원금 (할부일 때만)' })
+  @IsOptional()
+  @ValidateIf((o) => o.totalAmount !== null)
+  @IsNumber({}, { message: VM.number })
+  @Min(1, { message: VM.min(1) })
+  totalAmount?: number | null;
+
+  @ApiProperty({ required: false, nullable: true, description: '마지막 납부월 (ISO 8601). 할부일 때만' })
+  @IsOptional()
+  @ValidateIf((o) => o.installmentEndDate !== null)
+  @IsDateString({}, { message: VM.dateString })
+  installmentEndDate?: string | null;
+
+  @ApiProperty({ required: false, nullable: true, description: '원거래 ID. 스케줄러 생성 할부 내역에 설정' })
+  @IsOptional()
+  @ValidateIf((o) => o.originalTransactionId !== null)
+  @IsString({ message: VM.string })
+  originalTransactionId?: string | null;
 }

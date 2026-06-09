@@ -16,6 +16,12 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   memoInput:  { minHeight: 80, textAlignVertical: 'top' },
   errorText:  { fontSize: t.fontSize.xs, color: t.colors.semantic.error, marginTop: 6 },
 
+  // 할부
+  installmentRow:      { flexDirection: 'row', alignItems: 'center', backgroundColor: t.colors.surface, borderRadius: t.radius.md, paddingHorizontal: 16 },
+  installmentInput:    { flex: 1, paddingVertical: 14, fontSize: t.fontSize.md, color: t.colors.text.primary },
+  installmentUnit:     { fontSize: t.fontSize.md, color: t.colors.text.secondary, marginLeft: 4 },
+  installmentDisabled: { opacity: 0.4 },
+
   // 금액
   amountRow:   { flexDirection: 'row', alignItems: 'center', backgroundColor: t.colors.surface, borderRadius: t.radius.md, paddingHorizontal: 16 },
   amountInput: { flex: 1, paddingVertical: 14, fontSize: t.fontSize.lg, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
