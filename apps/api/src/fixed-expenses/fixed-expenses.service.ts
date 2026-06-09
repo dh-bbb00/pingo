@@ -64,6 +64,15 @@ export class FixedExpensesService {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
+
+    // 이번달에 이미 생성된 내역이 있으면 그대로 반환 (중복 방지)
+    const monthStart = new Date(year, month, 1);
+    const monthEnd   = new Date(year, month + 1, 0, 23, 59, 59, 999);
+    const existing = await this.prisma.transaction.findFirst({
+      where: { fixedExpenseId: fe.id, transactionDate: { gte: monthStart, lte: monthEnd } },
+    });
+    if (existing) return existing;
+
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const day = Math.min(fe.dayOfMonth, daysInMonth);
     return this.prisma.transaction.create({
@@ -75,6 +84,7 @@ export class FixedExpensesService {
         merchantName:    fe.merchantName,
         memo:            fe.memo,
         transactionDate: new Date(year, month, day),
+        fixedExpenseId:  fe.id,
       },
     });
   }
@@ -85,15 +95,24 @@ export class FixedExpensesService {
     const year = now.getFullYear();
     const month = now.getMonth(); // 0-based
 
+    const monthStart = new Date(year, month, 1);
+    const monthEnd   = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
     const actives = await this.prisma.fixedExpense.findMany({ where: { isActive: true } });
 
-    const creates = actives.map((fe) => {
-      // 해당 월의 말일을 구해 dayOfMonth가 초과하면 말일로 처리
+    const creates: ReturnType<typeof this.prisma.transaction.create>[] = [];
+
+    for (const fe of actives) {
+      // 이번달에 이미 생성된 내역이 있으면 스킵 (중복 방지)
+      const existing = await this.prisma.transaction.findFirst({
+        where: { fixedExpenseId: fe.id, transactionDate: { gte: monthStart, lte: monthEnd } },
+      });
+      if (existing) continue;
+
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const day = Math.min(fe.dayOfMonth, daysInMonth);
-      const transactionDate = new Date(year, month, day);
 
-      return this.prisma.transaction.create({
+      creates.push(this.prisma.transaction.create({
         data: {
           userId:          fe.userId,
           categoryId:      fe.categoryId,
@@ -101,11 +120,13 @@ export class FixedExpensesService {
           amount:          fe.amount,
           merchantName:    fe.merchantName,
           memo:            fe.memo,
-          transactionDate,
+          transactionDate: new Date(year, month, day),
+          fixedExpenseId:  fe.id,
         },
-      });
-    });
+      }));
+    }
 
+    if (creates.length === 0) return [];
     return this.prisma.$transaction(creates);
   }
 

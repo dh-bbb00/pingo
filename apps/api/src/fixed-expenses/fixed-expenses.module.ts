@@ -6,5 +6,6 @@ import { FixedExpensesScheduler } from './fixed-expenses.scheduler';
 @Module({
   providers: [FixedExpensesService, FixedExpensesScheduler],
   controllers: [FixedExpensesController],
+  exports: [FixedExpensesService],
 })
 export class FixedExpensesModule {}

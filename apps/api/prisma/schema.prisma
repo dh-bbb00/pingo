@@ -195,6 +195,7 @@ model Transaction {
   totalAmount           Int?      // 할부 원금. null = 일시불
   installmentEndDate    DateTime? // 마지막 납부월. 스케줄러가 이 월까지 매월 생성
   originalTransactionId String?   // 원거래 FK. 스케줄러 생성 할부 내역에 설정. null = 원거래 or 일시불
+  fixedExpenseId        String?   // 고정지출 자동 생성 시 설정. null = 수동 등록 or 할부 자식
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -203,9 +204,11 @@ model Transaction {
   paymentMethod       PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
   originalTransaction Transaction?   @relation("InstallmentChain", fields: [originalTransactionId], references: [id], onDelete: SetNull)
   installmentChildren Transaction[]  @relation("InstallmentChain")
+  fixedExpense        FixedExpense?  @relation("FixedExpenseTransactions", fields: [fixedExpenseId], references: [id], onDelete: SetNull)
 
   @@index([userId, transactionDate])  // 날짜 기준 조회·통계 쿼리 최적화
   @@index([originalTransactionId])    // 할부 자식 내역 조회 최적화
+  @@index([fixedExpenseId])           // 고정지출별 내역 조회 최적화
 }
 
 
@@ -227,4 +230,5 @@ model FixedExpense {
   user          User          @relation(fields: [userId], references: [id])
   category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  transactions  Transaction[]  @relation("FixedExpenseTransactions")
 }
