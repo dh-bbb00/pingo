@@ -109,6 +109,44 @@ export class SchedulerController {
     return { success: true, data };
   }
 
+  /** 특정 타입 스케줄러 단독 수동 실행 */
+  @Post('run-monthly/:type')
+  @ApiOperation({ summary: '타입별 스케줄러 수동 실행 (어드민 전용)' })
+  async runMonthlyByType(
+    @Param('type') type: SchedulerLogType,
+  ): Promise<BasicResponse<{ totalCount: number; successCount: number }>> {
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    this.logger.log(`스케줄러 수동 실행: ${type}`, 'SchedulerController');
+
+    let result = { totalCount: 0, successCount: 0 };
+    try {
+      if (type === SchedulerLogType.BUDGET_ROLLOVER) {
+        result = await this.categoriesService.rolloverFixedBudgets();
+      } else if (type === SchedulerLogType.FIXED_EXPENSES) {
+        result = await this.fixedExpensesService.generateMonthlyTransactions();
+      } else if (type === SchedulerLogType.INSTALLMENTS) {
+        result = await this.transactionsService.generateInstallmentTransactions();
+      }
+      await this.schedulerLogService.writeLog({
+        type, year, month, triggeredBy: SchedulerTrigger.MANUAL,
+        success: true, totalCount: result.totalCount, successCount: result.successCount,
+      });
+    } catch (err) {
+      await this.schedulerLogService.writeLog({
+        type, year, month, triggeredBy: SchedulerTrigger.MANUAL,
+        success: false, totalCount: 0, successCount: 0, error: (err as Error).message,
+      });
+      this.logger.error(`${type} 수동 실행 실패`, (err as Error).stack, 'SchedulerController');
+      throw err;
+    }
+
+    this.logger.log(`${type} 수동 실행 완료 — ${result.successCount}/${result.totalCount}건`, 'SchedulerController');
+    return { success: true, data: result };
+  }
+
   /** 스케줄러 실행 로그 목록 (페이지네이션) */
   @Get('logs')
   @ApiOperation({ summary: '스케줄러 로그 목록 조회 (어드민 전용)' })

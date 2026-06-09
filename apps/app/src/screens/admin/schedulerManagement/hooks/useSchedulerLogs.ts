@@ -77,11 +77,24 @@ export function useSchedulerLogDetail(id: string) {
   })
 }
 
-/** 수동 실행 뮤테이션 */
+/** 전체 수동 실행 뮤테이션 */
 export function useRunMonthlyScheduler() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () => schedulerLogsApi.runMonthly(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.schedulerLogs.all })
+      Toast.show({ type: 'success', text1: strings.schedulerManagement.runSuccess })
+    },
+    onError: (error) => handleApiError(error),
+  })
+}
+
+/** 타입별 단독 수동 실행 뮤테이션 */
+export function useRunSchedulerByType() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (type: SchedulerLogType) => schedulerLogsApi.runByType(type),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.schedulerLogs.all })
       Toast.show({ type: 'success', text1: strings.schedulerManagement.runSuccess })

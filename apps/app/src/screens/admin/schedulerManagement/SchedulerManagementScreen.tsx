@@ -91,12 +91,18 @@ export default function SchedulerManagementScreen() {
     navigation.navigate(Screens.AdminMore.SchedulerLogDetail, { id: log.id })
   }
 
+  function handleStatusCardPress(item: CurrentMonthStatusItem) {
+    navigation.navigate(Screens.AdminMore.SchedulerLogDetail, {
+      type: item.type, year, month,
+    })
+  }
+
   function renderStatusCards() {
     if (!statusData) return null
     return (
       <View style={styles.statusRow}>
         {statusData.map((item) => (
-          <View key={item.type} style={styles.statusCard}>
+          <TouchableOpacity key={item.type} style={styles.statusCard} onPress={() => handleStatusCardPress(item)}>
             <Text style={styles.statusCardType}>{s.types[item.type as SchedulerLogType]}</Text>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item, t) }]}>
               <Text style={styles.statusBadgeText}>{getStatusLabel(item)}</Text>
@@ -104,7 +110,7 @@ export default function SchedulerManagementScreen() {
             {item.log && (
               <Text style={styles.statusCount}>{`${item.log.successCount}/${item.log.totalCount}`}</Text>
             )}
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
     )

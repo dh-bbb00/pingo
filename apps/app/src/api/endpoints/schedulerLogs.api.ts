@@ -31,11 +31,17 @@ export interface NotRunEntry {
   month: number
 }
 
-/** 수동 실행 결과 */
+/** 전체 수동 실행 결과 */
 export interface RunMonthlyResult {
   budgets:      number
   fixedExpenses: number
   installments:  number
+}
+
+/** 타입별 수동 실행 결과 */
+export interface RunByTypeResult {
+  totalCount:   number
+  successCount: number
 }
 
 // ─── API 응답 래퍼 ──────────────────────────────────
@@ -74,6 +80,10 @@ export const schedulerLogsApi = {
     apiClient.get<BasicResponse<NotRunEntry[]>>(endpoints.scheduler.notRun, {
       params: { year, month },
     }),
+
+  /** 타입별 단독 수동 실행 */
+  runByType: (type: SchedulerLogType) =>
+    apiClient.post<BasicResponse<RunByTypeResult>>(endpoints.scheduler.runByType(type)),
 
   /** 단건 조회 */
   getById: (id: string) =>

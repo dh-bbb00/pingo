@@ -20,4 +20,8 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
 
   notRunCard:  { backgroundColor: t.colors.surface, borderRadius: t.radius.lg, padding: t.spacing.md, marginBottom: t.spacing.md, alignItems: 'center' },
   notRunText:  { fontSize: t.fontSize.md, color: t.colors.text.secondary, marginTop: t.spacing.sm },
+
+  runButtonWrapper: { paddingHorizontal: t.spacing.md, paddingBottom: t.spacing.lg, paddingTop: t.spacing.sm },
+  runButton:        { backgroundColor: t.colors.primary, borderRadius: t.radius.md, paddingVertical: t.spacing.md, alignItems: 'center' },
+  runButtonText:    { fontSize: t.fontSize.md, fontWeight: t.fontWeight.bold, color: t.colors.text.inverse },
 })
