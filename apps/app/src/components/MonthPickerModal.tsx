@@ -7,14 +7,16 @@ import { makeStyles } from './MonthPickerModal.styles'
 const dp = strings.datePicker
 
 interface Props {
-  visible:       boolean
-  selectedYear:  number
-  selectedMonth: number  // 0-indexed
-  onSelect:      (year: number, month: number) => void
-  onClose:       () => void
+  visible:        boolean
+  selectedYear:   number
+  selectedMonth:  number   // 0-indexed
+  hasSelection?:  boolean  // false = 선택 없음 (강조 없음)
+  onSelect:       (year: number, month: number) => void
+  onClose:        () => void
+  onClear?:       () => void  // 제공 시 "전체 기간" 버튼 표시
 }
 
-export default function MonthPickerModal({ visible, selectedYear, selectedMonth, onSelect, onClose }: Props) {
+export default function MonthPickerModal({ visible, selectedYear, selectedMonth, hasSelection = true, onSelect, onClose, onClear }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
@@ -44,7 +46,7 @@ export default function MonthPickerModal({ visible, selectedYear, selectedMonth,
 
           <View style={styles.grid}>
             {dp.months.map((name, i) => {
-              const isSelected = viewYear === selectedYear && i === selectedMonth
+              const isSelected = hasSelection && viewYear === selectedYear && i === selectedMonth
               const isCurrent  = viewYear === today.getFullYear() && i === today.getMonth()
               return (
                 <TouchableOpacity
@@ -70,6 +72,12 @@ export default function MonthPickerModal({ visible, selectedYear, selectedMonth,
               )
             })}
           </View>
+
+          {onClear && (
+            <TouchableOpacity style={styles.clearBtn} onPress={() => { onClear(); onClose() }} activeOpacity={0.7}>
+              <Text style={styles.clearBtnText}>{dp.allPeriod}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Modal>

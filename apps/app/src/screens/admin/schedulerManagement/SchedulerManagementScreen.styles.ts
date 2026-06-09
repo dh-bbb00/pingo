@@ -26,6 +26,7 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
 
   // 리스트
   listContent:     { paddingHorizontal: t.spacing.md, paddingBottom: t.spacing.xl },
+  groupHeader:     { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.secondary, paddingVertical: t.spacing.sm },
   logCard:         { backgroundColor: t.colors.surface, borderRadius: t.radius.md, padding: t.spacing.md, marginBottom: t.spacing.sm },
   logCardRow:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: t.spacing.xs },
   logCardType:     { fontSize: t.fontSize.md, fontWeight: t.fontWeight.medium, color: t.colors.text.primary },

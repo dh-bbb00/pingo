@@ -31,7 +31,7 @@ export function useCurrentMonthStatus() {
 }
 
 /** 스케줄러 로그 무한 스크롤 목록 */
-export function useSchedulerLogs(tab: TabType, year: number, month: number) {
+export function useSchedulerLogs(tab: TabType, year?: number, month?: number) {
   const params: GetLogsParams = {
     pageSize: PAGE_SIZE,
     year,
@@ -55,7 +55,7 @@ export function useSchedulerLogs(tab: TabType, year: number, month: number) {
 }
 
 /** 미실행 항목 목록 */
-export function useSchedulerNotRun(year: number, month: number) {
+export function useSchedulerNotRun(year?: number, month?: number) {
   return useQuery({
     queryKey: queryKeys.schedulerLogs.notRun({ year, month }),
     queryFn:  async () => {

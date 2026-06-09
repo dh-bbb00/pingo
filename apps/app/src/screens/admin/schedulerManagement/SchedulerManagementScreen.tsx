@@ -21,6 +21,9 @@ const s = strings.schedulerManagement
 type TabKey = 'all' | 'success' | 'failure' | 'notRun'
 type Nav = NativeStackNavigationProp<AdminMoreStackParamList, 'SchedulerManagement'>
 
+type GroupHeader = { _kind: 'header'; year: number; month: number }
+type ListItem = GroupHeader | SchedulerLog | NotRunEntry
+
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'all',     label: s.tabs.all },
   { key: 'success', label: s.tabs.success },
@@ -46,15 +49,30 @@ function formatYearMonth(year: number, month: number) {
   return `${year}년 ${month}월`
 }
 
+function groupByMonth(items: (SchedulerLog | NotRunEntry)[]): ListItem[] {
+  const result: ListItem[] = []
+  let lastKey = ''
+  for (const item of items) {
+    const key = `${item.year}-${item.month}`
+    if (key !== lastKey) {
+      result.push({ _kind: 'header', year: item.year, month: item.month })
+      lastKey = key
+    }
+    result.push(item)
+  }
+  return result
+}
+
 export default function SchedulerManagementScreen() {
   const { theme: t } = useTheme()
   const styles = useMemo(() => makeStyles(t), [t])
   const navigation = useNavigation<Nav>()
 
-  const now = new Date()
-  const [year,  setYear]  = useState(now.getFullYear())
-  const [month, setMonth] = useState(now.getMonth() + 1)
-  const [tab,   setTab]   = useState<TabKey>('all')
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [tab, setTab] = useState<TabKey>('all')
+
+  const year  = selectedDate?.getFullYear()
+  const month = selectedDate ? selectedDate.getMonth() + 1 : undefined
 
   const { data: statusData } = useCurrentMonthStatus()
   const {
@@ -66,24 +84,30 @@ export default function SchedulerManagementScreen() {
   const { data: notRunData } = useSchedulerNotRun(year, month)
   const { mutate: runMonthly, isPending: isRunning } = useRunMonthlyScheduler()
 
-  const logs: SchedulerLog[] = useMemo(
-    () => logsData?.pages.flatMap((p) => p.data) ?? [],
-    [logsData],
+  const flatLogs: (SchedulerLog | NotRunEntry)[] = useMemo(
+    () => tab === 'notRun'
+      ? (notRunData ?? [])
+      : logsData?.pages.flatMap((p) => p.data) ?? [],
+    [tab, logsData, notRunData],
   )
 
-  function handleMonthChange(d: Date) {
-    setYear(d.getFullYear())
-    setMonth(d.getMonth() + 1)
-  }
+  const listData: ListItem[] = useMemo(
+    () => groupByMonth(flatLogs),
+    [flatLogs],
+  )
 
   function handlePrevMonth() {
-    if (month === 1) { setYear((y) => y - 1); setMonth(12) }
-    else setMonth((m) => m - 1)
+    if (!selectedDate) return
+    const d = new Date(selectedDate)
+    d.setMonth(d.getMonth() - 1)
+    setSelectedDate(new Date(d))
   }
 
   function handleNextMonth() {
-    if (month === 12) { setYear((y) => y + 1); setMonth(1) }
-    else setMonth((m) => m + 1)
+    if (!selectedDate) return
+    const d = new Date(selectedDate)
+    d.setMonth(d.getMonth() + 1)
+    setSelectedDate(new Date(d))
   }
 
   function handleRunMonthly() {
@@ -98,71 +122,76 @@ export default function SchedulerManagementScreen() {
   }
 
   function handleStatusCardPress(item: CurrentMonthStatusItem) {
+    const now = new Date()
     navigation.navigate(Screens.AdminMore.SchedulerLogDetail, {
-      type: item.type, year, month,
+      type: item.type, year: now.getFullYear(), month: now.getMonth() + 1,
     })
   }
 
   function renderStatusCards() {
     if (!statusData) return null
-    const nowYear  = new Date().getFullYear()
-    const nowMonth = new Date().getMonth() + 1
+    const now = new Date()
     return (
       <View>
-        <Text style={styles.statusSectionTitle}>{s.statusSectionTitle(nowYear, nowMonth)}</Text>
-      <View style={styles.statusRow}>
-        {statusData.map((item) => (
-          <TouchableOpacity key={item.type} style={styles.statusCard} onPress={() => handleStatusCardPress(item)}>
-            <Text style={styles.statusCardType}>{s.types[item.type as SchedulerLogType]}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item, t) }]}>
-              <Text style={styles.statusBadgeText}>{getStatusLabel(item)}</Text>
-            </View>
-            {item.log && (
-              <Text style={styles.statusCount}>{`${item.log.successCount}/${item.log.totalCount}`}</Text>
-            )}
-          </TouchableOpacity>
-        ))}
-      </View>
+        <Text style={styles.statusSectionTitle}>{s.statusSectionTitle(now.getFullYear(), now.getMonth() + 1)}</Text>
+        <View style={styles.statusRow}>
+          {statusData.map((item) => (
+            <TouchableOpacity key={item.type} style={styles.statusCard} onPress={() => handleStatusCardPress(item)}>
+              <Text style={styles.statusCardType}>{s.types[item.type as SchedulerLogType]}</Text>
+              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item, t) }]}>
+                <Text style={styles.statusBadgeText}>{getStatusLabel(item)}</Text>
+              </View>
+              {item.log && (
+                <Text style={styles.statusCount}>{`${item.log.successCount}/${item.log.totalCount}`}</Text>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     )
   }
 
-  function renderLogItem({ item }: { item: SchedulerLog }) {
+  function renderItem({ item }: { item: ListItem }) {
+    if ('_kind' in item) {
+      return <Text style={styles.groupHeader}>{formatYearMonth(item.year, item.month)}</Text>
+    }
+
+    if (tab === 'notRun') {
+      const notRun = item as NotRunEntry
+      return (
+        <View style={styles.notRunCard}>
+          <Text style={styles.notRunType}>{s.types[notRun.type as SchedulerLogType]}</Text>
+          <View style={styles.notRunBadge}>
+            <Text style={styles.notRunBadgeText}>{s.tabs.notRun}</Text>
+          </View>
+        </View>
+      )
+    }
+
+    const log = item as SchedulerLog
     return (
-      <TouchableOpacity style={styles.logCard} onPress={() => handleLogPress(item)}>
+      <TouchableOpacity style={styles.logCard} onPress={() => handleLogPress(log)}>
         <View style={styles.logCardRow}>
-          <Text style={styles.logCardType}>{s.types[item.type]}</Text>
-          <View style={[styles.logCardBadge, { backgroundColor: getBadgeColor(item.success, t) }]}>
+          <Text style={styles.logCardType}>{s.types[log.type]}</Text>
+          <View style={[styles.logCardBadge, { backgroundColor: getBadgeColor(log.success, t) }]}>
             <Text style={styles.logCardBadgeText}>
-              {item.success ? s.statusCard.success : s.statusCard.failure}
+              {log.success ? s.statusCard.success : s.statusCard.failure}
             </Text>
           </View>
         </View>
         <View style={styles.logCardRow}>
-          <Text style={styles.logCardMeta}>{formatYearMonth(item.year, item.month)}</Text>
-          <Text style={styles.logCardCounts}>{`${item.successCount}/${item.totalCount}건`}</Text>
+          <Text style={styles.logCardCounts}>{`${log.successCount}/${log.totalCount}건`}</Text>
+          <Text style={styles.logCardMeta}>{s.triggers[log.triggeredBy]}</Text>
         </View>
-        <Text style={styles.logCardMeta}>{s.triggers[item.triggeredBy]}</Text>
       </TouchableOpacity>
     )
   }
 
-  function renderNotRunItem({ item }: { item: NotRunEntry }) {
-    return (
-      <View style={styles.notRunCard}>
-        <View>
-          <Text style={styles.notRunType}>{s.types[item.type as SchedulerLogType]}</Text>
-          <Text style={styles.logCardMeta}>{formatYearMonth(item.year, item.month)}</Text>
-        </View>
-        <View style={styles.notRunBadge}>
-          <Text style={styles.notRunBadgeText}>{s.tabs.notRun}</Text>
-        </View>
-      </View>
-    )
+  function keyExtractor(item: ListItem, i: number) {
+    if ('_kind' in item) return `header-${item.year}-${item.month}`
+    if ('id' in item) return item.id
+    return `${item.type}-${item.year}-${item.month}-${i}`
   }
-
-  const listData = tab === 'notRun' ? (notRunData ?? []) : logs
-  const isNotRunTab = tab === 'notRun'
 
   return (
     <View style={styles.container}>
@@ -179,10 +208,11 @@ export default function SchedulerManagementScreen() {
         </TouchableOpacity>
 
         <DateNavigator
-          date={new Date(year, month - 1, 1)}
-          onChange={handleMonthChange}
+          date={selectedDate}
+          onChange={(d) => setSelectedDate(d)}
           onPrev={handlePrevMonth}
           onNext={handleNextMonth}
+          onClear={() => setSelectedDate(null)}
           mode='month'
           variant='card'
         />
@@ -201,15 +231,9 @@ export default function SchedulerManagementScreen() {
       </View>
 
       <FlatList
-        data={listData as (SchedulerLog | NotRunEntry)[]}
-        keyExtractor={(item, i) => {
-          if ('id' in item) return item.id
-          return `${item.type}-${item.year}-${item.month}-${i}`
-        }}
-        renderItem={isNotRunTab
-          ? renderNotRunItem as ({ item }: { item: SchedulerLog | NotRunEntry }) => React.ReactElement
-          : renderLogItem as ({ item }: { item: SchedulerLog | NotRunEntry }) => React.ReactElement
-        }
+        data={listData}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
         ListEmptyComponent={<Text style={styles.empty}>{s.empty}</Text>}
         contentContainerStyle={styles.listContent}
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}

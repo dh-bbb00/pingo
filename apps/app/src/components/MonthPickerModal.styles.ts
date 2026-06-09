@@ -22,4 +22,7 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   monthText:           { fontSize: t.fontSize.sm, color: t.colors.text.primary },
   monthTextSelected:   { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold },
   monthTextToday:      { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
+
+  clearBtn:     { marginTop: 12, paddingVertical: 10, alignItems: 'center' },
+  clearBtnText: { fontSize: t.fontSize.sm, color: t.colors.text.secondary },
 })
