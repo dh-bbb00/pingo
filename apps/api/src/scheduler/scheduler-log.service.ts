@@ -90,8 +90,8 @@ export class SchedulerLogService {
   }
 
   /**
-   * 최근 12개월 × 3타입 중 로그 미존재 항목 반환.
-   * year + month 지정 시 해당 월만 확인.
+   * 타입별 첫 번째 로그가 생긴 달 ~ 현재까지 중 로그 미존재 항목 반환.
+   * 기능 도입 이전 기간은 제외. year + month 지정 시 해당 월만 확인.
    */
   async getNotRunEntries(year?: number, month?: number) {
     const now = new Date();
@@ -101,27 +101,37 @@ export class SchedulerLogService {
       SchedulerLogType.INSTALLMENTS,
     ];
 
-    // 특정 월이 지정된 경우 해당 월만, 아니면 최근 12개월
-    const months: Array<{ year: number; month: number }> = [];
-    if (year !== undefined && month !== undefined) {
-      months.push({ year, month });
-    } else {
-      for (let i = 0; i < 12; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        months.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
-      }
-    }
-
     const notRun: Array<{ type: SchedulerLogType; year: number; month: number }> = [];
 
-    for (const { year: y, month: m } of months) {
-      for (const type of types) {
-        const existing = await this.prisma.schedulerLog.findFirst({
-          where: { type, year: y, month: m },
-        });
-        if (!existing) {
-          notRun.push({ type, year: y, month: m });
-        }
+    for (const type of types) {
+      // 특정 월 지정 시 해당 월만 체크
+      if (year !== undefined && month !== undefined) {
+        const existing = await this.prisma.schedulerLog.findFirst({ where: { type, year, month } });
+        if (!existing) notRun.push({ type, year, month });
+        continue;
+      }
+
+      // 해당 타입의 첫 로그 — 없으면 이 타입은 아직 한 번도 실행 안 됨 → 스킵
+      const earliest = await this.prisma.schedulerLog.findFirst({
+        where:   { type },
+        orderBy: { runAt: 'asc' },
+        select:  { year: true, month: true },
+      });
+      if (!earliest) continue;
+
+      // 첫 로그 달부터 현재 달까지 순회
+      const startYear  = earliest.year;
+      const startMonth = earliest.month;
+      const endYear    = now.getFullYear();
+      const endMonth   = now.getMonth() + 1;
+
+      let y = startYear;
+      let m = startMonth;
+      while (y < endYear || (y === endYear && m <= endMonth)) {
+        const existing = await this.prisma.schedulerLog.findFirst({ where: { type, year: y, month: m } });
+        if (!existing) notRun.push({ type, year: y, month: m });
+
+        if (m === 12) { y++; m = 1; } else { m++; }
       }
     }
 
