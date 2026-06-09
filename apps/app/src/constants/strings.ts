@@ -170,9 +170,10 @@ export const strings = {
   },
 
   schedulerManagement: {
-    header:     '스케줄러 관리',
-    runBtn:     '수동 실행',
-    runConfirm: '월간 스케줄러를 수동으로 실행하시겠습니까?',
+    header:              '스케줄러 관리',
+    runBtn:              '이번 달 스케줄러 일괄 실행',
+    runConfirm:          '이번 달 스케줄러 3종을 모두 수동으로 실행하시겠습니까?',
+    statusSectionTitle:  (year: number, month: number) => `${year}년 ${month}월 실행 현황`,
     types: {
       BUDGET_ROLLOVER: '예산 이월',
       FIXED_EXPENSES:  '고정 지출',
@@ -326,6 +327,7 @@ export const strings = {
     yearFormat:       (year: number) => `${year}년`,
     dateFormat:       (year: number, month: number, day: number) => `${year}년 ${month}월 ${day}일`,
     dateWithDowFormat: (year: number, month: number, day: number, dow: string) => `${year}년 ${month}월 ${day}일 (${dow})`,
+    allPeriod:        '전체 기간',
   },
 
   history: {

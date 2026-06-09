@@ -7,6 +7,7 @@ import type { SchedulerLog, NotRunEntry, SchedulerLogType, CurrentMonthStatusIte
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
+import DateNavigator from '@/components/DateNavigator'
 import {
   useCurrentMonthStatus,
   useSchedulerLogs,
@@ -70,6 +71,11 @@ export default function SchedulerManagementScreen() {
     [logsData],
   )
 
+  function handleMonthChange(d: Date) {
+    setYear(d.getFullYear())
+    setMonth(d.getMonth() + 1)
+  }
+
   function handlePrevMonth() {
     if (month === 1) { setYear((y) => y - 1); setMonth(12) }
     else setMonth((m) => m - 1)
@@ -99,7 +105,11 @@ export default function SchedulerManagementScreen() {
 
   function renderStatusCards() {
     if (!statusData) return null
+    const nowYear  = new Date().getFullYear()
+    const nowMonth = new Date().getMonth() + 1
     return (
+      <View>
+        <Text style={styles.statusSectionTitle}>{s.statusSectionTitle(nowYear, nowMonth)}</Text>
       <View style={styles.statusRow}>
         {statusData.map((item) => (
           <TouchableOpacity key={item.type} style={styles.statusCard} onPress={() => handleStatusCardPress(item)}>
@@ -112,6 +122,7 @@ export default function SchedulerManagementScreen() {
             )}
           </TouchableOpacity>
         ))}
+      </View>
       </View>
     )
   }
@@ -156,27 +167,25 @@ export default function SchedulerManagementScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.topSection}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text style={styles.header}>{s.header}</Text>
-          <TouchableOpacity style={styles.runButton} onPress={handleRunMonthly} disabled={isRunning}>
-            {isRunning
-              ? <ActivityIndicator size="small" color={t.colors.text.inverse} />
-              : <Text style={styles.runButtonText}>{s.runBtn}</Text>
-            }
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.header}>{s.header}</Text>
 
         {renderStatusCards()}
 
-        <View style={styles.monthFilter}>
-          <TouchableOpacity style={styles.monthBtn} onPress={handlePrevMonth}>
-            <Text style={styles.monthBtnText}>{'‹'}</Text>
-          </TouchableOpacity>
-          <Text style={styles.monthLabel}>{formatYearMonth(year, month)}</Text>
-          <TouchableOpacity style={styles.monthBtn} onPress={handleNextMonth}>
-            <Text style={styles.monthBtnText}>{'›'}</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.runButton} onPress={handleRunMonthly} disabled={isRunning}>
+          {isRunning
+            ? <ActivityIndicator size="small" color={t.colors.text.inverse} />
+            : <Text style={styles.runButtonText}>{s.runBtn}</Text>
+          }
+        </TouchableOpacity>
+
+        <DateNavigator
+          date={new Date(year, month - 1, 1)}
+          onChange={handleMonthChange}
+          onPrev={handlePrevMonth}
+          onNext={handleNextMonth}
+          mode='month'
+          variant='card'
+        />
       </View>
 
       <View style={styles.tabBar}>
