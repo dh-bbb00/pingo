@@ -35,7 +35,15 @@ function isDeepNested(state: NavigationState | PartialState<NavigationState>): b
 
 const BOTTOM_PADDING = Platform.OS === 'ios' ? 20 : 4
 
-export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+/**
+ * React Navigation은 tabBar prop을 tabBar({...props}) 형태로 직접 호출하므로
+ * 훅을 사용하려면 내부 컴포넌트(AppTabBarContent)로 분리해야 한다.
+ */
+export function AppTabBar(props: BottomTabBarProps) {
+  return <AppTabBarContent {...props} />
+}
+
+function AppTabBarContent({ state, descriptors, navigation }: BottomTabBarProps) {
   const { theme } = useTheme()
 
   if (isDeepNested(state)) return null
