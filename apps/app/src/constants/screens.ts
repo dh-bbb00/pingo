@@ -59,7 +59,6 @@ export const Screens = {
   More: {
     MoreMain:           'MoreMain',
     FixedExpenses:      'FixedExpenses',
-    FixedExpenseDetail: 'FixedExpenseDetail',
     FixedExpenseEdit:   'FixedExpenseEdit',
     PaymentMethods:     'PaymentMethods',
     PaymentMethodEdit:  'PaymentMethodEdit',

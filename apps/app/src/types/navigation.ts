@@ -60,7 +60,6 @@ export type CategoryStackParamList = {
 export type MoreStackParamList = {
   MoreMain:            undefined
   FixedExpenses:       undefined
-  FixedExpenseDetail:  { id: string }
   FixedExpenseEdit:    { id?: string }
   PaymentMethods:      undefined
   PaymentMethodEdit:   { id?: string; returnToTransaction?: boolean }
