@@ -105,6 +105,15 @@ export const strings = {
     },
   },
 
+  permission: {
+    notificationListenerTitle: '알림 접근 권한 필요',
+    notificationListenerMsg:   'Pingo가 카드 결제 알림을 감지하려면 알림 접근 권한이 필요합니다.\n\n설정 화면에서 Pingo를 허용해주세요.',
+    later:                     '나중에',
+    goToSettings:              '설정으로 이동',
+    batteryOptTitle:           '배터리 최적화 설정',
+    batteryOptMsg:             '앱이 완전히 종료된 상태에서도 알림을 감지하려면 배터리 최적화를 꺼야 합니다.\n\n설정 > 애플리케이션 > Pingo > 배터리 > 제한 없음으로 설정해주세요.',
+  },
+
   paymentMethods: {
     header:              '결제수단 관리',
     noCards:             '등록된 카드 정보가 없습니다.',
