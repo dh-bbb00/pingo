@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
-import FullScreenContainer from '@/components/containers/FullScreenContainer'
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { useApprovalRequest } from './hooks/useApprovalRequest'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
@@ -17,7 +16,8 @@ export default function ApprovalRequestScreen() {
   const { mutate: requestApproval, isPending } = useApprovalRequest()
 
   return (
-    <FullScreenContainer style={styles.container}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>{s.title}</Text>
       <Text style={styles.desc}>{s.desc}</Text>
 
@@ -49,6 +49,7 @@ export default function ApprovalRequestScreen() {
           : <Text style={styles.buttonText}>{s.submit}</Text>
         }
       </TouchableOpacity>
-    </FullScreenContainer>
+      </ScrollView>
+    </TouchableWithoutFeedback>
   )
 }

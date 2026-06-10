@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, TextInput, TouchableOpacity, Switch, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Switch, ActivityIndicator, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useLogin } from './hooks/useLogin'
@@ -27,7 +27,12 @@ export default function LoginScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={styles.container}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
       <Text style={styles.title}>{s.title}</Text>
 
       <TextInput
@@ -79,7 +84,7 @@ export default function LoginScreen() {
       <TouchableOpacity onPress={() => navigation.navigate(Screens.Auth.ApprovalRequest)}>
         <Text style={styles.link}>{s.noAccount}</Text>
       </TouchableOpacity>
-    </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   )
 }

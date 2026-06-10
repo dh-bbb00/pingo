@@ -2,7 +2,8 @@ import { StyleSheet } from 'react-native'
 import type { Theme } from '@/theme'
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
-  container:  { flex: 1, padding: 24, backgroundColor: t.colors.background },
+  scroll:     { flex: 1, backgroundColor: t.colors.background },
+  container:  { flexGrow: 1, padding: 24 },
   header:     { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, marginBottom: 32, marginTop: 8, color: t.colors.text.primary },
   input:       { borderWidth: 1, borderColor: t.colors.border, borderRadius: t.radius.md, padding: 14, color: t.colors.text.primary },
   inputError:  { borderColor: t.colors.semantic.error },

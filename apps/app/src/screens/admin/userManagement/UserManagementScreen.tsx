@@ -121,6 +121,7 @@ export default function UserManagementScreen() {
         <UserListSkeleton />
       ) : (
         <FlatList<AdminUserDetail>
+          keyboardDismissMode="on-drag"
           data={users}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
