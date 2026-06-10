@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { AppState } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import BootSplash from 'react-native-bootsplash'
 import notifee, { EventType } from '@notifee/react-native'
@@ -15,6 +15,30 @@ import {
 } from './src/utils/notificationPermission'
 import { useAuthStore } from './src/store/authStore'
 import { storage, StorageKeys } from './src/utils/storage'
+import { useTheme } from './src/theme'
+
+// NavigationContainer에 테마 배경을 주입 — 슬라이드 애니메이션 중 흰 플래시 방지
+function ThemedNavigationContainer({ children }: { children: React.ReactNode }) {
+  const { theme, mode } = useTheme()
+  const navTheme = {
+    ...DefaultTheme,
+    dark: mode === 'dark',
+    colors: {
+      ...DefaultTheme.colors,
+      primary:      theme.colors.primary,
+      background:   theme.colors.background,
+      card:         theme.colors.background,
+      text:         theme.colors.text.primary,
+      border:       theme.colors.border,
+      notification: theme.colors.primary,
+    },
+  }
+  return (
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
+      {children}
+    </NavigationContainer>
+  )
+}
 
 // 포그라운드 전용 — 앱이 열린 상태에서 알림 탭 시 호출
 function navigateToNotificationLog() {
@@ -69,9 +93,9 @@ export default function App() {
   return (
     <AppProviders>
       <SafeAreaProvider>
-        <NavigationContainer ref={navigationRef}>
+        <ThemedNavigationContainer>
           <RootNavigator />
-        </NavigationContainer>
+        </ThemedNavigationContainer>
       </SafeAreaProvider>
     </AppProviders>
   )
