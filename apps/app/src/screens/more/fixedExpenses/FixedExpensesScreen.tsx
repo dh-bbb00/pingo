@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, FlatList, TouchableOpacity, Switch, Alert } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Switch, Alert, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
@@ -9,6 +9,7 @@ import { strings } from '@/constants/strings'
 import type { FixedExpenseDetail } from './types'
 import { makeStyles } from './FixedExpensesScreen.styles'
 import { useFixedExpenses, useUpdateFixedExpense } from '@/hooks/queries/useFixedExpenses'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { handleApiError } from '@/api/errorHandler'
 import FixedExpenseItemSkeleton from './components/FixedExpenseItemSkeleton'
 
@@ -24,7 +25,8 @@ export default function FixedExpensesScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const navigation = useNavigation<Nav>()
-  const { data: items, isLoading } = useFixedExpenses()
+  const { data: items, isLoading, refetch } = useFixedExpenses()
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
   const { mutate: updateItem } = useUpdateFixedExpense()
 
   function handleToggleActive(item: FixedExpenseDetail) {
@@ -99,6 +101,7 @@ export default function FixedExpensesScreen() {
           ItemSeparatorComponent={() => <View style={styles.divider} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Text style={styles.empty}>{s.empty}</Text>

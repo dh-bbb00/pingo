@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react'
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, RefreshControl } from 'react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { AdminMoreStackParamList } from '@/types/navigation'
 import type { SchedulerLogType, SchedulerLog } from '@/api/endpoints/schedulerLogs.api'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useSchedulerLogDetail, useSchedulerLogs, useRunSchedulerByType } from './hooks/useSchedulerLogs'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { makeStyles } from './SchedulerLogDetailScreen.styles'
 
 type Props = NativeStackScreenProps<AdminMoreStackParamList, 'SchedulerLogDetail'>
@@ -69,6 +70,7 @@ function TypeDetailScreen({ type, year, month, styles, t }: {
 }) {
   const { data: logsData, isLoading, refetch } = useSchedulerLogs('all', year, month)
   const { mutate: run, isPending } = useRunSchedulerByType()
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   // 해당 타입의 이번 달 최신 로그
   const latestLog = useMemo(() => {
@@ -93,7 +95,10 @@ function TypeDetailScreen({ type, year, month, styles, t }: {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[t.colors.primary]} />}
+      >
         {latestLog
           ? <LogCard log={latestLog} t={t} styles={styles} />
           : (
@@ -140,6 +145,7 @@ export default function SchedulerLogDetailScreen({ route }: Props) {
 function IdDetailScreen({ id, styles, t }: { id: string; styles: any; t: any }) {
   const { data: log, isLoading, refetch } = useSchedulerLogDetail(id)
   const { mutate: run, isPending } = useRunSchedulerByType()
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   const s = strings.schedulerManagement
 
@@ -163,7 +169,10 @@ function IdDetailScreen({ id, styles, t }: { id: string; styles: any; t: any }) 
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[t.colors.primary]} />}
+      >
         <LogCard log={log} t={t} styles={styles} />
       </ScrollView>
 

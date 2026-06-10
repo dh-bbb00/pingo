@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Alert, View, Text, TouchableOpacity } from 'react-native'
+import { Alert, View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { AdminMoreStackParamList } from '@/types/navigation'
@@ -29,19 +29,21 @@ export default function AdminMoreScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>{s.header}</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={styles.header}>{s.header}</Text>
 
-      <TouchableOpacity
-        style={styles.menuRow}
-        onPress={() => navigation.navigate(Screens.AdminMore.SchedulerManagement)}
-      >
-        <Text style={styles.menuText}>{s.schedulerManagement}</Text>
-        <Text style={styles.menuChevron}>{'›'}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.menuRow}
+          onPress={() => navigation.navigate(Screens.AdminMore.SchedulerManagement)}
+        >
+          <Text style={styles.menuText}>{s.schedulerManagement}</Text>
+          <Text style={styles.menuChevron}>{'›'}</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>{s.logout}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutText}>{s.logout}</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   )
 }

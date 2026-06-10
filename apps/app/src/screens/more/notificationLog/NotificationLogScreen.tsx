@@ -1,8 +1,9 @@
 import React, { useMemo, useEffect } from 'react'
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Alert, RefreshControl } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useNotificationLogStore } from '@/store/notificationLogStore'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { parseCardNotification } from '@/utils/cardNotificationParser'
 import { makeStyles } from './NotificationLogScreen.styles'
 import type { DetectedNotification } from '@/store/notificationLogStore'
@@ -14,6 +15,7 @@ export default function NotificationLogScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const { notifications, load, clear } = useNotificationLogStore()
+  const { refreshing, onRefresh } = usePullToRefresh(load)
 
   useEffect(() => { load() }, [load])
 
@@ -102,6 +104,7 @@ export default function NotificationLogScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
         />
       )}
     </View>

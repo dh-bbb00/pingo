@@ -18,9 +18,10 @@ interface Props {
   date:                Date
   selectedCategoryId:  string | null
   onSelectCategory:    (id: string | null) => void
+  refreshControl?:     React.ReactElement<any>
 }
 
-export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelectCategory }: Props) {
+export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelectCategory, refreshControl }: Props) {
   const { theme } = useTheme()
   const { data: categories = [] } = useCategoriesAll()
 
@@ -53,7 +54,7 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
   }, [dateTab, date, byDateData, byMonthData])
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} refreshControl={refreshControl}>
       {/* 카테고리 선택 칩 */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={ss.chipList}>
         {categories.map(cat => {

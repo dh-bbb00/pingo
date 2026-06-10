@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -8,6 +8,7 @@ import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { useCategories } from '@/hooks/queries/useCategories'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import CategoryItem from './components/CategoryItem'
 import CategoryItemSkeleton from './components/CategoryItemSkeleton'
 import SortArrowIcon from '@/components/icons/SortArrowIcon'
@@ -37,7 +38,8 @@ export default function CategoryScreen() {
   const navigation = useNavigation<Nav>()
   const [sort, setSort] = useState<CategorySort>('date_desc')
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useCategories(sort)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useCategories(sort)
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   const handleSortPress = (key: SortGroup) => {
     const activeGroup = sort.split('_')[0] as SortGroup
@@ -129,6 +131,7 @@ export default function CategoryScreen() {
           }
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
           onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
           onEndReachedThreshold={0.3}
         />

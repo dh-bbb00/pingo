@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useCallback } from 'react'
-import { View, Text, FlatList, TextInput, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native'
+import { View, Text, FlatList, TextInput, TouchableOpacity, LayoutAnimation, Platform, UIManager, RefreshControl } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { AdminUserDetail } from '../types'
 import { useAdminUsers } from './hooks/useAdminUsers'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import UserListItem from './components/UserListItem'
 import UserListSkeleton from './components/UserListSkeleton'
 import PaginationBar from './components/PaginationBar'
@@ -53,12 +54,14 @@ export default function UserManagementScreen() {
     setExpandedId(null)
   }, [])
 
-  const { data, isLoading } = useAdminUsers({
+  const { data, isLoading, refetch } = useAdminUsers({
     search:   debouncedSearch || undefined,
     page,
     pageSize: PAGE_SIZE,
     status:   activeTab,
   })
+
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   const users      = data?.data ?? []
   const pagination = data?.pagination
@@ -129,6 +132,7 @@ export default function UserManagementScreen() {
           )}
           ListEmptyComponent={<Text style={styles.empty}>{emptyText}</Text>}
           contentContainerStyle={styles.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
           ListFooterComponent={
             pagination ? (
               <PaginationBar

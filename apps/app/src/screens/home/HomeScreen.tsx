@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import {
-  View, Text, ScrollView, TouchableOpacity, ActivityIndicator,
+  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
@@ -10,6 +10,7 @@ import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
 import { useHomeSummary } from './hooks/useHomeSummary'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { makeStyles } from './HomeScreen.styles'
 import type { HomeSummaryCategory, HomeSummaryTransaction } from '@/api/endpoints/stats.api'
 import { DATE_TAB } from '@/screens/stats/types'
@@ -34,7 +35,8 @@ export default function HomeScreen() {
   const styles    = useMemo(() => makeStyles(theme), [theme])
   const navigation = useNavigation<Nav>()
 
-  const { data, isLoading } = useHomeSummary()
+  const { data, isLoading, refetch } = useHomeSummary()
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   const now   = new Date()
   const month = now.getMonth() + 1
@@ -77,6 +79,7 @@ export default function HomeScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
       >
         {/* ── 이번달 총 소비 ── */}
         <View style={styles.summaryCard}>

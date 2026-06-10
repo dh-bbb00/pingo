@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, SectionList, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, SectionList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -8,6 +8,7 @@ import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { useTransactions } from '@/hooks/queries/useTransactions'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import type { Transaction } from '@/api/endpoints/transactions.api'
 import TransactionItem from './components/TransactionItem'
 import TransactionItemSkeleton from './components/TransactionItemSkeleton'
@@ -102,7 +103,8 @@ export default function HistoryScreen() {
     }
   }, [filter.date, filter.tab, filter.categoryIds, filter.paymentMethodIds])
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useTransactions(queryFilter)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useTransactions(queryFilter)
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   const transactions = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
   const totalAmount  = data?.pages[0]?.pagination.totalAmount ?? 0
@@ -220,6 +222,7 @@ export default function HistoryScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           stickySectionHeadersEnabled={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Text style={styles.empty}>{s.empty}</Text>

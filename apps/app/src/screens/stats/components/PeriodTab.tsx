@@ -13,13 +13,14 @@ import { strings } from '@/constants/strings'
 const s = strings.stats
 
 interface Props {
-  dateTab:    StatsDateTab
-  date:       Date
-  rangeStart: Date
-  rangeEnd:   Date
+  dateTab:       StatsDateTab
+  date:          Date
+  rangeStart:    Date
+  rangeEnd:      Date
+  refreshControl?: React.ReactElement<any>
 }
 
-export default function PeriodTab({ dateTab, date, rangeStart, rangeEnd }: Props) {
+export default function PeriodTab({ dateTab, date, rangeStart, rangeEnd, refreshControl }: Props) {
   const isRange = dateTab === DATE_TAB.RANGE
 
   const range     = useMemo(
@@ -55,7 +56,7 @@ export default function PeriodTab({ dateTab, date, rangeStart, rangeEnd }: Props
   }, [dateTab, date, rangeStart, rangeEnd, byHourData, byDateData, byMonthData])
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 12, paddingBottom: 40 }}>
+    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 12, paddingBottom: 40 }} refreshControl={refreshControl}>
       <SummaryCard
         total={catData?.total ?? 0}
         prevTotal={prevCatData?.total ?? 0}

@@ -16,13 +16,14 @@ import { PAYMENT_METHOD_EMOJI } from '@/constants/emojis'
 const s = strings.stats
 
 interface Props {
-  dateTab:                StatsDateTab
-  date:                   Date
+  dateTab:                 StatsDateTab
+  date:                    Date
   selectedPaymentMethodId: string | null
   onSelectPaymentMethod:   (id: string | null) => void
+  refreshControl?:         React.ReactElement<any>
 }
 
-export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodId, onSelectPaymentMethod }: Props) {
+export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodId, onSelectPaymentMethod, refreshControl }: Props) {
   const { theme } = useTheme()
   const { data: methods = [] } = usePaymentMethods()
 
@@ -56,7 +57,7 @@ export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodI
   }, [dateTab, date, byDateData, byMonthData])
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} refreshControl={refreshControl}>
       {/* 결제수단 선택 칩 */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={ss.chipList}>
         {methods.map(method => {

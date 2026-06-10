@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Alert, RefreshControl } from 'react-native'
 import {
   useApprovals,
   useApproveRequest,
@@ -7,6 +7,7 @@ import {
   useAcceptRequest,
   useDeleteApprovalRequest,
 } from './hooks/useApprovals'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { ApprovalRequest } from '../types'
@@ -25,7 +26,8 @@ export default function ApprovalManagementScreen() {
 
   const [activeTab, setActiveTab] = useState<ApprovalStatus>('PENDING')
 
-  const { data = [], isLoading } = useApprovals(activeTab)
+  const { data = [], isLoading, refetch } = useApprovals(activeTab)
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
   const { mutate: approve, isPending: isApproving } = useApproveRequest()
   const { mutate: reject,  isPending: isRejecting  } = useRejectRequest()
   const { mutate: accept,  isPending: isAccepting  } = useAcceptRequest()
@@ -93,6 +95,7 @@ export default function ApprovalManagementScreen() {
             )}
             ListEmptyComponent={<Text style={styles.empty}>{emptyText}</Text>}
             contentContainerStyle={styles.list}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
           />
         )
       }

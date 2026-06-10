@@ -1,7 +1,8 @@
 import React, { useMemo, useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute } from '@react-navigation/native'
+import { useQueryClient } from '@tanstack/react-query'
 import type { RouteProp } from '@react-navigation/native'
 import type { UserTabParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
@@ -18,6 +19,8 @@ import PaymentMethodTab from './components/PaymentMethodTab'
 import { getPrevDate } from './utils'
 import DatePickerModal from '@/components/DatePickerModal'
 import MonthPickerModal from '@/components/MonthPickerModal'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
+import { queryKeys } from '@/constants/queryKeys'
 
 const s = strings.stats
 
@@ -31,6 +34,7 @@ export default function StatsScreen() {
   const { theme } = useTheme()
   const styles    = useMemo(() => makeStyles(theme), [theme])
   const route     = useRoute<RouteProp<UserTabParamList, 'Stats'>>()
+  const queryClient = useQueryClient()
 
   const {
     filter,
@@ -43,6 +47,9 @@ export default function StatsScreen() {
     setSelectedPaymentMethodId,
     applyParams,
   } = useStatsFilter()
+
+  const { refreshing, onRefresh } = usePullToRefresh(() => queryClient.invalidateQueries({ queryKey: queryKeys.stats.all }))
+  const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
 
   const [pickerVisible,      setPickerVisible]      = useState(false)
   // '기간' 모드에서 시작일/종료일 중 어느쪽 피커를 여는지
@@ -170,6 +177,7 @@ export default function StatsScreen() {
           date={filter.date}
           rangeStart={filter.rangeStart}
           rangeEnd={filter.rangeEnd}
+          refreshControl={refreshControl}
         />
       )}
       {filter.mainTab === 'category' && (
@@ -178,6 +186,7 @@ export default function StatsScreen() {
           date={filter.date}
           selectedCategoryId={filter.selectedCategoryId}
           onSelectCategory={setSelectedCategoryId}
+          refreshControl={refreshControl}
         />
       )}
       {filter.mainTab === 'paymentMethod' && (
@@ -186,6 +195,7 @@ export default function StatsScreen() {
           date={filter.date}
           selectedPaymentMethodId={filter.selectedPaymentMethodId}
           onSelectPaymentMethod={setSelectedPaymentMethodId}
+          refreshControl={refreshControl}
         />
       )}
     </SafeAreaView>

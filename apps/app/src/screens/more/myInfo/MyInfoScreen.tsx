@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, Alert, ScrollView, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAuthStore } from '@/store/authStore'
@@ -10,6 +10,7 @@ import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { useMyInfo } from './hooks/useMyInfo'
 import { useMyDevices } from './hooks/useMyDevices'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { useDeleteDevice } from './hooks/useDeleteDevice'
 import { makeStyles } from './MyInfoScreen.styles'
 
@@ -23,8 +24,9 @@ export default function MyInfoScreen() {
 
   const navigation = useNavigation<Nav>()
   const { logout } = useAuthStore()
-  const { data: myInfo } = useMyInfo()
-  const { data: devices } = useMyDevices()
+  const { data: myInfo, refetch: refetchMyInfo } = useMyInfo()
+  const { data: devices, refetch: refetchDevices } = useMyDevices()
+  const { refreshing, onRefresh } = usePullToRefresh(() => Promise.all([refetchMyInfo(), refetchDevices()]))
   const { mutate: deleteDevice } = useDeleteDevice()
 
   function handleLogout() {
@@ -48,7 +50,11 @@ export default function MyInfoScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
+    >
       <Text style={styles.header}>{s.header}</Text>
 
       <View style={styles.section}>

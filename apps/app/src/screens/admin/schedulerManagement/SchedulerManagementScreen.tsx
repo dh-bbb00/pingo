@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, TouchableOpacity, FlatList, Alert, ActivityIndicator } from 'react-native'
+import { View, Text, TouchableOpacity, FlatList, Alert, ActivityIndicator, RefreshControl } from 'react-native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
 import type { AdminMoreStackParamList } from '@/types/navigation'
@@ -14,6 +14,7 @@ import {
   useSchedulerNotRun,
   useRunMonthlyScheduler,
 } from './hooks/useSchedulerLogs'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { makeStyles } from './SchedulerManagementScreen.styles'
 
 const s = strings.schedulerManagement
@@ -74,14 +75,16 @@ export default function SchedulerManagementScreen() {
   const year  = selectedDate?.getFullYear()
   const month = selectedDate ? selectedDate.getMonth() + 1 : undefined
 
-  const { data: statusData } = useCurrentMonthStatus()
+  const { data: statusData, refetch: refetchStatus } = useCurrentMonthStatus()
   const {
     data: logsData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch: refetchLogs,
   } = useSchedulerLogs(tab, year, month)
-  const { data: notRunData } = useSchedulerNotRun(year, month)
+  const { data: notRunData, refetch: refetchNotRun } = useSchedulerNotRun(year, month)
+  const { refreshing, onRefresh } = usePullToRefresh(() => Promise.all([refetchStatus(), refetchLogs(), refetchNotRun()]))
   const { mutate: runMonthly, isPending: isRunning } = useRunMonthlyScheduler()
 
   const flatLogs: (SchedulerLog | NotRunEntry)[] = useMemo(
@@ -236,6 +239,7 @@ export default function SchedulerManagementScreen() {
         renderItem={renderItem}
         ListEmptyComponent={<Text style={styles.empty}>{s.empty}</Text>}
         contentContainerStyle={styles.listContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[t.colors.primary]} />}
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
         onEndReachedThreshold={0.3}
         ListFooterComponent={isFetchingNextPage ? <ActivityIndicator style={{ marginVertical: 12 }} /> : null}

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Text, TouchableOpacity } from 'react-native'
+import { Text, TouchableOpacity, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -28,18 +28,20 @@ export default function MoreScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>{s.header}</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={styles.header}>{s.header}</Text>
 
-      {MENU_ITEMS.map((item) => (
-        <TouchableOpacity
-          key={item.screen}
-          style={styles.menuItem}
-          onPress={() => navigation.navigate(item.screen as any)}
-        >
-          <Text style={styles.menuLabel}>{item.label}</Text>
-          <Text style={styles.chevron}>›</Text>
-        </TouchableOpacity>
-      ))}
+        {MENU_ITEMS.map((item) => (
+          <TouchableOpacity
+            key={item.screen}
+            style={styles.menuItem}
+            onPress={() => navigation.navigate(item.screen as any)}
+          >
+            <Text style={styles.menuLabel}>{item.label}</Text>
+            <Text style={styles.chevron}>›</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, SectionList, TouchableOpacity } from 'react-native'
+import { View, Text, SectionList, TouchableOpacity, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -8,6 +8,7 @@ import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
 import PaymentMethodItem from './components/PaymentMethodItem'
 import PaymentMethodSkeleton from './components/PaymentMethodSkeleton'
@@ -25,7 +26,8 @@ export default function PaymentMethodsScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
   const navigation = useNavigation<Nav>()
 
-  const { data: methods, isLoading } = usePaymentMethods()
+  const { data: methods, isLoading, refetch } = usePaymentMethods()
+  const { refreshing, onRefresh } = usePullToRefresh(refetch)
 
   const sections = useMemo(() => {
     const fixed = (methods ?? []).filter(m => m.type !== 'CARD')
@@ -76,6 +78,7 @@ export default function PaymentMethodsScreen() {
           }
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
         />
       )}
 
