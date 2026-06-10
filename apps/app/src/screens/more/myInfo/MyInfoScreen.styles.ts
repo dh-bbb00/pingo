@@ -10,6 +10,7 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   menuItem:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: t.colors.divider },
   menuLabel:       { fontSize: t.fontSize.md, color: t.colors.text.primary },
   chevron:         { fontSize: t.fontSize.xl, color: t.colors.text.disabled },
+  switchRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: t.colors.divider },
   logoutButton:    { margin: 20, marginTop: 'auto', padding: 16, borderRadius: t.radius.md, borderWidth: 1, borderColor: t.colors.border, alignItems: 'center' },
   logoutText:      { color: t.colors.semantic.error, fontWeight: t.fontWeight.semiBold },
 

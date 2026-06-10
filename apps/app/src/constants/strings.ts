@@ -134,6 +134,7 @@ export const strings = {
     header:                  '내 정보',
     emailLabel:              '이메일',
     changePassword:          '비밀번호 변경',
+    darkMode:                '다크 모드',
     logout:                  '로그아웃',
     devicesHeader:           '내 기기',
     currentDeviceBadge:      '현재 기기',

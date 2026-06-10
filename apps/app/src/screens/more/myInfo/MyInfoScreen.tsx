@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Switch } from 'react-native'
 import { showConfirm } from '@/store/confirmStore'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -20,7 +20,7 @@ type Nav = NativeStackNavigationProp<MoreStackParamList, 'MyInfo'>
 const s = strings.myInfo
 
 export default function MyInfoScreen() {
-  const { theme } = useTheme()
+  const { theme, mode, toggleTheme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const navigation = useNavigation<Nav>()
@@ -70,6 +70,16 @@ export default function MyInfoScreen() {
         <Text style={styles.menuLabel}>{s.changePassword}</Text>
         <Text style={styles.chevron}>›</Text>
       </TouchableOpacity>
+
+      <View style={styles.switchRow}>
+        <Text style={styles.menuLabel}>{s.darkMode}</Text>
+        <Switch
+          value={mode === 'dark'}
+          onValueChange={toggleTheme}
+          trackColor={{ false: theme.colors.divider, true: theme.colors.primaryLight }}
+          thumbColor={mode === 'dark' ? theme.colors.primary : theme.colors.text.disabled}
+        />
+      </View>
 
       {devices && devices.length > 0 && (
         <>
