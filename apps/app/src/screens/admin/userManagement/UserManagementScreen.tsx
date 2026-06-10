@@ -7,7 +7,7 @@ import { useAdminUsers } from './hooks/useAdminUsers'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import UserListItem from './components/UserListItem'
 import UserListSkeleton from './components/UserListSkeleton'
-import PaginationBar from './components/PaginationBar'
+import PaginationBar from '@/components/PaginationBar'
 import { makeStyles } from './UserManagementScreen.styles'
 
 if (Platform.OS === 'android') {
