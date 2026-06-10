@@ -245,15 +245,20 @@ function CategoryBar({
   styles: ReturnType<typeof import('./HomeScreen.styles').makeStyles>
   theme: any
 }) {
-  const barRatio  = item.amount / maxAmount
   const budgetPct = item.budget ? (item.amount / item.budget) * 100 : null
   const isOver    = budgetPct !== null && budgetPct >= OVER_PCT
 
-  const barColor = budgetPct !== null && budgetPct >= WARN_PCT && !isOver
-    ? theme.colors.primary
-    : (item.category?.color ?? theme.colors.primary)
+  // 예산 있으면 예산 대비 비율(막대·%가 동일 기준), 없으면 최대 카테고리 대비
+  const barRatio = item.budget
+    ? Math.min(item.amount / item.budget, 1)
+    : item.amount / maxAmount
 
   const catColor = item.category?.color ?? theme.colors.primary
+  const barColor = isOver
+    ? theme.colors.semantic.error
+    : (budgetPct !== null && budgetPct >= WARN_PCT)
+      ? theme.colors.semantic.warning
+      : catColor
 
   return (
     <View style={styles.catRow}>
@@ -264,14 +269,7 @@ function CategoryBar({
           <Text style={styles.catAmount}>{item.amount.toLocaleString()}원</Text>
         </View>
         <View style={styles.catBarTrack}>
-          {isOver ? (
-            <>
-              <View style={[styles.catBar, { width: `${(item.budget! / maxAmount) * 100}%`, backgroundColor: catColor }]} />
-              <View style={[styles.catBar, { width: `${((item.amount - item.budget!) / maxAmount) * 100}%`, backgroundColor: theme.colors.semantic.error }]} />
-            </>
-          ) : (
-            <View style={[styles.catBar, { width: `${Math.round(barRatio * 100)}%`, backgroundColor: barColor }]} />
-          )}
+          <View style={[styles.catBar, { width: `${Math.round(barRatio * 100)}%`, backgroundColor: barColor }]} />
         </View>
         {budgetPct !== null && (
           <Text style={[styles.catBudgetHint, isOver && { color: theme.colors.semantic.error }]}>
