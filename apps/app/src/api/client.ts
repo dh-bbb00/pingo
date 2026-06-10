@@ -24,21 +24,32 @@ apiClient.interceptors.request.use((config) => {
 // 재발급 성공 시 refresh token 만료도 30일 연장된다 (rolling).
 // 재발급 실패(refresh token 만료 등)는 clearAuth()로 로컬 토큰만 삭제하며,
 // 화면 이동은 하지 않는다 — 이후 네비게이션 흐름에서 자연스럽게 로그인 화면으로 유도된다.
+
+// 앱 재개 시 여러 API 요청이 동시에 401을 받으면 각각 독립적으로 refresh를 시도해
+// BE에서 unique constraint 오류가 발생한다. 진행 중인 refresh가 있으면 같은 프로미스를
+// 공유해 단일 요청만 전송한다.
+let refreshPromise: Promise<string> | null = null
+
 apiClient.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config
     if (error.response?.status === 401 && !original._retry) {
-      original._retry = true // 무한 루프 방지
+      original._retry = true // 동일 요청 무한 루프 방지
       const refreshToken = storage.getString(StorageKeys.REFRESH_TOKEN)
       if (refreshToken) {
+        if (!refreshPromise) {
+          refreshPromise = axios
+            .post(`${ENV.API_URL}${endpoints.auth.refresh}`, { refreshToken })
+            .then(({ data: resp }) => {
+              const { accessToken, refreshToken: newRefreshToken } = resp.data
+              useAuthStore.getState().setTokens(accessToken, newRefreshToken)
+              return accessToken as string
+            })
+            .finally(() => { refreshPromise = null })
+        }
         try {
-          const { data: resp } = await axios.post(
-            `${ENV.API_URL}${endpoints.auth.refresh}`,
-            { refreshToken },
-          )
-          const { accessToken, refreshToken: newRefreshToken } = resp.data
-          useAuthStore.getState().setTokens(accessToken, newRefreshToken)
+          const accessToken = await refreshPromise
           original.headers.Authorization = `Bearer ${accessToken}`
           return apiClient(original)
         } catch {
