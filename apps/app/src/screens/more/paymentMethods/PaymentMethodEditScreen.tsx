@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform, Alert,
+  ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { MoreStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
+import { showConfirm } from '@/store/confirmStore'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import {
   useCreatePaymentMethod,
@@ -60,7 +61,7 @@ export default function PaymentMethodEditScreen() {
     }
     const prevDefault = methods?.find(m => m.isDefault && m.id !== params?.id)
     if (prevDefault) {
-      Alert.alert(s.changeDefaultConfirmTitle, s.changeDefaultConfirmMsg(prevDefault.name), [
+      showConfirm(s.changeDefaultConfirmTitle, s.changeDefaultConfirmMsg(prevDefault.name), [
         { text: strings.common.cancel, style: 'cancel' },
         { text: strings.common.confirm, onPress: () => setIsDefault(true) },
       ])
@@ -78,7 +79,7 @@ export default function PaymentMethodEditScreen() {
   }
 
   const handleDelete = () => {
-    Alert.alert(s.deleteConfirmTitle, s.deleteConfirmMsg, [
+    showConfirm(s.deleteConfirmTitle, s.deleteConfirmMsg, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: s.deleteBtn, style: 'destructive', onPress: () => deletePM() },
     ])

@@ -1,5 +1,5 @@
-import { Alert } from 'react-native'
 import Toast from 'react-native-toast-message'
+import { showConfirm } from '@/store/confirmStore'
 import { navigationRef } from '@/navigation/navigationRef'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
@@ -54,6 +54,6 @@ export function handleApiError(
 
     // 그 외 알 수 없는 오류 — Alert
     default:
-      Alert.alert(c.errorTitle, message ?? c.errorFallback)
+      showConfirm(c.errorTitle, message ?? c.errorFallback)
   }
 }

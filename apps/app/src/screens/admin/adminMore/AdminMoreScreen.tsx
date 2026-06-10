@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
-import { Alert, View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { AdminMoreStackParamList } from '@/types/navigation'
@@ -21,7 +22,7 @@ export default function AdminMoreScreen() {
   const { logout } = useAuthStore()
 
   function handleLogout() {
-    Alert.alert(s.logout, strings.common.logoutConfirmMsg, [
+    showConfirm(s.logout, strings.common.logoutConfirmMsg, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: strings.common.confirm, style: 'destructive', onPress: logout },
     ])

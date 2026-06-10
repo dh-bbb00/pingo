@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, FlatList, TouchableOpacity, Alert, RefreshControl } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, RefreshControl } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import {
   useApprovals,
   useApproveRequest,
@@ -36,14 +37,14 @@ export default function ApprovalManagementScreen() {
   const isMutating = isApproving || isRejecting || isAccepting || isDeleting
 
   function confirmAccept(id: string) {
-    Alert.alert(s.confirmAccept.title, s.confirmAccept.message, [
+    showConfirm(s.confirmAccept.title, s.confirmAccept.message, [
       { text: s.confirmAccept.cancel, style: 'cancel' },
       { text: s.confirmAccept.ok, onPress: () => accept(id) },
     ])
   }
 
   function confirmDelete(id: string) {
-    Alert.alert(s.confirmDelete.title, s.confirmDelete.message, [
+    showConfirm(s.confirmDelete.title, s.confirmDelete.message, [
       { text: s.confirmDelete.cancel, style: 'cancel' },
       { text: s.confirmDelete.ok, style: 'destructive', onPress: () => remove(id) },
     ])

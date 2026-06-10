@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform, Alert,
+  ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { HistoryStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
+import { showConfirm } from '@/store/confirmStore'
 import { useTransactionForm } from './hooks/useTransactionForm'
 import { usePendingTransactionStore } from '@/store/pendingTransactionStore'
 import {
@@ -114,7 +115,7 @@ export default function TransactionEditScreen() {
   }
 
   const handleDelete = () => {
-    Alert.alert(s.deleteConfirmTitle, s.deleteConfirmMsg, [
+    showConfirm(s.deleteConfirmTitle, s.deleteConfirmMsg, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: s.deleteBtn, style: 'destructive', onPress: () => deleteTx() },
     ])

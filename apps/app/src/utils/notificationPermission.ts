@@ -1,4 +1,5 @@
-import { Alert, Linking } from 'react-native'
+import { Linking } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import RNAndroidNotificationListener from 'react-native-android-notification-listener'
 import { storage, StorageKeys } from './storage'
 
@@ -6,7 +7,7 @@ export async function checkAndRequestNotificationListenerPermission(): Promise<b
   const status = await RNAndroidNotificationListener.getPermissionStatus()
   if (status === 'authorized') return true
 
-  Alert.alert(
+  showConfirm(
     '알림 접근 권한 필요',
     'Pingo가 카드 결제 알림을 감지하려면 알림 접근 권한이 필요합니다.\n\n설정 화면에서 Pingo를 허용해주세요.',
     [
@@ -31,7 +32,7 @@ export function checkAndRequestBatteryOptimization() {
   if (storage.getBoolean(StorageKeys.BATTERY_OPT_PROMPTED)) return
   storage.set(StorageKeys.BATTERY_OPT_PROMPTED, true)
 
-  Alert.alert(
+  showConfirm(
     '배터리 최적화 설정',
     '앱이 완전히 종료된 상태에서도 알림을 감지하려면 배터리 최적화를 꺼야 합니다.\n\n설정 > 배터리 > 앱별 최적화에서 Pingo를 "최적화 안 함"으로 설정해주세요.',
     [

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform, Alert, Switch,
+  ScrollView, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
@@ -21,6 +21,7 @@ import { handleApiError } from '@/api/errorHandler'
 import { Screens } from '@/constants/screens'
 import { navigationRef } from '@/navigation/navigationRef'
 import Toast from 'react-native-toast-message'
+import { showConfirm } from '@/store/confirmStore'
 
 type Route = RouteProp<MoreStackParamList, 'FixedExpenseEdit'>
 type Nav   = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenseEdit'>
@@ -89,7 +90,7 @@ export default function FixedExpenseEditScreen() {
         navigation.goBack()
         return
       }
-      Alert.alert(
+      showConfirm(
         s.registerThisMonthTitle,
         s.registerThisMonthMsg(form.merchantName.trim()),
         [
@@ -153,7 +154,7 @@ export default function FixedExpenseEditScreen() {
   }
 
   const handleDelete = () => {
-    Alert.alert(s.confirmDeleteTitle, s.confirmDeleteMsg, [
+    showConfirm(s.confirmDeleteTitle, s.confirmDeleteMsg, [
       { text: strings.common.cancel, style: 'cancel' },
       {
         text: s.confirmDeleteOk,
@@ -168,7 +169,7 @@ export default function FixedExpenseEditScreen() {
 
   const handleToggleActive = (value: boolean) => {
     if (!value) {
-      Alert.alert(s.confirmDisableTitle, s.confirmDisableMsg, [
+      showConfirm(s.confirmDisableTitle, s.confirmDisableMsg, [
         { text: s.confirmDisableCancel, style: 'cancel' },
         { text: s.confirmDisableOk, style: 'destructive', onPress: () => setField('isActive', false) },
       ])

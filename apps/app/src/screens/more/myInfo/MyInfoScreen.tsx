@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
-import { View, Text, TouchableOpacity, Alert, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAuthStore } from '@/store/authStore'
@@ -30,7 +31,7 @@ export default function MyInfoScreen() {
   const { mutate: deleteDevice } = useDeleteDevice()
 
   function handleLogout() {
-    Alert.alert(s.logout, strings.common.logoutConfirmMsg, [
+    showConfirm(s.logout, strings.common.logoutConfirmMsg, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: strings.common.confirm, style: 'destructive', onPress: logout },
     ])
@@ -39,7 +40,7 @@ export default function MyInfoScreen() {
   function handleDeleteDevice(device: MyDevice) {
     const title = device.isCurrent ? s.confirmDeleteCurrentTitle : s.confirmDeleteOtherTitle
     const msg   = device.isCurrent ? s.confirmDeleteCurrentMsg   : s.confirmDeleteOtherMsg
-    Alert.alert(title, msg, [
+    showConfirm(title, msg, [
       { text: strings.common.cancel, style: 'cancel' },
       {
         text: strings.common.confirm,

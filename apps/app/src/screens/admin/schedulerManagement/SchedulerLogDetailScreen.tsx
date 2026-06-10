@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, RefreshControl } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { AdminMoreStackParamList } from '@/types/navigation'
 import type { SchedulerLogType, SchedulerLog } from '@/api/endpoints/schedulerLogs.api'
@@ -79,7 +80,7 @@ function TypeDetailScreen({ type, year, month, styles, t }: {
   }, [logsData, type])
 
   function handleRun() {
-    Alert.alert(s.runByTypeBtn, s.runByTypeConfirm(s.types[type]), [
+    showConfirm(s.runByTypeBtn, s.runByTypeConfirm(s.types[type]), [
       { text: strings.common.cancel, style: 'cancel' },
       { text: strings.common.confirm, onPress: () => run({ type, year, month }, { onSuccess: () => refetch() }) },
     ])
@@ -151,7 +152,7 @@ function IdDetailScreen({ id, styles, t }: { id: string; styles: any; t: any }) 
 
   function handleRun() {
     if (!log) return
-    Alert.alert(s.runByTypeBtn, s.runByTypeConfirm(s.types[log.type]), [
+    showConfirm(s.runByTypeBtn, s.runByTypeConfirm(s.types[log.type]), [
       { text: strings.common.cancel, style: 'cancel' },
       { text: strings.common.confirm, onPress: () => run({ type: log.type, year: log.year, month: log.month }, { onSuccess: () => refetch() }) },
     ])

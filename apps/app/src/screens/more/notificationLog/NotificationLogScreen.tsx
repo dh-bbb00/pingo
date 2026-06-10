@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect } from 'react'
-import { View, Text, FlatList, TouchableOpacity, Alert, RefreshControl } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, RefreshControl } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useNotificationLogStore } from '@/store/notificationLogStore'
@@ -20,7 +21,7 @@ export default function NotificationLogScreen() {
   useEffect(() => { load() }, [load])
 
   function handleClear() {
-    Alert.alert(s.clearBtn, '전체 삭제하시겠습니까?', [
+    showConfirm(s.clearBtn, '전체 삭제하시겠습니까?', [
       { text: '취소', style: 'cancel' },
       { text: '삭제', style: 'destructive', onPress: clear },
     ])

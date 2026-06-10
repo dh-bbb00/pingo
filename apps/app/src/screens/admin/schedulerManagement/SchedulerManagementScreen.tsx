@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, TouchableOpacity, FlatList, Alert, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
 import type { AdminMoreStackParamList } from '@/types/navigation'
@@ -114,7 +115,7 @@ export default function SchedulerManagementScreen() {
   }
 
   function handleRunMonthly() {
-    Alert.alert(s.runBtn, s.runConfirm, [
+    showConfirm(s.runBtn, s.runConfirm, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: strings.common.confirm, onPress: () => runMonthly() },
     ])

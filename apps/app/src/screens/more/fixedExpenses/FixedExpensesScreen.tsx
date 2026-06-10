@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
-import { View, Text, FlatList, TouchableOpacity, Switch, Alert, RefreshControl } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Switch, RefreshControl } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { MoreStackParamList } from '@/types/navigation'
@@ -31,7 +32,7 @@ export default function FixedExpensesScreen() {
 
   function handleToggleActive(item: FixedExpenseDetail) {
     if (item.isActive) {
-      Alert.alert(se.confirmDisableTitle, se.confirmDisableMsg, [
+      showConfirm(se.confirmDisableTitle, se.confirmDisableMsg, [
         { text: se.confirmDisableCancel, style: 'cancel' },
         {
           text: se.confirmDisableOk,

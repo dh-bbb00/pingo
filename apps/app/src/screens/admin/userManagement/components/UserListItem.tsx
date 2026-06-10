@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
-import { View, Text, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
+import { showConfirm } from '@/store/confirmStore'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { AdminUserDetail } from '../../types'
@@ -25,12 +26,12 @@ export default function UserListItem({ item, expanded, onToggle }: Props) {
 
   const handleSuspendPress = () => {
     if (isSuspended) {
-      Alert.alert(s.confirmUnsuspendTitle, s.confirmUnsuspendMsg, [
+      showConfirm(s.confirmUnsuspendTitle, s.confirmUnsuspendMsg, [
         { text: strings.common.cancel, style: 'cancel' },
         { text: s.unsuspend, onPress: () => unsuspend(item.id) },
       ])
     } else {
-      Alert.alert(s.confirmSuspendTitle, s.confirmSuspendMsg, [
+      showConfirm(s.confirmSuspendTitle, s.confirmSuspendMsg, [
         { text: strings.common.cancel, style: 'cancel' },
         { text: s.suspend, style: 'destructive', onPress: () => suspend(item.id) },
       ])

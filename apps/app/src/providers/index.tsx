@@ -3,6 +3,7 @@ import { StatusBar } from 'react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Toast from 'react-native-toast-message'
 import { ThemeProvider, useTheme } from '@/theme'
+import ConfirmModal from '@/components/ConfirmModal'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <AppStatusBar />
         {children}
+        <ConfirmModal />
       </ThemeProvider>
       <Toast />
     </QueryClientProvider>
