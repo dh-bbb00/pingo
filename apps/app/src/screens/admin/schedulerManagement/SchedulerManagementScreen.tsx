@@ -4,7 +4,7 @@ import { showConfirm } from '@/store/confirmStore'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
 import type { AdminMoreStackParamList } from '@/types/navigation'
-import type { SchedulerLog, SchedulerLogType, SchedulerLogStatus, CurrentMonthStatusItem } from '@/api/endpoints/schedulerLogs.api'
+import type { SchedulerLog, CurrentMonthStatusItem } from '@/api/endpoints/schedulerLogs.api'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
@@ -17,14 +17,12 @@ import {
 } from './hooks/useSchedulerLogs'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { makeStyles } from './SchedulerManagementScreen.styles'
+import StatusSection from './components/StatusSection'
+import LogListItem, { type TabKey, type ListItem } from './components/LogListItem'
 
 const s = strings.schedulerManagement
 
-type TabKey = 'all' | 'success' | 'failure' | 'notRun'
 type Nav = NativeStackNavigationProp<AdminMoreStackParamList, 'SchedulerManagement'>
-
-type GroupHeader = { _kind: 'header'; year: number; month: number }
-type ListItem = GroupHeader | SchedulerLog
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'all',     label: s.tabs.all },
@@ -32,28 +30,6 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'failure', label: s.tabs.failure },
   { key: 'notRun',  label: s.tabs.notRun },
 ]
-
-function getStatusColor(item: CurrentMonthStatusItem, t: ReturnType<typeof useTheme>['theme']) {
-  const status = item.log?.status
-  if (!status || status === 'NOT_RUN') return t.colors.text.disabled
-  return status === 'SUCCESS' ? t.colors.semantic.success : t.colors.semantic.error
-}
-
-function getStatusLabel(item: CurrentMonthStatusItem) {
-  const status = item.log?.status
-  if (!status || status === 'NOT_RUN') return s.statusCard.notRun
-  return status === 'SUCCESS' ? s.statusCard.success : s.statusCard.failure
-}
-
-function getBadgeColor(status: SchedulerLogStatus, t: ReturnType<typeof useTheme>['theme']) {
-  if (status === 'SUCCESS') return t.colors.semantic.success
-  if (status === 'FAILURE') return t.colors.semantic.error
-  return t.colors.text.disabled
-}
-
-function formatYearMonth(year: number, month: number) {
-  return `${year}년 ${month}월`
-}
 
 function groupByMonth(items: SchedulerLog[]): ListItem[] {
   const result: ListItem[] = []
@@ -99,10 +75,7 @@ export default function SchedulerManagementScreen() {
     [tab, logsData, notRunData],
   )
 
-  const listData: ListItem[] = useMemo(
-    () => groupByMonth(flatLogs),
-    [flatLogs],
-  )
+  const listData: ListItem[] = useMemo(() => groupByMonth(flatLogs), [flatLogs])
 
   function handlePrevMonth() {
     if (!selectedDate) return
@@ -136,63 +109,6 @@ export default function SchedulerManagementScreen() {
     })
   }
 
-  function renderStatusCards() {
-    if (!statusData) return null
-    const now = new Date()
-    return (
-      <View>
-        <Text style={styles.statusSectionTitle}>{s.statusSectionTitle(now.getFullYear(), now.getMonth() + 1)}</Text>
-        <View style={styles.statusRow}>
-          {statusData.map((item) => (
-            <TouchableOpacity key={item.type} style={styles.statusCard} onPress={() => handleStatusCardPress(item)}>
-              <Text style={styles.statusCardType}>{s.types[item.type as SchedulerLogType]}</Text>
-              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item, t) }]}>
-                <Text style={styles.statusBadgeText}>{getStatusLabel(item)}</Text>
-              </View>
-              {item.log?.successCount != null && (
-                <Text style={styles.statusCount}>{`${item.log.successCount}/${item.log.totalCount}`}</Text>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    )
-  }
-
-  function renderItem({ item }: { item: ListItem }) {
-    if ('_kind' in item) {
-      return <Text style={styles.groupHeader}>{formatYearMonth(item.year, item.month)}</Text>
-    }
-
-    if (tab === 'notRun') {
-      return (
-        <View style={styles.notRunCard}>
-          <Text style={styles.notRunType}>{s.types[item.type as SchedulerLogType]}</Text>
-          <View style={styles.notRunBadge}>
-            <Text style={styles.notRunBadgeText}>{s.tabs.notRun}</Text>
-          </View>
-        </View>
-      )
-    }
-
-    return (
-      <TouchableOpacity style={styles.logCard} onPress={() => handleLogPress(item)}>
-        <View style={styles.logCardRow}>
-          <Text style={styles.logCardType}>{s.types[item.type]}</Text>
-          <View style={[styles.logCardBadge, { backgroundColor: getBadgeColor(item.status, t) }]}>
-            <Text style={styles.logCardBadgeText}>
-              {item.status === 'SUCCESS' ? s.statusCard.success : s.statusCard.failure}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.logCardRow}>
-          <Text style={styles.logCardCounts}>{`${item.successCount}/${item.totalCount}건`}</Text>
-          <Text style={styles.logCardMeta}>{item.triggeredBy ? s.triggers[item.triggeredBy] : ''}</Text>
-        </View>
-      </TouchableOpacity>
-    )
-  }
-
   function keyExtractor(item: ListItem) {
     if ('_kind' in item) return `header-${item.year}-${item.month}`
     return item.id
@@ -203,7 +119,7 @@ export default function SchedulerManagementScreen() {
       <View style={styles.topSection}>
         <Text style={styles.header}>{s.header}</Text>
 
-        {renderStatusCards()}
+        {statusData && <StatusSection statusData={statusData} onPress={handleStatusCardPress} />}
 
         <TouchableOpacity style={styles.runButton} onPress={handleRunMonthly} disabled={isRunning}>
           {isRunning
@@ -238,7 +154,7 @@ export default function SchedulerManagementScreen() {
       <FlatList
         data={listData}
         keyExtractor={keyExtractor}
-        renderItem={renderItem}
+        renderItem={({ item }) => <LogListItem item={item} tab={tab} onPress={handleLogPress} />}
         ListEmptyComponent={<Text style={styles.empty}>{s.empty}</Text>}
         contentContainerStyle={styles.listContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[t.colors.primary]} />}
