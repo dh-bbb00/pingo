@@ -2,8 +2,8 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import { DATE_TAB } from '../types'
-import type { StatsDateTab } from '../types'
+import { DATE_TAB } from '@/api/endpoints/stats.api'
+import type { StatsDateTab } from '@/api/endpoints/stats.api'
 
 const TABS: StatsDateTab[] = [DATE_TAB.DAY, DATE_TAB.MONTH, DATE_TAB.YEAR, DATE_TAB.RANGE]
 

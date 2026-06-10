@@ -1,5 +1,6 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
+import type { BasicResponse } from '@/api/types'
 
 export interface Category {
   id:           string
@@ -33,21 +34,34 @@ export interface CategoryListParams {
   sort:     string
 }
 
+export interface CategoryForm {
+  name:          string
+  budget:        string
+  isFixedBudget: boolean
+  icon:          string
+  color:         string
+}
+
+export type CategorySort =
+  | 'budget_asc' | 'budget_desc'
+  | 'name_asc'   | 'name_desc'
+  | 'date_asc'   | 'date_desc'
+
 export const categoriesApi = {
   getOne: (id: string) =>
-    apiClient.get<{ success: boolean; data: Category }>(endpoints.categories.detail(id)),
+    apiClient.get<BasicResponse<Category>>(endpoints.categories.detail(id)),
 
   getList: (params: CategoryListParams) =>
-    apiClient.get<{ success: boolean; data: Category[]; pagination: CategoryPagination }>(
+    apiClient.get<BasicResponse<Category[]> & { pagination: CategoryPagination }>(
       endpoints.categories.base,
       { params },
     ),
 
   create: (payload: CategoryPayload) =>
-    apiClient.post<{ success: boolean; data: Category }>(endpoints.categories.base, payload),
+    apiClient.post<BasicResponse<Category>>(endpoints.categories.base, payload),
 
   update: (id: string, payload: Partial<CategoryPayload>) =>
-    apiClient.patch<{ success: boolean; data: Category }>(endpoints.categories.detail(id), payload),
+    apiClient.patch<BasicResponse<Category>>(endpoints.categories.detail(id), payload),
 
   delete: (id: string, replaceCategoryId?: string) =>
     apiClient.delete(endpoints.categories.detail(id), {

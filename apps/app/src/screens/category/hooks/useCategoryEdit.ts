@@ -5,7 +5,7 @@ import { categoriesApi } from '@/api/endpoints/categories.api'
 import { handleApiError } from '@/api/errorHandler'
 import { queryKeys } from '@/constants/queryKeys'
 import { strings } from '@/constants/strings'
-import type { CategoryForm } from '../types'
+import type { CategoryForm } from '@/api/endpoints/categories.api'
 
 function toPayload(form: CategoryForm) {
   return {

@@ -13,7 +13,7 @@ import { useHomeSummary } from './hooks/useHomeSummary'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { makeStyles } from './HomeScreen.styles'
 import type { HomeSummaryCategory, HomeSummaryTransaction } from '@/api/endpoints/stats.api'
-import { DATE_TAB } from '@/screens/stats/types'
+import { DATE_TAB } from '@/api/endpoints/stats.api'
 
 type Nav = BottomTabNavigationProp<UserTabParamList, 'Home'>
 

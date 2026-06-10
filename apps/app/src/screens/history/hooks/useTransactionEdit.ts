@@ -5,7 +5,7 @@ import { transactionsApi } from '@/api/endpoints/transactions.api'
 import { handleApiError } from '@/api/errorHandler'
 import { queryKeys } from '@/constants/queryKeys'
 import { strings } from '@/constants/strings'
-import type { TransactionForm } from '../types'
+import type { TransactionForm } from '@/api/endpoints/transactions.api'
 
 const s = strings.transactionEdit
 

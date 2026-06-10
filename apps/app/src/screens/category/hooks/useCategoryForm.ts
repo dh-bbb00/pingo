@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { CategoryForm } from '../types'
+import type { CategoryForm } from '@/api/endpoints/categories.api'
 
 export const DEFAULT_ICON  = '🏷️'
 export const DEFAULT_COLOR = '#5B7BFB'

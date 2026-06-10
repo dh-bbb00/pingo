@@ -1,5 +1,6 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
+import type { BasicResponse, PageResponse } from '@/api/types'
 
 // ─── 타입 ───────────────────────────────────────────
 export type SchedulerLogType   = 'BUDGET_ROLLOVER' | 'FIXED_EXPENSES' | 'INSTALLMENTS'
@@ -36,14 +37,6 @@ export interface RunMonthlyResult {
 export interface RunByTypeResult {
   totalCount:   number
   successCount: number
-}
-
-// ─── API 응답 래퍼 ──────────────────────────────────
-interface BasicResponse<T>  { success: boolean; data: T }
-interface PageResponse<T>   {
-  success: boolean
-  data: T[]
-  pagination: { page: number; pageSize: number; total: number; totalPages: number }
 }
 
 // ─── 쿼리 파라미터 ──────────────────────────────────

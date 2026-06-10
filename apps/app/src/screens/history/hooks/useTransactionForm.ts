@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { TransactionForm } from '../types'
+import type { TransactionForm } from '@/api/endpoints/transactions.api'
 import { startOfDay } from '@/utils/date'
 
 export function useTransactionForm(defaultData?: Partial<TransactionForm>) {

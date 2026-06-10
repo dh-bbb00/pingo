@@ -13,10 +13,10 @@ import CategoryItem from './components/CategoryItem'
 import CategoryItemSkeleton from './components/CategoryItemSkeleton'
 import SortArrowIcon from '@/components/icons/SortArrowIcon'
 import SkeletonBox from '@/components/containers/SkeletonBox'
-import type { CategorySort } from './types'
+import type { CategorySort } from '@/api/endpoints/categories.api'
 import { makeStyles } from './CategoryScreen.styles'
 import { navigationRef } from '@/navigation/navigationRef'
-import { DATE_TAB } from '@/screens/stats/types'
+import { DATE_TAB } from '@/api/endpoints/stats.api'
 
 type Nav = NativeStackNavigationProp<CategoryStackParamList, 'CategoryMain'>
 

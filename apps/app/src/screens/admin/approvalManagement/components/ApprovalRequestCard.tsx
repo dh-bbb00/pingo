@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import type { ApprovalRequest } from '../../types'
+import type { ApprovalRequest } from '@/api/endpoints/approvals.api'
 import type { ApprovalStatus } from '@/api/endpoints/approvals.api'
 import { makeStyles } from '../ApprovalManagementScreen.styles'
 

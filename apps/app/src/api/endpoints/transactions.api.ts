@@ -1,5 +1,6 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
+import type { BasicResponse } from '@/api/types'
 
 export interface TransactionCategory {
   id:    string
@@ -60,21 +61,42 @@ export interface TransactionPayload {
   installmentEndDate?: string | null
 }
 
+export type HistoryDateTab = '일' | '월' | '년'
+
+export interface HistoryFilter {
+  tab:              HistoryDateTab
+  date:             Date
+  isPeriod:         boolean
+  periodEnd:        Date | null
+  categoryIds:      string[]
+  paymentMethodIds: string[]
+}
+
+export interface TransactionForm {
+  amount:            string
+  merchantName:      string
+  categoryId:        string
+  paymentMethodId:   string
+  memo:              string
+  transactionDate:   Date
+  installmentMonths: string
+}
+
 export const transactionsApi = {
   getList: (params: TransactionListParams) =>
-    apiClient.get<{ success: boolean; data: Transaction[]; pagination: TransactionPagination }>(
+    apiClient.get<BasicResponse<Transaction[]> & { pagination: TransactionPagination }>(
       endpoints.transactions.base,
       { params },
     ),
 
   getById: (id: string) =>
-    apiClient.get<{ success: boolean; data: Transaction }>(endpoints.transactions.detail(id)),
+    apiClient.get<BasicResponse<Transaction>>(endpoints.transactions.detail(id)),
 
   create: (payload: TransactionPayload) =>
-    apiClient.post<{ success: boolean; data: Transaction }>(endpoints.transactions.base, payload),
+    apiClient.post<BasicResponse<Transaction>>(endpoints.transactions.base, payload),
 
   update: (id: string, payload: Partial<TransactionPayload>) =>
-    apiClient.patch<{ success: boolean; data: Transaction }>(endpoints.transactions.detail(id), payload),
+    apiClient.patch<BasicResponse<Transaction>>(endpoints.transactions.detail(id), payload),
 
   delete: (id: string) =>
     apiClient.delete(endpoints.transactions.detail(id)),

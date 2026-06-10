@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { showConfirm } from '@/store/confirmStore'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
-import type { AdminUserDetail } from '../../types'
+import type { AdminUserDetail } from '@/api/endpoints/users.api'
 import { useSuspendUser, useUnsuspendUser } from '../hooks/useSuspendUser'
 import { makeStyles } from './UserListItem.styles'
 

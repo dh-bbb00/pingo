@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FixedExpenseForm } from '../types'
+import type { FixedExpenseForm } from '@/api/endpoints/fixedExpenses.api'
 
 export function useFixedExpenseForm(defaultData?: Partial<FixedExpenseForm>) {
   const [form, setForm] = useState<FixedExpenseForm>({

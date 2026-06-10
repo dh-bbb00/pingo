@@ -1,5 +1,6 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
+import type { BasicResponse, ListResponse } from '@/api/types'
 
 export interface HomeSummaryCategory {
   category: { id: string; name: string; icon: string; color: string } | null
@@ -69,22 +70,42 @@ export interface Top10Item {
   paymentMethod: { id: string; name: string; type: string } | null
 }
 
+export type StatsMainTab = 'period' | 'category' | 'paymentMethod'
+export type StatsDateTab = '일' | '월' | '년' | '기간'
+
+export const DATE_TAB = {
+  DAY:   '일',
+  MONTH: '월',
+  YEAR:  '년',
+  RANGE: '기간',
+} as const satisfies Record<string, StatsDateTab>
+
+export interface StatsFilter {
+  mainTab:                 StatsMainTab
+  dateTab:                 StatsDateTab
+  date:                    Date
+  rangeStart:              Date
+  rangeEnd:                Date
+  selectedCategoryId:      string | null
+  selectedPaymentMethodId: string | null
+}
+
 export const statsApi = {
   getHomeSummary: () =>
-    apiClient.get<{ success: boolean; data: HomeSummary }>(endpoints.stats.homeSummary),
+    apiClient.get<BasicResponse<HomeSummary>>(endpoints.stats.homeSummary),
 
   getByCategory: (params: StatsParams) =>
-    apiClient.get<{ success: boolean; data: ByCategoryResult }>(endpoints.stats.byCategory, { params }),
+    apiClient.get<BasicResponse<ByCategoryResult>>(endpoints.stats.byCategory, { params }),
 
   getByDate: (params: StatsParams) =>
-    apiClient.get<{ success: boolean; data: ByDateResult[] }>(endpoints.stats.byDate, { params }),
+    apiClient.get<ListResponse<ByDateResult>>(endpoints.stats.byDate, { params }),
 
   getByMonth: (params: StatsParams) =>
-    apiClient.get<{ success: boolean; data: ByMonthResult[] }>(endpoints.stats.byMonth, { params }),
+    apiClient.get<ListResponse<ByMonthResult>>(endpoints.stats.byMonth, { params }),
 
   getByHour: (params: StatsParams) =>
-    apiClient.get<{ success: boolean; data: ByHourResult[] }>(endpoints.stats.byHour, { params }),
+    apiClient.get<ListResponse<ByHourResult>>(endpoints.stats.byHour, { params }),
 
   getTop10: (params: StatsParams) =>
-    apiClient.get<{ success: boolean; data: Top10Item[] }>(endpoints.stats.top10, { params }),
+    apiClient.get<ListResponse<Top10Item>>(endpoints.stats.top10, { params }),
 }

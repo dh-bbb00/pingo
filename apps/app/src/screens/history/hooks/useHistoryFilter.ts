@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { HistoryDateTab, HistoryFilter } from '../types'
+import type { HistoryDateTab, HistoryFilter } from '@/api/endpoints/transactions.api'
 
 export function useHistoryFilter() {
   const [filter, setFilter] = useState<HistoryFilter>({

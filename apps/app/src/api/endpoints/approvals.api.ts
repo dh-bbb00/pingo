@@ -1,15 +1,14 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
-import type { ApprovalRequest } from '@/screens/admin/types'
+import type { BasicResponse, ListResponse } from '@/api/types'
 
-interface ListResponse<T> {
-  success: boolean
-  data: T[]
-}
-
-interface BasicResponse<T> {
-  success: boolean
-  data: T
+export interface ApprovalRequest {
+  id:        string
+  type:      'NEW_USER' | 'NEW_DEVICE'
+  status:    'PENDING' | 'APPROVED' | 'REJECTED'
+  createdAt: string
+  user:   { id: string; email: string; createdAt: string }
+  device: { deviceName: string; phoneModel: string; osVersion: string; appVersion: string }
 }
 
 export type ApprovalStatus = 'PENDING' | 'REJECTED'

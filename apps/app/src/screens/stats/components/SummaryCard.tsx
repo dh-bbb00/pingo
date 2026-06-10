@@ -6,7 +6,7 @@ import SkeletonBox from '@/components/containers/SkeletonBox'
 
 const s = strings.stats
 
-import type { StatsDateTab } from '../types'
+import type { StatsDateTab } from '@/api/endpoints/stats.api'
 
 const PERIOD_LABEL: Record<StatsDateTab, string> = {
   [s.tabDay]:   s.tabDay,

@@ -1,5 +1,5 @@
-import { DATE_TAB } from './types'
-import type { StatsDateTab } from './types'
+import { DATE_TAB } from '@/api/endpoints/stats.api'
+import type { StatsDateTab } from '@/api/endpoints/stats.api'
 
 export interface DateRange {
   startDate: string

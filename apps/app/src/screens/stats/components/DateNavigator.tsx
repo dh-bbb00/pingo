@@ -1,8 +1,8 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useTheme } from '@/theme'
-import { DATE_TAB } from '../types'
-import type { StatsDateTab } from '../types'
+import { DATE_TAB } from '@/api/endpoints/stats.api'
+import type { StatsDateTab } from '@/api/endpoints/stats.api'
 import { formatDateLabel } from '../utils'
 
 interface Props {

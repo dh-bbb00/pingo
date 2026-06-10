@@ -1,7 +1,7 @@
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query'
 import { categoriesApi } from '@/api/endpoints/categories.api'
 import { queryKeys } from '@/constants/queryKeys'
-import type { CategorySort } from '@/screens/category/types'
+import type { CategorySort } from '@/api/endpoints/categories.api'
 
 const PAGE_SIZE = 20
 

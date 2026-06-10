@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
-import { DATE_TAB } from '../types'
-import type { StatsFilter, StatsMainTab, StatsDateTab } from '../types'
+import { DATE_TAB } from '@/api/endpoints/stats.api'
+import type { StatsFilter, StatsMainTab, StatsDateTab } from '@/api/endpoints/stats.api'
 
 function defaultRangeStart() {
   const d = new Date()

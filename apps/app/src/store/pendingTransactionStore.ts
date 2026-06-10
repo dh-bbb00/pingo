@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { TransactionForm } from '@/screens/history/types'
+import type { TransactionForm } from '@/api/endpoints/transactions.api'
 
 interface PendingTransactionState {
   pendingForm:        TransactionForm | null

@@ -1,11 +1,30 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
-import type { AdminUserDetail } from '@/screens/admin/types'
+import type { BasicResponse, ListResponse, PageResponse } from '@/api/types'
 
-interface PageResponse<T> {
-  success:    boolean
-  data:       T[]
-  pagination: { page: number; pageSize: number; total: number; totalPages: number }
+export interface AdminUser {
+  id:        string
+  email:     string
+  role:      'USER' | 'ADMIN'
+  createdAt: string
+}
+
+export interface AdminUserDevice {
+  id:         string
+  deviceName: string
+  phoneModel: string
+  osVersion:  string
+  appVersion: string
+  isTrusted:  boolean
+  createdAt:  string
+}
+
+export interface AdminUserDetail {
+  id:        string
+  email:     string
+  status:    'APPROVED' | 'SUSPENDED'
+  createdAt: string
+  devices:   AdminUserDevice[]
 }
 
 export interface AdminUsersParams {
@@ -37,13 +56,13 @@ export const usersApi = {
     apiClient.get<PageResponse<AdminUserDetail>>(endpoints.users.base, { params }),
 
   getMe: () =>
-    apiClient.get<{ success: boolean; data: MyInfo }>(endpoints.users.me),
+    apiClient.get<BasicResponse<MyInfo>>(endpoints.users.me),
 
   changePassword: (currentPassword: string, newPassword: string) =>
     apiClient.patch(endpoints.users.password, { currentPassword, newPassword }),
 
   getMyDevices: () =>
-    apiClient.get<{ success: boolean; data: MyDevice[] }>(endpoints.users.myDevices),
+    apiClient.get<ListResponse<MyDevice>>(endpoints.users.myDevices),
 
   deleteDevice: (id: string) =>
     apiClient.delete(endpoints.users.device(id)),

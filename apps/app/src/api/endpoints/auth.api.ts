@@ -1,5 +1,6 @@
 import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
+import type { BasicResponse } from '@/api/types'
 
 export interface LoginPayload {
   email: string
@@ -15,14 +16,20 @@ export interface AuthTokens {
   approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
 }
 
-interface BasicResponse<T> {
-  success: boolean
-  data: T
-  message?: string
-}
-
 interface DeviceInfo {
   deviceUid: string; deviceName: string; phoneModel: string; osVersion: string; appVersion: string
+}
+
+export interface LoginForm {
+  email:     string
+  password:  string
+  saveEmail: boolean
+  autoLogin: boolean
+}
+
+export interface ApprovalRequestForm {
+  username: string
+  password: string
 }
 
 export const authApi = {

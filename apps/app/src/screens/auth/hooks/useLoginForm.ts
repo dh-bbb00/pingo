@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { storage, StorageKeys } from '@/utils/storage'
-import type { LoginForm } from '../types'
+import type { LoginForm } from '@/api/endpoints/auth.api'
 
 export function useLoginForm() {
   const [form, setForm] = useState<LoginForm>({
