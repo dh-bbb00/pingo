@@ -169,6 +169,24 @@ export default function TransactionEditScreen() {
           </View>
         )}
 
+        {/* ── 금액 ── */}
+        <Text style={styles.label}>{s.amountLabel}</Text>
+        <View style={[styles.amountRow, amountError && styles.inputError]}>
+          <TextInput
+            style={styles.amountInput}
+            placeholder={s.amountPlaceholder}
+            placeholderTextColor={theme.colors.text.disabled}
+            value={form.amount.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            onChangeText={(v) => setField('amount', v.replace(/[^0-9]/g, ''))}
+            keyboardType="number-pad"
+            returnKeyType="next"
+          />
+          <Text style={styles.amountUnit}>원</Text>
+        </View>
+        {amountError && <Text style={styles.errorText}>{amountError}</Text>}
+
+        <View style={styles.smallGap} />
+
         {/* ── 할부 (금액 5만원 이상일 때만 활성화) ── */}
         <Text style={styles.label}>{s.installmentLabel}</Text>
         <View style={[styles.installmentRow, !isInstallmentEnabled && styles.installmentDisabled]}>
@@ -190,24 +208,6 @@ export default function TransactionEditScreen() {
             <Text style={styles.installmentUnit}>개월</Text>
           )}
         </View>
-
-        <View style={styles.smallGap} />
-
-        {/* ── 금액 ── */}
-        <Text style={styles.label}>{s.amountLabel}</Text>
-        <View style={[styles.amountRow, amountError && styles.inputError]}>
-          <TextInput
-            style={styles.amountInput}
-            placeholder={s.amountPlaceholder}
-            placeholderTextColor={theme.colors.text.disabled}
-            value={form.amount.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            onChangeText={(v) => setField('amount', v.replace(/[^0-9]/g, ''))}
-            keyboardType="number-pad"
-            returnKeyType="next"
-          />
-          <Text style={styles.amountUnit}>원</Text>
-        </View>
-        {amountError && <Text style={styles.errorText}>{amountError}</Text>}
 
         <View style={styles.gap} />
 
