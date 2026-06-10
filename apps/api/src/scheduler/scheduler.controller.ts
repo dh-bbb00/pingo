@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Param, Query, NotFoundException, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
-import { SchedulerLogType, SchedulerTrigger } from '@prisma/client';
+import { SchedulerLogStatus, SchedulerLogType, SchedulerTrigger } from '@prisma/client';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -97,6 +97,8 @@ export class SchedulerController {
       this.logger.error('할부 납입 수동 실행 실패', (err as Error).stack, 'SchedulerController');
     }
 
+    await this.schedulerLogService.createNextMonthEntries();
+
     const data = {
       budgets:      budgetResult.successCount,
       fixedExpenses: fixedResult.successCount,
@@ -138,6 +140,7 @@ export class SchedulerController {
         type, year, month, triggeredBy: SchedulerTrigger.MANUAL,
         success: true, totalCount: result.totalCount, successCount: result.successCount,
       });
+      await this.schedulerLogService.createNextMonthEntries();
     } catch (err) {
       await this.schedulerLogService.writeLog({
         type, year, month, triggeredBy: SchedulerTrigger.MANUAL,
@@ -157,14 +160,14 @@ export class SchedulerController {
   @ApiQuery({ name: 'page',     required: false, type: Number })
   @ApiQuery({ name: 'pageSize', required: false, type: Number })
   @ApiQuery({ name: 'type',     required: false, enum: SchedulerLogType })
-  @ApiQuery({ name: 'success',  required: false, type: Boolean })
+  @ApiQuery({ name: 'status',   required: false, enum: SchedulerLogStatus })
   @ApiQuery({ name: 'year',     required: false, type: Number })
   @ApiQuery({ name: 'month',    required: false, type: Number })
   async getLogs(
     @Query('page')     page     = '1',
     @Query('pageSize') pageSize = '20',
     @Query('type')     type?:    SchedulerLogType,
-    @Query('success')  success?: string,
+    @Query('status')   status?:  SchedulerLogStatus,
     @Query('year')     year?:    string,
     @Query('month')    month?:   string,
   ): Promise<PageResponse<unknown>> {
@@ -172,7 +175,7 @@ export class SchedulerController {
       page:     Number(page),
       pageSize: Number(pageSize),
       type,
-      success:  success !== undefined ? success === 'true' : undefined,
+      status,
       year:     year  !== undefined ? Number(year)  : undefined,
       month:    month !== undefined ? Number(month) : undefined,
     });

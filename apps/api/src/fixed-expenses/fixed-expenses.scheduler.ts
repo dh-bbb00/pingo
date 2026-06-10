@@ -29,6 +29,7 @@ export class FixedExpensesScheduler {
         triggeredBy: SchedulerTrigger.CRON,
         success: true, totalCount, successCount,
       });
+      await this.schedulerLogService.createNextMonthEntries();
       this.logger.log(`고정 지출 ${successCount}건 생성 완료`, 'FixedExpensesScheduler');
     } catch (err) {
       await this.schedulerLogService.writeLog({

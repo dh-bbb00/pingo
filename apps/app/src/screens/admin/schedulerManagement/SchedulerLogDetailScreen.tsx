@@ -20,7 +20,10 @@ function formatDatetime(iso: string) {
 }
 
 function LogCard({ log, t, styles }: { log: SchedulerLog; t: any; styles: any }) {
-  const isSuccess = log.success
+  const isSuccess  = log.status === 'SUCCESS'
+  const badgeColor = isSuccess ? t.colors.semantic.success : t.colors.semantic.error
+  const badgeLabel = isSuccess ? s.statusCard.success : s.statusCard.failure
+
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -33,25 +36,25 @@ function LogCard({ log, t, styles }: { log: SchedulerLog; t: any; styles: any })
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>{s.detail.status}</Text>
-        <View style={[styles.badge, { backgroundColor: isSuccess ? t.colors.semantic.success : t.colors.semantic.error }]}>
-          <Text style={styles.badgeText}>{isSuccess ? s.statusCard.success : s.statusCard.failure}</Text>
+        <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+          <Text style={styles.badgeText}>{badgeLabel}</Text>
         </View>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>{s.detail.trigger}</Text>
-        <Text style={styles.value}>{s.triggers[log.triggeredBy]}</Text>
+        <Text style={styles.value}>{log.triggeredBy ? s.triggers[log.triggeredBy] : '-'}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>{s.detail.runAt}</Text>
-        <Text style={styles.value}>{formatDatetime(log.runAt)}</Text>
+        <Text style={styles.value}>{log.runAt ? formatDatetime(log.runAt) : '-'}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>{s.detail.totalCount}</Text>
-        <Text style={styles.value}>{`${log.totalCount}건`}</Text>
+        <Text style={styles.value}>{log.totalCount != null ? `${log.totalCount}건` : '-'}</Text>
       </View>
       <View style={[styles.row, !log.error && styles.lastRow]}>
         <Text style={styles.label}>{s.detail.successCount}</Text>
-        <Text style={styles.value}>{`${log.successCount}건`}</Text>
+        <Text style={styles.value}>{log.successCount != null ? `${log.successCount}건` : '-'}</Text>
       </View>
       {log.error && (
         <View style={[styles.row, styles.lastRow, { flexDirection: 'column', alignItems: 'flex-start' }]}>

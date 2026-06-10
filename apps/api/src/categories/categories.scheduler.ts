@@ -29,6 +29,7 @@ export class CategoriesScheduler {
         triggeredBy: SchedulerTrigger.CRON,
         success: true, totalCount, successCount,
       });
+      await this.schedulerLogService.createNextMonthEntries();
       this.logger.log(`예산 자동 이월 ${successCount}건 완료`, 'CategoriesScheduler');
     } catch (err) {
       await this.schedulerLogService.writeLog({

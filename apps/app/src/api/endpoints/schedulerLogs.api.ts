@@ -2,33 +2,27 @@ import { apiClient } from '../client'
 import { endpoints } from '@/constants/endpoints'
 
 // ─── 타입 ───────────────────────────────────────────
-export type SchedulerLogType = 'BUDGET_ROLLOVER' | 'FIXED_EXPENSES' | 'INSTALLMENTS'
-export type SchedulerTrigger = 'CRON' | 'MANUAL'
+export type SchedulerLogType   = 'BUDGET_ROLLOVER' | 'FIXED_EXPENSES' | 'INSTALLMENTS'
+export type SchedulerTrigger   = 'CRON' | 'MANUAL'
+export type SchedulerLogStatus = 'NOT_RUN' | 'SUCCESS' | 'FAILURE'
 
 export interface SchedulerLog {
   id:           string
   type:         SchedulerLogType
   year:         number
   month:        number
-  runAt:        string
-  success:      boolean
-  totalCount:   number
-  successCount: number
+  status:       SchedulerLogStatus
+  runAt:        string | null        // NOT_RUN 상태에서는 null
+  totalCount:   number | null        // NOT_RUN 상태에서는 null
+  successCount: number | null        // NOT_RUN 상태에서는 null
   error:        string | null
-  triggeredBy:  SchedulerTrigger
+  triggeredBy:  SchedulerTrigger | null  // NOT_RUN 상태에서는 null
 }
 
 /** 이번 달 현황 — 타입별 최신 로그 또는 null */
 export interface CurrentMonthStatusItem {
   type: SchedulerLogType
   log:  SchedulerLog | null
-}
-
-/** 미실행 항목 */
-export interface NotRunEntry {
-  type:  SchedulerLogType
-  year:  number
-  month: number
 }
 
 /** 전체 수동 실행 결과 */
@@ -57,7 +51,7 @@ export interface GetLogsParams {
   page?:     number
   pageSize?: number
   type?:     SchedulerLogType
-  success?:  boolean
+  status?:   SchedulerLogStatus
   year?:     number
   month?:    number
 }
@@ -67,7 +61,7 @@ export const schedulerLogsApi = {
   runMonthly: () =>
     apiClient.post<BasicResponse<RunMonthlyResult>>(endpoints.scheduler.runMonthly),
 
-  /** 로그 목록 (페이지네이션) */
+  /** 로그 목록 (페이지네이션) — NOT_RUN은 기본 제외 */
   getLogs: (params?: GetLogsParams) =>
     apiClient.get<PageResponse<SchedulerLog>>(endpoints.scheduler.logs, { params }),
 
@@ -75,9 +69,9 @@ export const schedulerLogsApi = {
   getCurrentMonthStatus: () =>
     apiClient.get<BasicResponse<CurrentMonthStatusItem[]>>(endpoints.scheduler.currentMonth),
 
-  /** 미실행 항목 목록 */
+  /** 미실행(NOT_RUN) 항목 목록 */
   getNotRun: (year?: number, month?: number) =>
-    apiClient.get<BasicResponse<NotRunEntry[]>>(endpoints.scheduler.notRun, {
+    apiClient.get<BasicResponse<SchedulerLog[]>>(endpoints.scheduler.notRun, {
       params: { year, month },
     }),
 

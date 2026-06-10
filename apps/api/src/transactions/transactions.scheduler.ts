@@ -29,6 +29,7 @@ export class TransactionsScheduler {
         triggeredBy: SchedulerTrigger.CRON,
         success: true, totalCount, successCount,
       });
+      await this.schedulerLogService.createNextMonthEntries();
       this.logger.log(`할부 납입 내역 ${successCount}건 생성 완료`, 'TransactionsScheduler');
     } catch (err) {
       await this.schedulerLogService.writeLog({

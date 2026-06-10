@@ -2,6 +2,7 @@ import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from '@tansta
 import Toast from 'react-native-toast-message'
 import {
   schedulerLogsApi,
+  type SchedulerLogStatus,
   type SchedulerLogType,
   type GetLogsParams,
 } from '@/api/endpoints/schedulerLogs.api'
@@ -13,9 +14,9 @@ const PAGE_SIZE = 20
 
 type TabType = 'all' | 'success' | 'failure' | 'notRun'
 
-function tabToSuccessFilter(tab: TabType): boolean | undefined {
-  if (tab === 'success') return true
-  if (tab === 'failure') return false
+function tabToStatusFilter(tab: TabType): SchedulerLogStatus | undefined {
+  if (tab === 'success') return 'SUCCESS'
+  if (tab === 'failure') return 'FAILURE'
   return undefined
 }
 
@@ -36,7 +37,7 @@ export function useSchedulerLogs(tab: TabType, year?: number, month?: number) {
     pageSize: PAGE_SIZE,
     year,
     month,
-    success: tab !== 'notRun' ? tabToSuccessFilter(tab) : undefined,
+    status: tab !== 'notRun' ? tabToStatusFilter(tab) : undefined,
   }
 
   return useInfiniteQuery({
@@ -54,7 +55,7 @@ export function useSchedulerLogs(tab: TabType, year?: number, month?: number) {
   })
 }
 
-/** 미실행 항목 목록 */
+/** 미실행(NOT_RUN) 항목 목록 */
 export function useSchedulerNotRun(year?: number, month?: number) {
   return useQuery({
     queryKey: queryKeys.schedulerLogs.notRun({ year, month }),

@@ -225,21 +225,29 @@ enum SchedulerTrigger {
   MANUAL // 수동 실행 (어드민 API)
 }
 
+enum SchedulerLogStatus {
+  NOT_RUN // 미실행 (다음달 예약 항목)
+  SUCCESS // 성공
+  FAILURE // 실패
+}
+
 /// 스케줄러 실행 로그. 매월 자동/수동 실행 결과를 기록.
+/// NOT_RUN: 스케줄러 정상 실행 후 다음달을 위해 미리 생성되는 예약 항목.
 model SchedulerLog {
-  id           String           @id @default(cuid())
+  id           String              @id @default(cuid())
   type         SchedulerLogType
   year         Int
-  month        Int              // 1-12
-  runAt        DateTime         @default(now())
-  success      Boolean
-  totalCount   Int              // 처리 대상 전체 건수
-  successCount Int              // 실제 생성된 건수
-  error        String?          // 실패 시 에러 메시지
-  triggeredBy  SchedulerTrigger
+  month        Int                 // 1-12
+  status       SchedulerLogStatus  @default(NOT_RUN)
+  runAt        DateTime?           // NOT_RUN 상태에서는 null
+  totalCount   Int?                // 처리 대상 전체 건수 (실행 후 기록)
+  successCount Int?                // 실제 생성된 건수 (실행 후 기록)
+  error        String?             // 실패 시 에러 메시지
+  triggeredBy  SchedulerTrigger?   // NOT_RUN 상태에서는 null
 
   @@index([type, year, month])
   @@index([year, month])
+  @@index([status])
 }
 
 /// 고정 지출 항목. 스케줄러가 매월 1일에 실행되어 isActive 항목의 Transaction을 생성.
