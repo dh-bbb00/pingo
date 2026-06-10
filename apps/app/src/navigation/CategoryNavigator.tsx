@@ -14,6 +14,7 @@ export function CategoryNavigator() {
       headerShown: false,
       headerStyle: { backgroundColor: theme.colors.background },
       headerTintColor: theme.colors.text.primary,
+      contentStyle: { backgroundColor: theme.colors.background },
     }}>
       {categoryRoutes.map(({ name, component, options }) => (
         <Stack.Screen

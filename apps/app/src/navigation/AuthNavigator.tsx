@@ -13,6 +13,7 @@ export function AuthNavigator() {
     <Stack.Navigator screenOptions={{
       headerShown: false,
       headerTintColor: theme.colors.text.primary,
+      contentStyle: { backgroundColor: theme.colors.background },
     }}>
       {authRoutes.map(({ name, component, options }) => (
         <Stack.Screen
