@@ -30,17 +30,28 @@ export default function FixedExpensesScreen() {
   const { refreshing, onRefresh } = usePullToRefresh(refetch)
   const { mutate: updateItem } = useUpdateFixedExpense()
 
+  // confirm 대기 중인 항목 id — 스위치 스냅백 방지를 위해 낙관적으로 OFF 상태 유지
+  const [pendingOff, setPendingOff] = React.useState<Set<string>>(new Set())
+
   function handleToggleActive(item: FixedExpenseDetail) {
     if (item.isActive) {
+      setPendingOff((prev) => new Set(prev).add(item.id))
       showConfirm(se.confirmDisableTitle, se.confirmDisableMsg, [
-        { text: se.confirmDisableCancel, style: 'cancel' },
+        {
+          text: se.confirmDisableCancel,
+          style: 'cancel',
+          onPress: () => setPendingOff((prev) => { const next = new Set(prev); next.delete(item.id); return next }),
+        },
         {
           text: se.confirmDisableOk,
           style: 'destructive',
-          onPress: () => updateItem(
-            { id: item.id, payload: { isActive: false } },
-            { onError: (e) => handleApiError(e) },
-          ),
+          onPress: () => {
+            setPendingOff((prev) => { const next = new Set(prev); next.delete(item.id); return next })
+            updateItem(
+              { id: item.id, payload: { isActive: false } },
+              { onError: (e) => handleApiError(e) },
+            )
+          },
         },
       ])
     } else {
@@ -74,10 +85,10 @@ export default function FixedExpensesScreen() {
           </View>
         </View>
         <Switch
-          value={item.isActive}
+          value={pendingOff.has(item.id) ? false : item.isActive}
           onValueChange={() => handleToggleActive(item)}
           trackColor={{ false: theme.colors.divider, true: theme.colors.primaryLight }}
-          thumbColor={item.isActive ? theme.colors.primary : theme.colors.text.disabled}
+          thumbColor={(pendingOff.has(item.id) ? false : item.isActive) ? theme.colors.primary : theme.colors.text.disabled}
         />
       </TouchableOpacity>
     )
