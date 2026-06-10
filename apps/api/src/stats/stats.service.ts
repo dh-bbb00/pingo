@@ -66,10 +66,12 @@ export class StatsService {
    * startDate/endDate로 범위를 지정하면 해당 기간 내 월별로 집계
    */
   async getByMonth(userId: string, query: StatsQueryDto) {
-    const where = this.buildWhere(userId, query);
-
     // Prisma groupBy는 date_trunc 미지원이므로 raw query 사용
-    const categoryFilter    = query.categoryId     ? Prisma.sql`AND "categoryId" = ${query.categoryId}`         : Prisma.empty;
+    const categoryFilter = query.categoryId
+      ? query.categoryId === 'uncategorized'
+        ? Prisma.sql`AND "categoryId" IS NULL`
+        : Prisma.sql`AND "categoryId" = ${query.categoryId}`
+      : Prisma.empty;
     const paymentFilter     = query.paymentMethodId ? Prisma.sql`AND "paymentMethodId" = ${query.paymentMethodId}` : Prisma.empty;
     const rows = await this.prisma.$queryRaw<{ month: Date; amount: bigint }[]>`
       SELECT date_trunc('month', "transactionDate") AS month,
@@ -95,7 +97,11 @@ export class StatsService {
    * 클라이언트는 이 데이터로 일별 시간대 막대 차트를 구성
    */
   async getByHour(userId: string, query: StatsQueryDto) {
-    const categoryFilter    = query.categoryId      ? Prisma.sql`AND "categoryId" = ${query.categoryId}`           : Prisma.empty;
+    const categoryFilter = query.categoryId
+      ? query.categoryId === 'uncategorized'
+        ? Prisma.sql`AND "categoryId" IS NULL`
+        : Prisma.sql`AND "categoryId" = ${query.categoryId}`
+      : Prisma.empty;
     const paymentFilter     = query.paymentMethodId ? Prisma.sql`AND "paymentMethodId" = ${query.paymentMethodId}` : Prisma.empty;
 
     const rows = await this.prisma.$queryRaw<{ hour: number; amount: bigint }[]>`
@@ -209,9 +215,15 @@ export class StatsService {
   }
 
   private buildWhere(userId: string, query: StatsQueryDto) {
+    const categoryFilter = query.categoryId
+      ? query.categoryId === 'uncategorized'
+        ? { categoryId: null }
+        : { categoryId: query.categoryId }
+      : {};
+
     return {
       userId,
-      ...(query.categoryId      && { categoryId:      query.categoryId }),
+      ...categoryFilter,
       ...(query.paymentMethodId && { paymentMethodId: query.paymentMethodId }),
       transactionDate: {
         gte: new Date(query.startDate),

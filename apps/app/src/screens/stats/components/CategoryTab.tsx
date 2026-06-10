@@ -13,6 +13,8 @@ import { useTheme } from '@/theme'
 
 const s = strings.stats
 
+const UNCATEGORIZED_ID = 'uncategorized'
+
 interface Props {
   dateTab:             StatsDateTab
   date:                Date
@@ -73,6 +75,23 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
             </TouchableOpacity>
           )
         })}
+        {/* 기타 칩 — 카테고리 미지정 거래 모아보기 */}
+        <TouchableOpacity
+          key={UNCATEGORIZED_ID}
+          style={[ss.chip, {
+            backgroundColor: selectedCategoryId === UNCATEGORIZED_ID
+              ? theme.colors.text.secondary
+              : theme.colors.surfaceVariant,
+          }]}
+          onPress={() => onSelectCategory(selectedCategoryId === UNCATEGORIZED_ID ? null : UNCATEGORIZED_ID)}
+          activeOpacity={0.7}
+        >
+          <Text style={[ss.chipText, {
+            color: selectedCategoryId === UNCATEGORIZED_ID ? '#fff' : theme.colors.text.secondary,
+          }]} numberOfLines={1}>
+            {s.other}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {!selectedCategoryId ? (
