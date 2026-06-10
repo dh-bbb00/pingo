@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, Text, TextInput, TouchableOpacity, Switch, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Switch, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useLogin } from './hooks/useLogin'
@@ -26,6 +26,7 @@ export default function LoginScreen() {
   }
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.container}>
       <Text style={styles.title}>{s.title}</Text>
 
@@ -79,5 +80,6 @@ export default function LoginScreen() {
         <Text style={styles.link}>{s.noAccount}</Text>
       </TouchableOpacity>
     </View>
+    </TouchableWithoutFeedback>
   )
 }
