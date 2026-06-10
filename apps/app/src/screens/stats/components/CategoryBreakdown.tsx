@@ -103,6 +103,7 @@ export default function CategoryBreakdown({ total, byCategory, prevByCategory, d
               donut
               radius={DONUT_R}
               innerRadius={DONUT_IR}
+              innerCircleColor={theme.colors.surface}
               centerLabelComponent={() => (
                 <View style={ss.center}>
                   <Text style={[ss.centerAmount, { color: theme.colors.text.primary }]}>

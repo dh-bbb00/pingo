@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import type { NavigationState, PartialState } from '@react-navigation/native'
+import { useTheme } from '@/theme'
 import {
   HomeIcon,
   HistoryIcon,
@@ -11,9 +12,6 @@ import {
   UsersIcon,
   CheckCircleIcon,
 } from '@/components/icons/TabIcons'
-
-const ACTIVE   = '#111827'
-const INACTIVE = '#9CA3AF'
 
 type IconFn = (props: { color: string }) => React.JSX.Element
 
@@ -38,15 +36,24 @@ function isDeepNested(state: NavigationState | PartialState<NavigationState>): b
 const BOTTOM_PADDING = Platform.OS === 'ios' ? 20 : 4
 
 export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { theme } = useTheme()
+
   if (isDeepNested(state)) return null
 
   return (
-    <View style={[styles.container, { paddingBottom: BOTTOM_PADDING }]}>
+    <View style={[
+      styles.container,
+      {
+        paddingBottom: BOTTOM_PADDING,
+        backgroundColor: theme.colors.background,
+        borderTopColor: theme.colors.divider,
+      },
+    ]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key]
         const label = (options.title ?? route.name) as string
         const focused = state.index === index
-        const color = focused ? ACTIVE : INACTIVE
+        const color = focused ? theme.colors.text.primary : theme.colors.text.disabled
         const Icon = ICONS[route.name]
 
         const onPress = () => {
@@ -83,9 +90,7 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
