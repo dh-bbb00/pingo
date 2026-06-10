@@ -16,6 +16,7 @@ import SkeletonBox from '@/components/containers/SkeletonBox'
 import type { CategorySort } from './types'
 import { makeStyles } from './CategoryScreen.styles'
 import { navigationRef } from '@/navigation/navigationRef'
+import { DATE_TAB } from '@/screens/stats/types'
 
 type Nav = NativeStackNavigationProp<CategoryStackParamList, 'CategoryMain'>
 
@@ -113,7 +114,7 @@ export default function CategoryScreen() {
               onStatsPress={() => {
               navigationRef.navigate(Screens.Root.UserTabs, {
                 screen: Screens.UserTab.Stats,
-                params: { initialTab: 'category', categoryId: item.id },
+                params: { initialTab: 'category', categoryId: item.id, dateTab: DATE_TAB.MONTH },
               })
             }}
             />

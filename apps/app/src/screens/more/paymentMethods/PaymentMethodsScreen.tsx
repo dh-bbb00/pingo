@@ -10,6 +10,7 @@ import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import type { PaymentMethod } from '@/api/endpoints/paymentMethods.api'
+import { DATE_TAB } from '@/screens/stats/types'
 import PaymentMethodItem from './components/PaymentMethodItem'
 import PaymentMethodSkeleton from './components/PaymentMethodSkeleton'
 import { makeStyles } from './PaymentMethodsScreen.styles'
@@ -41,7 +42,7 @@ export default function PaymentMethodsScreen() {
   function handleStatsPress(method: PaymentMethod) {
     navigationRef.navigate(Screens.Root.UserTabs, {
       screen: Screens.UserTab.Stats,
-      params: { initialTab: 'paymentMethod', paymentMethodId: method.id },
+      params: { initialTab: 'paymentMethod', paymentMethodId: method.id, dateTab: DATE_TAB.MONTH },
     })
   }
 
