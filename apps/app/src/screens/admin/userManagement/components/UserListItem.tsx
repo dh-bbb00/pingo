@@ -48,7 +48,7 @@ export default function UserListItem({ item, expanded, onToggle }: Props) {
       {expanded && (
         <View style={styles.devices}>
           {item.devices.length === 0 ? (
-            <Text style={styles.noDevice}>등록된 기기 없음</Text>
+            <Text style={styles.noDevice}>{s.noDevice}</Text>
           ) : (
             item.devices.map((d, i) => (
               <View key={d.id} style={styles.deviceRow}>

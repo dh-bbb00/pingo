@@ -457,6 +457,7 @@ export const strings = {
     confirmSuspendMsg:     '해당 유저를 사용 정지하면 즉시 강제 로그아웃 처리됩니다. 계속하시겠습니까?',
     confirmUnsuspendTitle: '정지 해제',
     confirmUnsuspendMsg:   '해당 유저의 정지를 해제하시겠습니까?',
+    noDevice:              '등록된 기기 없음',
   },
 
   userTabs: {
