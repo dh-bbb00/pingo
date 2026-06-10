@@ -53,8 +53,8 @@ export default function LoginScreen() {
           <Switch
             value={form.saveEmail}
             onValueChange={(v) => setField('saveEmail', v)}
-            trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-            thumbColor={theme.colors.text.inverse}
+            trackColor={{ false: theme.colors.divider, true: theme.colors.primaryLight }}
+            thumbColor={form.saveEmail ? theme.colors.primary : theme.colors.text.disabled}
           />
         </View>
         <View style={styles.row}>
@@ -62,8 +62,8 @@ export default function LoginScreen() {
           <Switch
             value={form.autoLogin}
             onValueChange={(v) => setField('autoLogin', v)}
-            trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-            thumbColor={theme.colors.text.inverse}
+            trackColor={{ false: theme.colors.divider, true: theme.colors.primaryLight }}
+            thumbColor={form.autoLogin ? theme.colors.primary : theme.colors.text.disabled}
           />
         </View>
       </View>
