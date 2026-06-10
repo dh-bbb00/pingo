@@ -33,6 +33,15 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
     }
   }, [categories]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const selectedCategory = useMemo(
+    () => categories.find(c => c.id === selectedCategoryId) ?? null,
+    [categories, selectedCategoryId],
+  )
+  // 일/월 탭에서만 예산 진행률 표시 (예산은 월 단위 개념)
+  const budgetForTab = (dateTab === DATE_TAB.DAY || dateTab === DATE_TAB.MONTH)
+    ? (selectedCategory?.budget ?? null)
+    : null
+
   const range     = useMemo(() => selectedCategoryId ? getDateRange(dateTab, date) : null, [dateTab, date, selectedCategoryId])
   const prevRange = useMemo(() => selectedCategoryId ? getDateRange(dateTab, getPrevDate(dateTab, date)) : null, [dateTab, date, selectedCategoryId])
 
@@ -104,6 +113,7 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
             total={catData?.total ?? 0}
             prevTotal={prevCatData?.total ?? 0}
             dateTab={dateTab}
+            budget={budgetForTab}
             isLoading={catLoading}
           />
           {(dateTab === DATE_TAB.MONTH || dateTab === DATE_TAB.YEAR) && (
