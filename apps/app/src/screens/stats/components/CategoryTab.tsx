@@ -6,7 +6,7 @@ import { getDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } fr
 import { DATE_TAB } from '../types'
 import type { StatsDateTab } from '../types'
 import SummaryCard from './SummaryCard'
-import TrendBarChart from './TrendBarChart'
+import TrendBarChart from '@/components/charts/TrendBarChart'
 import TopTransactionList from './TopTransactionList'
 import { strings } from '@/constants/strings'
 import { useTheme } from '@/theme'

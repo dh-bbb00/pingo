@@ -4,7 +4,8 @@ import { PieChart } from 'react-native-gifted-charts'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import type { CategoryStatItem } from '@/api/endpoints/stats.api'
-import type { StatsDateTab } from '../types'
+
+type StatsDateTab = '일' | '월' | '년' | '기간'
 import SkeletonBox from '@/components/containers/SkeletonBox'
 
 const s = strings.stats
