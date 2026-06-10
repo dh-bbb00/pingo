@@ -57,7 +57,9 @@ export default function FixedExpensesScreen() {
         onPress={() => navigation.navigate(Screens.More.FixedExpenseEdit, { id: item.id })}
         activeOpacity={0.7}
       >
-        <View style={[styles.categoryDot, { backgroundColor: item.category.color }]} />
+        <View style={[styles.iconWrap, { backgroundColor: item.category.color }]}>
+          <Text style={styles.iconEmoji}>{item.category.icon}</Text>
+        </View>
         <View style={styles.itemBody}>
           <View style={styles.itemRow}>
             <Text style={styles.itemName} numberOfLines={1}>{item.merchantName}</Text>

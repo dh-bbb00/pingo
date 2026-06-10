@@ -6,12 +6,13 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   header:      { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 },
 
   list:        { paddingBottom: 100 },
-  divider:     { height: 1, backgroundColor: t.colors.divider, marginLeft: 72 },
+  divider:     { height: 1, backgroundColor: t.colors.divider, marginLeft: 66 },
   emptyWrap:   { alignItems: 'center', paddingTop: 80 },
   empty:       { color: t.colors.text.disabled, fontSize: t.fontSize.md },
 
   item:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
-  categoryDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
+  iconWrap:    { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  iconEmoji:   { fontSize: 18 },
   itemBody:    { flex: 1, marginRight: 8 },
   itemRow:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   itemName:    { fontSize: t.fontSize.md, fontWeight: t.fontWeight.medium, color: t.colors.text.primary, flex: 1, marginRight: 8 },

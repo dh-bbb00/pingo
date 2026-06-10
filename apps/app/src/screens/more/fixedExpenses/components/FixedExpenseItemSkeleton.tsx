@@ -5,7 +5,7 @@ import SkeletonBox from '@/components/containers/SkeletonBox'
 export default function FixedExpenseItemSkeleton() {
   return (
     <View style={s.row}>
-      <SkeletonBox width={10} height={10} radius={5} style={s.dot} />
+      <SkeletonBox width={38} height={38} radius={12} style={s.dot} />
       <View style={s.body}>
         <View style={s.topRow}>
           <SkeletonBox width="42%" height={13} radius={4} />
@@ -21,7 +21,7 @@ export default function FixedExpenseItemSkeleton() {
 }
 
 const s = StyleSheet.create({
-  row:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16 },
+  row:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
   dot:       { marginRight: 12 },
   body:      { flex: 1, marginRight: 8 },
   topRow:    { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
