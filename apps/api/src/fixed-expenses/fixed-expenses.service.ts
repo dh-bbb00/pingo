@@ -8,11 +8,13 @@ import { MSG } from '../common/constants/messages';
 export class FixedExpensesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // 목록·단건 조회에서 항상 같은 관계 필드를 포함하도록 상수로 관리
   private readonly INCLUDE = {
     category:      { select: { id: true, name: true, icon: true, color: true } },
     paymentMethod: { select: { id: true, name: true, type: true } },
   } as const;
 
+  /** 고정 지출 목록 조회 — 납부일(dayOfMonth) 오름차순 */
   findAll(userId: string) {
     return this.prisma.fixedExpense.findMany({
       where:   { userId },
@@ -42,6 +44,11 @@ export class FixedExpensesService {
     return this.prisma.fixedExpense.delete({ where: { id } });
   }
 
+  /**
+   * 이번 달 등록 여부 조회
+   * fixedExpenseId 대신 merchantName·amount·categoryId로 매칭하는 이유:
+   * 스케줄러가 생성한 Transaction 외에 사용자가 직접 입력한 동일 내역도 "등록됨"으로 간주하기 위함.
+   */
   async getThisMonthStatus(userId: string, id: string): Promise<{ registered: boolean }> {
     const fe = await this.findOneOrThrow(userId, id);
     const now = new Date();
@@ -59,6 +66,11 @@ export class FixedExpensesService {
     return { registered: !!existing };
   }
 
+  /**
+   * 이번 달 거래 내역 수동 등록
+   * fixedExpenseId 기준으로 중복 체크 — 이미 있으면 기존 내역 반환.
+   * dayOfMonth가 해당 월의 말일을 초과하면 말일로 clamp (예: 31일 → 2월 28일).
+   */
   async registerThisMonthTransaction(userId: string, id: string) {
     const fe = await this.findOneOrThrow(userId, id);
     const now = new Date();
@@ -89,7 +101,13 @@ export class FixedExpensesService {
     });
   }
 
-  /** 매월 1일 스케줄러 호출 — isActive 항목의 Transaction을 해당 월의 dayOfMonth일로 생성 */
+  /**
+   * 매월 1일 스케줄러 호출 — isActive 항목의 Transaction을 해당 월의 dayOfMonth일로 일괄 생성
+   *
+   * targetMonth는 1-based로 받아 내부에서 0-based로 변환한다.
+   * 이미 생성된 항목은 fixedExpenseId 기준으로 스킵하여 중복 방지.
+   * 병렬 처리 대신 순차 처리하는 이유: DB 부하 분산 및 각 항목 실패가 전체에 영향 주지 않도록.
+   */
   async generateMonthlyTransactions(targetYear?: number, targetMonth?: number): Promise<{ totalCount: number; successCount: number }> {
     const now = new Date();
     const year  = targetYear  ?? now.getFullYear();

@@ -11,6 +11,13 @@ import { MSG } from '../common/constants/messages';
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 카테고리 목록 조회 (페이지네이션 + 이번 달 예산 포함)
+   *
+   * budget 정렬은 Prisma orderBy가 관계 집계를 지원하지 않아
+   * 전체를 메모리에 올린 뒤 애플리케이션 레이어에서 정렬한다.
+   * 그 외 정렬(이름·날짜)은 DB 쿼리에서 직접 처리한다.
+   */
   async findAll(userId: string, query: GetCategoriesQueryDto) {
     const { page, pageSize, sort } = query;
     const { year, month } = this.currentYearMonth();
@@ -32,6 +39,7 @@ export class CategoriesService {
         monthlyBudgets: undefined,
       }));
 
+      // 예산 미설정 항목은 오름차순 시 맨 뒤, 내림차순 시 맨 앞으로 배치
       mapped.sort((a, b) => {
         const aVal = a.budget ?? (sort === 'budget_asc' ? Infinity : -Infinity);
         const bVal = b.budget ?? (sort === 'budget_asc' ? Infinity : -Infinity);
@@ -52,6 +60,7 @@ export class CategoriesService {
       };
     }
 
+    // budget 외 정렬: DB 쿼리 + count + 전체 예산 합계를 병렬 조회
     const orderBy = this.buildOrderBy(sort);
     const [rawData, total, budgetAgg] = await Promise.all([
       this.prisma.category.findMany({
@@ -68,6 +77,7 @@ export class CategoriesService {
       }),
     ]);
 
+    // monthlyBudgets 관계 필드를 제거하고 budget 스칼라로 평탄화
     const data = rawData.map((c) => ({
       ...c,
       budget: c.monthlyBudgets[0]?.budget ?? null,
@@ -84,6 +94,7 @@ export class CategoriesService {
     };
   }
 
+  /** 카테고리 단건 조회 (이번 달 예산 포함) */
   async findOne(userId: string, id: string) {
     const { year, month } = this.currentYearMonth();
     const category = await this.prisma.category.findFirst({
@@ -96,6 +107,10 @@ export class CategoriesService {
     return { ...rest, budget: monthlyBudgets[0]?.budget ?? null };
   }
 
+  /**
+   * 카테고리 생성
+   * budget이 함께 전달되면 이번 달 예산도 같이 등록한다.
+   */
   async create(userId: string, dto: CreateCategoryDto) {
     const { budget, ...categoryData } = dto;
     const category = await this.prisma.category.create({
@@ -109,6 +124,12 @@ export class CategoriesService {
     return { ...category, budget: budget ?? null };
   }
 
+  /**
+   * 카테고리 수정
+   * budget=null → 이번 달 예산 삭제
+   * budget=숫자 → 이번 달 예산 upsert
+   * budget=undefined(미전달) → 예산 변경 없음
+   */
   async update(userId: string, id: string, dto: UpdateCategoryDto) {
     await this.findOneOrThrow(userId, id);
     const { budget, ...categoryData } = dto;
@@ -134,6 +155,11 @@ export class CategoriesService {
     return { ...category, budget: monthlyBudget?.budget ?? null };
   }
 
+  /**
+   * 카테고리 삭제
+   * replaceCategoryId가 있으면 해당 카테고리로 거래 내역을 이전한 뒤 삭제.
+   * 없으면 스키마의 onDelete: SetNull이 거래 내역의 categoryId를 null로 처리한다.
+   */
   async remove(userId: string, id: string, dto: DeleteCategoryDto) {
     await this.findOneOrThrow(userId, id);
 
@@ -179,6 +205,7 @@ export class CategoriesService {
     return { totalCount: prevBudgets.length, successCount: prevBudgets.length };
   }
 
+  /** 이번 달 예산 upsert — create/update 공통 처리 */
   private async upsertCurrentBudget(categoryId: string, budget: number) {
     const { year, month } = this.currentYearMonth();
     return this.prisma.categoryMonthlyBudget.upsert({
@@ -188,6 +215,7 @@ export class CategoriesService {
     });
   }
 
+  /** 이번 달 예산 삭제 (budget=null 전달 시 호출) */
   private async deleteCurrentBudget(categoryId: string) {
     const { year, month } = this.currentYearMonth();
     await this.prisma.categoryMonthlyBudget.deleteMany({
@@ -195,6 +223,7 @@ export class CategoriesService {
     });
   }
 
+  /** budget 정렬 이외의 정렬 기준을 Prisma orderBy 형태로 변환 */
   private buildOrderBy(sort: CategorySortValue): Prisma.CategoryOrderByWithRelationInput | Prisma.CategoryOrderByWithRelationInput[] {
     switch (sort) {
       case 'name_asc':  return { name: 'asc' };
@@ -210,6 +239,7 @@ export class CategoriesService {
     return { year: now.getFullYear(), month: now.getMonth() + 1 };
   }
 
+  /** 존재하지 않으면 404, 반환값은 이후 로직에서 소유권 확인에 활용 */
   private async findOneOrThrow(userId: string, id: string) {
     const category = await this.prisma.category.findFirst({ where: { id, userId } });
     if (!category) throw new NotFoundException(MSG.common.notFound);

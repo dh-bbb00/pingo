@@ -69,6 +69,7 @@ export class TransactionsService {
     return tx;
   }
 
+  /** transactionDate는 ISO 문자열로 받아 Date로 변환해서 저장 */
   create(userId: string, dto: CreateTransactionDto) {
     return this.prisma.transaction.create({
       data: { ...dto, userId, transactionDate: new Date(dto.transactionDate) },
@@ -79,6 +80,12 @@ export class TransactionsService {
     });
   }
 
+  /**
+   * 거래 수정
+   * transactionDate는 미전달 시 기존 값 유지, 전달 시 Date로 변환.
+   * update 후 반환값에 category·paymentMethod가 포함되지 않으므로
+   * 클라이언트는 필요 시 단건 조회로 후속 요청해야 한다.
+   */
   async update(userId: string, id: string, dto: UpdateTransactionDto) {
     await this.findOneOrThrow(userId, id);
     return this.prisma.transaction.update({
@@ -104,7 +111,7 @@ export class TransactionsService {
     const monthStart = new Date(year, month, 1);
     const monthEnd   = new Date(year, month + 1, 0, 23, 59, 59, 999);
 
-    // 원거래인 할부 내역: originalTransactionId 없고, installmentEndDate가 이번달 이후
+    // 원거래: originalTransactionId가 없고 installmentEndDate가 이번 달 이후인 항목
     const installments = await this.prisma.transaction.findMany({
       where: {
         installmentMonths:     { not: null },
@@ -116,7 +123,7 @@ export class TransactionsService {
     const results: Awaited<ReturnType<typeof this.prisma.transaction.create>>[] = [];
 
     for (const tx of installments) {
-      // 이번달에 이미 생성된 자식 내역이 있으면 스킵 (중복 방지)
+      // originalTransactionId 기준으로 중복 체크 — 이미 이번 달 자식 내역이 있으면 스킵
       const existing = await this.prisma.transaction.findFirst({
         where: {
           originalTransactionId: tx.id,
@@ -125,7 +132,8 @@ export class TransactionsService {
       });
       if (existing) continue;
 
-      // 월 납입금: (원금 - 첫달 납입액) / (할부개월수 - 1)
+      // 월 납입금 = (총금액 - 첫달 납입액) / (할부개월수 - 1)
+      // 첫달(원거래)에 잔여 금액을 나눈 값으로, 소수점은 반올림
       const monthlyAmount = Math.round(
         ((tx.totalAmount ?? tx.amount) - tx.amount) / ((tx.installmentMonths ?? 2) - 1),
       );

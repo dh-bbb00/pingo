@@ -10,7 +10,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 import { AuthModule } from './auth/auth.module';
 import { ApprovalsModule } from './approvals/approvals.module';
-import { DevicesModule } from './devices/devices.module';
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TransactionsModule } from './transactions/transactions.module';
@@ -28,7 +27,6 @@ import { HealthController } from './health/health.controller';
     LoggerModule,
     AuthModule,
     ApprovalsModule,
-    DevicesModule,
     UsersModule,
     CategoriesModule,
     TransactionsModule,
