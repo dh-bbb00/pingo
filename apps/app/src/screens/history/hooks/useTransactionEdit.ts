@@ -9,7 +9,7 @@ import type { TransactionForm } from '@/api/endpoints/transactions.api'
 
 const s = strings.transactionEdit
 
-function toPayload(form: TransactionForm) {
+export function toPayload(form: TransactionForm) {
   const months       = parseInt(form.installmentMonths || '0', 10)
   const isInstallment = months >= 2
   const total        = Number(form.amount)
@@ -57,7 +57,7 @@ function invalidateAll(queryClient: ReturnType<typeof useQueryClient>) {
   ])
 }
 
-export function useCreateTransaction() {
+export function useCreateTransaction(onSuccessOverride?: () => void) {
   const queryClient = useQueryClient()
   const navigation  = useNavigation()
 
@@ -65,8 +65,12 @@ export function useCreateTransaction() {
     mutationFn: (form: TransactionForm) => transactionsApi.create(toPayload(form)),
     onSuccess: async () => {
       await invalidateAll(queryClient)
-      navigation.goBack()
       Toast.show({ type: 'success', text1: s.successCreate })
+      if (onSuccessOverride) {
+        onSuccessOverride()
+      } else {
+        navigation.goBack()
+      }
     },
     onError: (error) => handleApiError(error),
   })

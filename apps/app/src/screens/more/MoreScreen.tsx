@@ -14,10 +14,10 @@ type Nav = NativeStackNavigationProp<MoreStackParamList, 'MoreMain'>
 const s = strings.more
 
 const MENU_ITEMS: { label: string; screen: keyof MoreStackParamList }[] = [
-  { label: s.fixedExpenses,   screen: Screens.More.FixedExpenses },
-  { label: s.paymentMethods,  screen: Screens.More.PaymentMethods },
-  { label: s.myInfo,          screen: Screens.More.MyInfo },
-  { label: s.notificationLog, screen: Screens.More.NotificationLog },
+  { label: s.fixedExpenses,        screen: Screens.More.FixedExpenses },
+  { label: s.paymentMethods,       screen: Screens.More.PaymentMethods },
+  { label: s.myInfo,               screen: Screens.More.MyInfo },
+  { label: s.pendingNotifications, screen: Screens.More.PendingNotifications },
 ]
 
 export default function MoreScreen() {

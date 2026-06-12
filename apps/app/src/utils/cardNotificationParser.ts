@@ -13,8 +13,10 @@ export interface ParsedCardNotification {
 /**
  * 카드 승인 알림 여부 판별
  * title에 (4자리숫자)승인 패턴이 핵심 식별자 — 카드사명에 '카드' 없어도 동작
+ * 취소/거절 알림은 제외
  */
 export function isCardUsageNotification(title: string, text: string): boolean {
+  if (/취소|거절/.test(title)) return false
   return /\(\d{4}\)\s*승인/.test(title) && /[\d,]+원/.test(text)
 }
 

@@ -47,6 +47,7 @@ export interface TransactionListParams {
   endDate?:          string
   categoryIds?:      string[]
   paymentMethodIds?: string[]
+  merchantName?:     string
 }
 
 export interface TransactionPayload {

@@ -8,7 +8,7 @@ import { name as appName } from './app.json';
 import { RNAndroidNotificationListenerHeadlessJsName } from 'react-native-android-notification-listener';
 import notifee from '@notifee/react-native';
 import { saveDetectedNotification } from './src/store/notificationLogStore';
-import { setupNotificationChannel, displayDetectedNotification } from './src/utils/notification';
+import { setupNotificationChannel, displayDetectedNotification, schedulePendingReminder } from './src/utils/notification';
 import { isCardUsageNotification } from './src/utils/cardNotificationParser';
 
 AppRegistry.registerComponent(appName, () => App);
@@ -25,12 +25,8 @@ AppRegistry.registerHeadlessTask(
     const title = String(notification.title ?? '');
     const text  = String(notification.text  ?? '');
 
-    // 자기 앱 알림 무시 — 패키지명·앱명·제목 체크 (무한 루프 방지)
-    if (
-      app.includes('com.pingo') ||
-      app === 'Pingo'            ||
-      title.includes('Pingo 알림감지')
-    ) return;
+    // 자기 앱 알림 무시 — 패키지명·앱명 체크 (무한 루프 방지)
+    if (app.includes('com.pingo') || app === 'Pingo') return;
 
     // 불필요한 알림 제외
     if (title.includes('95%') || text.includes('95%')) return;
@@ -39,10 +35,12 @@ AppRegistry.registerHeadlessTask(
     if (!isCardUsageNotification(title, text)) return;
 
     await setupNotificationChannel();
-    saveDetectedNotification(notification);
+    const notificationId = saveDetectedNotification(notification);
+    await schedulePendingReminder(notificationId);
     await displayDetectedNotification(
       app || '알 수 없음',
       String(notification.text ?? ''),
+      notificationId,
     );
   },
 );
@@ -50,7 +48,7 @@ AppRegistry.registerHeadlessTask(
 // notifee 백그라운드 이벤트 — 알림 탭 시 처리 (앱이 백그라운드일 때)
 notifee.onBackgroundEvent(async ({ type, detail }) => {
   const { EventType } = await import('@notifee/react-native');
-  if (type === EventType.PRESS && detail.pressAction?.id === 'notification-log') {
+  if (type === EventType.PRESS && detail.pressAction?.id === 'pending-notifications') {
     // 백그라운드 탭은 앱 실행 후 getInitialNotification으로 처리
   }
 });

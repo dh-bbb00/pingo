@@ -474,3 +474,223 @@ DATABASE_URL=postgresql://pingo:password@localhost:5432/pingo
 pnpm은 기본적으로 패키지를 symlink 구조로 격리해서 설치한다. 이 구조에서는 VS Code 등 IDE의 TypeScript 서버가 symlink를 따라가지 못해 `@prisma/client`, `@prisma/adapter-pg` 같은 패키지를 찾지 못하고 `TS2307` 에러가 발생한다.
 
 `shamefully-hoist=true`를 설정하면 모든 패키지를 루트 `node_modules`에 flat하게 설치해 IDE가 정상적으로 타입을 인식한다. 빌드 및 런타임 동작에는 영향 없음.
+
+---
+
+## 카드 결제 알림 감지 및 등록 플로우 (FE)
+
+카드사 앱에서 결제 승인 알림이 오면 Pingo가 이를 감지해 자동으로 지출 내역 등록 화면으로 안내하는 플로우다.
+
+### 전체 흐름 요약
+
+```
+카드사 앱 알림 수신
+  └─ HeadlessTask (index.js)
+       ├─ isCardUsageNotification() — 카드 승인 알림인지 판별
+       ├─ saveDetectedNotification() — MMKV에 저장, notificationId 반환
+       ├─ schedulePendingReminder() — 3일 뒤 예약 알림 등록 (AlarmManager)
+       └─ displayDetectedNotification() — 즉시 알림 표시 (data에 notificationId 포함)
+
+사용자가 알림 탭
+  ├─ [포그라운드] onForegroundEvent (App.tsx)
+  ├─ [백그라운드] onBackgroundEvent → getInitialNotification (App.tsx)
+  └─ [Killed] getInitialNotification → MMKV에 notificationId 저장
+       └─ 인증 완료 후 SplashScreen.tsx / useLogin.tsx 에서 꺼내 이동
+
+TransactionEditScreen (notificationId 파라미터)
+  ├─ 스토어에서 알림 데이터 읽어 폼 자동 세팅
+  ├─ 원문 텍스트 상단 배너로 표시
+  ├─ useCategoryRecommendation() — 가맹점명 기반 추천 카테고리 적용
+  └─ 등록 완료
+       ├─ markAsRegistered() — MMKV에서 해당 알림 삭제 + 예약 알림 취소
+       ├─ 미등록 알림 남아있으면 → "다음 내역 등록" 컨펌
+       │    ├─ 등록 → 다음 TransactionEditScreen으로 replace
+       │    └─ 나중에 → PendingNotificationsScreen (미등록 목록)
+       └─ 미등록 알림 없으면 → PendingNotificationsScreen (빈 목록)
+```
+
+---
+
+### 1단계 — 알림 감지 및 저장
+
+**파일: `apps/app/index.js`**
+
+`react-native-android-notification-listener`가 등록한 HeadlessTask. 기기에 알림이 수신될 때마다 앱 상태(포그라운드/백그라운드/종료)와 무관하게 호출된다.
+
+- **`isCardUsageNotification(title, text)`** (`utils/cardNotificationParser.ts`)  
+  제목에 `(1234) 승인` 패턴, 본문에 금액 패턴이 있으면 카드 승인 알림으로 판별.  
+  제목에 `취소` 또는 `거절`이 포함된 알림은 제외한다.
+
+- **`saveDetectedNotification(notification)`** (`store/notificationLogStore.ts`)  
+  알림 데이터를 MMKV에 저장하고 고유 `notificationId`를 반환한다.  
+  id 형식: `` `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` ``  
+  저장 포맷:
+  ```ts
+  {
+    id:    string   // 고유 식별자
+    app:   string   // 발신 앱 패키지명
+    title: string   // 알림 제목
+    text:  string   // 알림 본문
+    time:  string   // 감지 시각 (ms 문자열)
+    raw:   string   // 원본 JSON 문자열
+  }
+  ```
+
+- **`schedulePendingReminder(notificationId)`** (`utils/notification.ts`)  
+  Notifee `TimestampTrigger`로 3일 뒤 예약 알림을 등록한다.  
+  내부적으로 Android AlarmManager를 사용하므로 앱이 완전히 종료된 상태에서도 OS가 직접 발송한다.  
+  예약 알림 id는 `` `pending-reminder-${notificationId}` `` 형태로 저장해 나중에 정확히 취소할 수 있게 한다.
+
+- **`displayDetectedNotification(app, text, notificationId)`** (`utils/notification.ts`)  
+  즉시 알림을 표시한다. Notifee notification의 `data.notificationId`에 id를 실어서  
+  탭 시 App.tsx가 어떤 알림인지 식별하고 바로 등록 화면으로 이동할 수 있게 한다.
+
+---
+
+### 2단계 — 알림 탭 → 등록 화면 이동
+
+**파일: `apps/app/App.tsx`**
+
+앱 상태별로 세 가지 경로로 처리된다.
+
+#### 포그라운드 (앱이 열린 상태)
+
+```ts
+notifee.onForegroundEvent(({ type, detail }) => {
+  if (type === EventType.PRESS && detail.pressAction?.id === 'pending-notifications') {
+    const notificationId = detail.notification?.data?.notificationId
+    if (notificationId) navigateToTransactionEdit(notificationId)
+  }
+})
+```
+
+`navigateToTransactionEdit()`는 `navigationRef`를 사용해 History 탭의 TransactionEditScreen으로 크로스탭 이동한다.
+
+#### 백그라운드 (앱이 실행 중이나 화면에 없는 상태)
+
+`notifee.onBackgroundEvent`가 탭 이벤트를 수신하면 앱이 포그라운드로 전환된다.  
+전환 직후 `getInitialNotification()`이 이를 잡아 포그라운드와 동일하게 처리한다.
+
+#### Killed (앱이 완전히 종료된 상태)
+
+```ts
+const initial = await notifee.getInitialNotification()
+if (initial?.pressAction?.id === 'pending-notifications') {
+  const notificationId = initial.notification?.data?.notificationId
+  storage.set(StorageKeys.PENDING_DEEPLINK, notificationId ?? '')
+}
+```
+
+앱이 종료 상태에서 알림을 탭하면 앱이 새로 실행되고 인증 흐름이 먼저 진행된다.  
+`notificationId`를 MMKV(`StorageKeys.PENDING_DEEPLINK`)에 저장해두고, 인증 완료 시점에 꺼내서 이동한다.
+
+- **이미 로그인된 상태** → `SplashScreen.tsx`에서 자동 로그인 완료 후 처리
+- **로그인 필요한 상태** → `useLogin.tsx`의 `onSuccess`에서 처리
+
+두 곳 모두 동일한 로직:
+```ts
+const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
+if (pendingNotificationId) {
+  storage.remove(StorageKeys.PENDING_DEEPLINK)
+  navigation.replace(Screens.Root.UserTabs, {
+    screen: Screens.UserTab.History,
+    params: { screen: Screens.History.TransactionEdit, params: { notificationId: pendingNotificationId } },
+  })
+}
+```
+
+---
+
+### 3단계 — TransactionEditScreen 데이터 세팅
+
+**파일: `apps/app/src/screens/history/TransactionEditScreen.tsx`**
+
+`route.params.notificationId`가 있으면 알림 플로우임을 인식하고 추가 동작을 수행한다.
+
+#### 폼 자동 세팅
+
+`paymentMethods` 목록이 로드된 후 1회 실행(`notifInitialized` ref로 중복 방지):
+
+1. `useNotificationLogStore.getState().notifications`에서 `notificationId`로 알림 데이터를 찾는다.
+2. **`parseCardNotification(title, text)`** (`utils/cardNotificationParser.ts`)로 가맹점명, 금액, 날짜, 카드사, 끝 4자리, 할부 여부를 파싱한다.
+3. 파싱 결과로 폼 필드(금액, 가맹점명, 날짜, 할부개월)를 세팅한다.
+4. 카드사 + 끝 4자리를 `paymentMethods` 목록과 비교해 결제수단을 자동 매칭한다.
+5. 원본 알림 텍스트를 `notificationText` 상태에 저장 → 화면 최상단 배너로 표시한다.
+
+#### 추천 카테고리
+
+**`useCategoryRecommendation(merchantName)`** (`screens/history/hooks/useCategoryRecommendation.ts`):
+
+- 같은 가맹점명으로 등록된 최근 10건의 내역을 조회한다.
+- `categoryId`별 등록 횟수를 집계해 가장 많이 쓴 카테고리 1개를 반환한다.
+- 폼의 `categoryId`가 비어있을 때만 자동 적용하며, 적용 시 초록색 "추천 카테고리" 배지를 표시한다.
+- 사용자가 카테고리를 직접 변경하면 배지는 사라진다.
+
+---
+
+### 4단계 — 등록 완료 후 흐름
+
+**파일: `apps/app/src/screens/history/TransactionEditScreen.tsx` — `handleAfterNotificationCreate()`**
+
+알림 플로우(`notificationId` 있을 때)에서만 `useCreateTransaction`의 성공 콜백으로 호출된다.
+
+```
+등록 완료
+  └─ markAsRegistered(notificationId)
+       ├─ MMKV에서 해당 알림 데이터 삭제
+       └─ cancelPendingReminder(notificationId) — 예약된 3일 알림 취소
+
+  └─ store.notifications 에서 남은 미등록 알림 확인
+       ├─ 남아있음 → Alert "다음 미등록 내역도 등록하시겠습니까?"
+       │    ├─ "등록" → navigation.replace(TransactionEdit, { notificationId: 다음 id })
+       │    └─ "나중에" → PendingNotificationsScreen (미등록 목록)
+       └─ 없음 → PendingNotificationsScreen (빈 목록)
+```
+
+`navigation.replace`를 사용하는 이유: 뒤로가기 스택에 이전 등록 화면이 쌓이지 않게 하기 위함.
+
+---
+
+### 5단계 — 미등록 알림 목록 (PendingNotificationsScreen)
+
+**파일: `apps/app/src/screens/more/pendingNotifications/PendingNotificationsScreen.tsx`**
+
+More 탭 메뉴에서 직접 진입하거나 등록 완료 후 자동으로 이동되는 화면.  
+`notificationLogStore`의 `notifications` 배열을 그대로 표시한다 — 등록된 항목은 즉시 삭제되므로 리스트에는 미등록 건만 남는다.
+
+- **파싱 가능한 알림**: 가맹점명/금액/결제유형/카드/날짜를 파싱해 구조화된 카드로 표시. "등록" 버튼으로 해당 TransactionEditScreen으로 이동.
+- **파싱 불가능한 알림**: 원본 텍스트만 표시. 등록 버튼 없음 (필수 정보 부재).
+- **3일 이상 미등록**: 카드 상단에 강조 배지 표시.
+- **일괄 등록**: 파싱 가능한 알림을 모두 `기타(미분류)` 카테고리로 일괄 등록. 실패 건은 목록에 유지.
+- **만료 안내 배너**: 목록이 비어있지 않을 때 "7일 후 자동 삭제" 안내 표시.
+
+---
+
+### 데이터 생명주기
+
+| 이벤트 | 시점 | 처리 |
+|--------|------|------|
+| 알림 저장 | 감지 즉시 | MMKV에 추가, 3일 뒤 예약 알림 등록 |
+| 7일 만료 삭제 | 앱 실행 시 `load()` 호출 | `filterExpired()`가 7일 지난 항목 일괄 제거 |
+| 3일 미등록 알림 | AlarmManager가 직접 발송 | 앱 종료 상태에서도 동작 |
+| 등록 완료 | 등록 즉시 | MMKV에서 즉시 삭제, 예약 알림 취소 |
+
+7일 만료 정리는 별도 백그라운드 작업 없이 앱 실행 시점(`load()`)에만 실행된다.  
+평소 미등록 상태로 7일을 넘기는 경우는 드물고, 앱을 켤 때 정리해도 충분하기 때문이다.
+
+---
+
+### 관련 파일 목록
+
+| 파일 | 역할 |
+|------|------|
+| `apps/app/index.js` | HeadlessTask — 알림 감지, 저장, 예약 알림 등록 |
+| `apps/app/App.tsx` | 포그라운드/Killed 알림 탭 처리 → TransactionEdit 이동 |
+| `utils/cardNotificationParser.ts` | 카드 승인 알림 판별 + 데이터 파싱 |
+| `utils/notification.ts` | 알림 채널 설정, 즉시 알림 표시, 예약 알림 등록/취소 |
+| `store/notificationLogStore.ts` | MMKV 기반 미등록 알림 스토어 (저장/삭제/만료 처리) |
+| `screens/history/TransactionEditScreen.tsx` | 알림 데이터 세팅, 추천 카테고리, 등록 완료 후 다음 알림 처리 |
+| `screens/history/hooks/useCategoryRecommendation.ts` | 가맹점명 기반 추천 카테고리 쿼리 |
+| `screens/more/pendingNotifications/PendingNotificationsScreen.tsx` | 미등록 알림 목록, 개별/일괄 등록 |
+| `screens/splash/SplashScreen.tsx` | Killed 상태 딥링크 처리 (자동 로그인 경로) |
+| `screens/auth/hooks/useLogin.tsx` | Killed 상태 딥링크 처리 (수동 로그인 경로) |

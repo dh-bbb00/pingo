@@ -28,12 +28,15 @@ export function useLogin() {
       if (role === 'ADMIN') {
         navigationRef.navigate(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
       } else {
-        const pending = storage.getString(StorageKeys.PENDING_DEEPLINK)
-        if (pending === 'NotificationLog') {
+        const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
+        if (pendingNotificationId) {
           storage.remove(StorageKeys.PENDING_DEEPLINK)
           navigationRef.navigate(Screens.Root.UserTabs, {
-            screen: Screens.UserTab.More,
-            params: { screen: Screens.More.NotificationLog },
+            screen: Screens.UserTab.History,
+            params: {
+              screen: Screens.History.TransactionEdit,
+              params: { notificationId: pendingNotificationId },
+            },
           } as any)
         } else {
           navigationRef.navigate(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })

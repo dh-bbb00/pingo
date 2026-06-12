@@ -23,7 +23,7 @@ import CategoryScreen           from '@/screens/category/CategoryScreen'
 import CategoryEditScreen       from '@/screens/category/CategoryEditScreen'
 
 import MoreScreen                  from '@/screens/more/MoreScreen'
-import NotificationLogScreen       from '@/screens/more/notificationLog/NotificationLogScreen'
+import PendingNotificationsScreen  from '@/screens/more/pendingNotifications/PendingNotificationsScreen'
 import FixedExpensesScreen         from '@/screens/more/fixedExpenses/FixedExpensesScreen'
 import FixedExpenseEditScreen      from '@/screens/more/fixedExpenses/FixedExpenseEditScreen'
 import PaymentMethodsScreen        from '@/screens/more/paymentMethods/PaymentMethodsScreen'
@@ -104,7 +104,7 @@ export const moreRoutes: StackRoute[] = [
   { name: 'PaymentMethodEdit', component: PaymentMethodEditScreen,  options: backHeader },
   { name: 'MyInfo',             component: MyInfoScreen,             options: backHeader },
   { name: 'PasswordChange',     component: PasswordChangeScreen,     options: backHeader },
-  { name: 'NotificationLog',    component: NotificationLogScreen,    options: backHeader },
+  { name: 'PendingNotifications', component: PendingNotificationsScreen, options: backHeader },
 ]
 
 export const userTabRoutes: TabRoute[] = [

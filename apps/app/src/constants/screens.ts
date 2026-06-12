@@ -57,13 +57,13 @@ export const Screens = {
   } satisfies Record<string, keyof CategoryStackParamList>,
 
   More: {
-    MoreMain:           'MoreMain',
-    FixedExpenses:      'FixedExpenses',
-    FixedExpenseEdit:   'FixedExpenseEdit',
-    PaymentMethods:     'PaymentMethods',
-    PaymentMethodEdit:  'PaymentMethodEdit',
-    MyInfo:             'MyInfo',
-    PasswordChange:     'PasswordChange',
-    NotificationLog:    'NotificationLog',
+    MoreMain:              'MoreMain',
+    FixedExpenses:         'FixedExpenses',
+    FixedExpenseEdit:      'FixedExpenseEdit',
+    PaymentMethods:        'PaymentMethods',
+    PaymentMethodEdit:     'PaymentMethodEdit',
+    MyInfo:                'MyInfo',
+    PasswordChange:        'PasswordChange',
+    PendingNotifications:  'PendingNotifications',
   } satisfies Record<string, keyof MoreStackParamList>,
 } as const

@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native'
-import { useRoute } from '@react-navigation/native'
+import { useRoute, useNavigation } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { HistoryStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
@@ -18,6 +19,7 @@ import {
   useDeleteTransaction,
 } from './hooks/useTransactionEdit'
 import { useCategoryById } from '@/screens/category/hooks/useCategoryById'
+import { useCategoryRecommendation } from './hooks/useCategoryRecommendation'
 import CategoryPickerModal from './components/CategoryPickerModal'
 import PaymentMethodPickerModal from './components/PaymentMethodPickerModal'
 import DateNavigator from '@/components/DateNavigator'
@@ -25,22 +27,27 @@ import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
 import { navigationRef } from '@/navigation/navigationRef'
 import { Screens } from '@/constants/screens'
 import { makeStyles } from './TransactionEditScreen.styles'
+import { useNotificationLogStore } from '@/store/notificationLogStore'
+import { parseCardNotification } from '@/utils/cardNotificationParser'
 
 type Route = RouteProp<HistoryStackParamList, 'TransactionEdit'>
+type Nav   = NativeStackNavigationProp<HistoryStackParamList, 'TransactionEdit'>
 
-const s = strings.transactionEdit
+const s  = strings.transactionEdit
+const sn = strings.pendingNotifications
 
 export default function TransactionEditScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const { params } = useRoute<Route>()
-  const isEdit = !!params?.id
-  const title  = isEdit ? s.headerEdit : s.headerCreate
+  const { params }       = useRoute<Route>()
+  const navigation       = useNavigation<Nav>()
+  const isEdit           = !!params?.id
+  const notificationId   = params?.notificationId
+  const title            = isEdit ? s.headerEdit : s.headerCreate
 
   const { data: txData } = useTransactionById(isEdit ? params?.id : undefined)
   const { form, setField, setForm, isValid } = useTransactionForm()
-  const { mutate: create,  isPending: creating  } = useCreateTransaction()
   const { mutate: update,  isPending: updating  } = useUpdateTransaction(params?.id ?? '')
   const { mutate: deleteTx, isPending: deleting } = useDeleteTransaction(params?.id ?? '')
 
@@ -49,8 +56,53 @@ export default function TransactionEditScreen() {
   const { data: paymentMethods }   = usePaymentMethods()
   const selectedPaymentMethod      = paymentMethods?.find(m => m.id === form.paymentMethodId)
 
-  const initialized      = useRef(false)
-  const defaultPMApplied = useRef(false)
+  // 알림에서 열렸을 때 상단에 표시할 원문 텍스트
+  const [notificationText, setNotificationText] = useState<string | null>(null)
+
+  // 추천 카테고리가 자동 적용된 상태인지 추적 — 유저가 직접 변경하면 false
+  const [isRecommendationApplied, setIsRecommendationApplied] = useState(false)
+
+  const initialized         = useRef(false)
+  const defaultPMApplied    = useRef(false)
+  const notifInitialized    = useRef(false)
+  const recommendationApplied = useRef(false)
+
+  // 가맹점명 기반 추천 카테고리 조회 — 알림 플로우이고 폼이 초기화된 후에만 실행
+  const { data: recommendedCategoryId } = useCategoryRecommendation(
+    notificationId && notifInitialized.current ? form.merchantName : undefined
+  )
+
+  // 알림 등록 후 다음 알림으로 이동하거나 미등록 리스트로 복귀
+  const goToPendingList = useCallback(() => {
+    navigationRef.navigate(Screens.Root.UserTabs as any, {
+      screen: Screens.UserTab.More,
+      params: { screen: Screens.More.PendingNotifications },
+    })
+  }, [])
+
+  const handleAfterNotificationCreate = useCallback(() => {
+    const store = useNotificationLogStore.getState()
+    store.markAsRegistered(notificationId!)
+
+    const unregistered = store.notifications.filter(n => n.id !== notificationId)
+    if (unregistered.length > 0) {
+      showConfirm(sn.nextConfirmTitle, sn.nextConfirmMsg, [
+        { text: sn.nextConfirmCancel, style: 'cancel', onPress: goToPendingList },
+        {
+          text: sn.nextConfirmOk,
+          onPress: () => {
+            navigation.replace(Screens.History.TransactionEdit, { notificationId: unregistered[0].id })
+          },
+        },
+      ])
+    } else {
+      goToPendingList()
+    }
+  }, [notificationId, navigation, goToPendingList])
+
+  const { mutate: create, isPending: creating } = useCreateTransaction(
+    notificationId ? handleAfterNotificationCreate : undefined
+  )
 
   // 결제수단 등록 후 복귀: 저장된 폼 + 새 결제수단 ID 복원 (1회 실행)
   useEffect(() => {
@@ -64,6 +116,58 @@ export default function TransactionEditScreen() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // 알림 데이터 초기화 — paymentMethods 로드 후 1회 실행
+  useEffect(() => {
+    if (!notificationId || isEdit || notifInitialized.current || !paymentMethods) return
+    const { notifications } = useNotificationLogStore.getState()
+    const notification = notifications.find(n => n.id === notificationId)
+    if (!notification) return
+    const parsed = parseCardNotification(notification.title, notification.text)
+    if (!parsed) return
+
+    notifInitialized.current = true
+    defaultPMApplied.current = true  // 기본 결제수단 자동 세팅 방지
+
+    // 알림 원문 상단 표시용
+    setNotificationText(notification.text)
+
+    const receivedMs   = parseInt(notification.time, 10)
+    const receivedDate = new Date(isNaN(receivedMs) ? Date.now() : receivedMs)
+    const [month, day] = parsed.date.split('/').map(Number)
+    const [hour, min]  = parsed.time.split(':').map(Number)
+    let txDate = new Date(receivedDate.getFullYear(), month - 1, day, hour, min, 0, 0)
+    if (txDate > new Date()) txDate.setFullYear(txDate.getFullYear() - 1)
+
+    // 카드사+끝4자리로 결제수단 자동 매칭
+    const matched   = paymentMethods.find(pm =>
+      pm.cardNumber === parsed.last4 &&
+      (pm.name.includes(parsed.issuer) || parsed.issuer.includes(pm.name))
+    )
+    const defaultPM = paymentMethods.find(m => m.isDefault)
+    const pmId      = matched?.id ?? defaultPM?.id ?? ''
+
+    setForm({
+      amount:            parsed.amount.toString(),
+      merchantName:      parsed.merchant,
+      categoryId:        '',
+      paymentMethodId:   pmId,
+      memo:              '',
+      transactionDate:   txDate,
+      installmentMonths: parsed.isInstallment
+        ? (parsed.installmentMonths != null ? parsed.installmentMonths.toString() : '')
+        : '',
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notificationId, isEdit, paymentMethods])
+
+  // 추천 카테고리 자동 적용 — 유저가 아직 카테고리를 선택하지 않은 경우에만
+  useEffect(() => {
+    if (!recommendedCategoryId || form.categoryId !== '' || recommendationApplied.current) return
+    recommendationApplied.current = true
+    setField('categoryId', recommendedCategoryId)
+    setIsRecommendationApplied(true)
+  }, [recommendedCategoryId, form.categoryId, setField])
 
   // 신규 등록 시 기본 결제수단 자동 세팅 (1회)
   useEffect(() => {
@@ -81,7 +185,6 @@ export default function TransactionEditScreen() {
     if (isEdit && txData && !initialized.current) {
       initialized.current = true
       setForm({
-        // 할부 원거래는 totalAmount(원금)를, 일시불/할부자식은 amount를 금액 필드에 복원
         amount:            (txData.installmentMonths != null && txData.totalAmount != null)
                              ? txData.totalAmount.toString()
                              : txData.amount.toString(),
@@ -121,7 +224,12 @@ export default function TransactionEditScreen() {
     ])
   }
 
-  // 결제수단 피커에서 "등록하기" 클릭 → 현재 폼 저장 후 카드 등록 화면으로 이동
+  const handleCategorySelect = (id: string) => {
+    setField('categoryId', id)
+    // 유저가 직접 카테고리를 바꾸면 추천 표시 해제
+    setIsRecommendationApplied(false)
+  }
+
   const handleAddCard = () => {
     pendingStore.save(form)
     navigationRef.navigate(Screens.Root.UserTabs as any, {
@@ -146,6 +254,14 @@ export default function TransactionEditScreen() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
 
         <Text style={styles.screenTitle}>{title}</Text>
+
+        {/* ── 감지된 알림 원문 배너 ── */}
+        {notificationText && (
+          <View style={styles.notifBanner}>
+            <Text style={styles.notifBannerLabel}>{s.notifBannerLabel}</Text>
+            <Text style={styles.notifBannerText}>{notificationText}</Text>
+          </View>
+        )}
 
         {/* ── 날짜 ── */}
         <Text style={styles.label}>{s.dateLabel}</Text>
@@ -247,6 +363,9 @@ export default function TransactionEditScreen() {
           )}
           <Text style={styles.pickerChevron}>›</Text>
         </TouchableOpacity>
+        {isRecommendationApplied && (
+          <Text style={styles.recommendedBadge}>{s.categoryRecommended}</Text>
+        )}
 
         <View style={styles.gap} />
 
@@ -308,7 +427,7 @@ export default function TransactionEditScreen() {
       <CategoryPickerModal
         visible={showCategoryPicker}
         selectedId={form.categoryId}
-        onSelect={(id) => setField('categoryId', id)}
+        onSelect={handleCategorySelect}
         onClose={() => setShowCategoryPicker(false)}
       />
 

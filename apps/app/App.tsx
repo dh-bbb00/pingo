@@ -40,15 +40,19 @@ function ThemedNavigationContainer({ children }: { children: React.ReactNode }) 
   )
 }
 
-// 포그라운드 전용 — 앱이 열린 상태에서 알림 탭 시 호출
-function navigateToNotificationLog() {
+// 포그라운드 전용 — 앱이 열린 상태에서 감지 알림 탭 시 직접 등록 화면으로 이동
+function navigateToTransactionEdit(notificationId: string) {
   const { accessToken } = useAuthStore.getState()
   if (!accessToken) return
   navigationRef.navigate(Screens.Root.UserTabs, {
-    screen: Screens.UserTab.More,
-    params: { screen: Screens.More.NotificationLog },
+    screen: Screens.UserTab.History,
+    params: {
+      screen: Screens.History.TransactionEdit,
+      params: { notificationId },
+    },
   } as any)
 }
+
 
 export default function App() {
   useEffect(() => {
@@ -62,10 +66,11 @@ export default function App() {
       // 알림 접근 권한 확인 → 미허용 시 설정 이동 안내
       await checkAndRequestNotificationListenerPermission()
 
-      // 앱이 알림 탭으로 실행된 경우 (killed 상태) — 인증 흐름 완료 후 처리하도록 pending 저장
+      // 앱이 알림 탭으로 실행된 경우 (killed 상태) — 인증 흐름 완료 후 처리하도록 notificationId 저장
       const initial = await notifee.getInitialNotification()
-      if (initial?.pressAction?.id === 'notification-log') {
-        storage.set(StorageKeys.PENDING_DEEPLINK, 'NotificationLog')
+      if (initial?.pressAction?.id === 'pending-notifications') {
+        const notificationId = initial.notification?.data?.notificationId as string | undefined
+        storage.set(StorageKeys.PENDING_DEEPLINK, notificationId ?? '')
       }
     }
     initAsync()
@@ -79,8 +84,9 @@ export default function App() {
 
     // 포그라운드 notifee 이벤트 처리
     const unsub = notifee.onForegroundEvent(({ type, detail }) => {
-      if (type === EventType.PRESS && detail.pressAction?.id === 'notification-log') {
-        navigateToNotificationLog()
+      if (type === EventType.PRESS && detail.pressAction?.id === 'pending-notifications') {
+        const notificationId = detail.notification?.data?.notificationId as string | undefined
+        if (notificationId) navigateToTransactionEdit(notificationId)
       }
     })
 

@@ -81,20 +81,40 @@ export const strings = {
   },
 
   more: {
-    header:          '전체',
-    fixedExpenses:   '고정 지출 관리',
-    paymentMethods:  '결제수단 관리',
-    myInfo:          '내 정보',
-    notificationLog: '알림 (임시)',
+    header:                '전체',
+    fixedExpenses:         '고정 지출 관리',
+    paymentMethods:        '결제수단 관리',
+    myInfo:                '내 정보',
+    pendingNotifications:  '미등록 알림',
   },
 
-  notificationLog: {
-    header:    '알림 감지 로그',
-    empty:     '감지된 알림이 없습니다.',
-    clearBtn:  '전체 삭제',
-    appLabel:  '앱',
-    timeLabel: '시간',
-    rawLabel:  '원본 데이터',
+  pendingNotifications: {
+    header:              '미등록 알림',
+    empty:               '미등록 결제 알림이 없습니다.',
+    expiryNotice:        '감지된 알림은 1주일 후 자동으로 삭제됩니다.',
+    registerBtn:         '등록',
+    bulkRegisterBtn:     '일괄 등록',
+    oldBadge:            '3일+',
+    unparseable:         '파싱 불가',
+
+    nextConfirmTitle:    '다음 내역 등록',
+    nextConfirmMsg:      '다음 미등록 내역도 등록하시겠습니까?',
+    nextConfirmOk:       '등록',
+    nextConfirmCancel:   '나중에',
+
+    bulkConfirmTitle:    '일괄 등록',
+    bulkCategoryNotice:  '카테고리: 기타(미분류)로 등록됩니다.',
+    bulkConfirmMsg:      (n: number) => `총 ${n}건을 등록합니다.`,
+    bulkConfirmOk:       '등록',
+    bulkConfirmCancel:   '취소',
+    bulkSuccessMsg:      (n: number) => `${n}건이 등록됐습니다.`,
+    bulkPartialMsg:      (ok: number, fail: number) => `${ok}건 등록 완료, ${fail}건 실패`,
+    bulkNothingTitle:    '알림',
+    bulkNothingMsg:      '등록 가능한 내역이 없습니다.',
+    lumpSum:             '일시불',
+    installmentFmt:      (n: number) => `${n}개월 할부`,
+    installmentUnknown:  '할부',
+
     card: {
       issuer:   '카드사',
       amount:   '사용금액',
@@ -103,6 +123,14 @@ export const strings = {
       time:     '시간',
       merchant: '가맹점명',
     },
+  },
+
+  notification: {
+    channelName:         'Pingo 알림',
+    detectedTitle:       '새 결제가 감지됐어요',
+    detectedBodyFmt:     (app: string, text: string) => `${app}\n${text}\n탭하면 지출 내역으로 바로 등록할 수 있어요.`,
+    reminderTitle:       '아직 등록하지 않은 결제가 있어요',
+    reminderBody:        '감지된 결제 알림이 아직 가계부에 등록되지 않았어요. 탭해서 지금 바로 기록해보세요.',
   },
 
   permission: {
@@ -290,7 +318,9 @@ export const strings = {
   },
 
   transactionEdit: {
-    headerCreate:        '내역 추가',
+    headerCreate:           '내역 추가',
+    notifBannerLabel:       '감지된 알림',
+    categoryRecommended:    '추천 카테고리',
     headerEdit:          '내역 수정',
     installmentLabel:    '할부',
     installmentLumpSum:  '일시불',

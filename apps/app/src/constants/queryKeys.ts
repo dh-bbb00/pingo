@@ -1,8 +1,9 @@
 export const queryKeys = {
   transactions: {
-    all: ['transactions'] as const,
-    list: (filter?: unknown) => ['transactions', 'list', filter] as const,
-    detail: (id: string) => ['transactions', id] as const,
+    all:                    ['transactions'] as const,
+    list:                   (filter?: unknown) => ['transactions', 'list', filter] as const,
+    detail:                 (id: string)      => ['transactions', id] as const,
+    categoryRecommendation: (merchantName: string) => ['transactions', 'category-recommendation', merchantName] as const,
   },
   categories: {
     all: ['categories'] as const,

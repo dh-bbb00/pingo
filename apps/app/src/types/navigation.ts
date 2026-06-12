@@ -49,7 +49,7 @@ export type UserTabParamList = {
 
 export type HistoryStackParamList = {
   HistoryMain:     undefined
-  TransactionEdit: { id?: string }
+  TransactionEdit: { id?: string; notificationId?: string }
 }
 
 export type CategoryStackParamList = {
@@ -58,12 +58,12 @@ export type CategoryStackParamList = {
 }
 
 export type MoreStackParamList = {
-  MoreMain:            undefined
-  FixedExpenses:       undefined
-  FixedExpenseEdit:    { id?: string }
-  PaymentMethods:      undefined
-  PaymentMethodEdit:   { id?: string; returnToTransaction?: boolean }
-  MyInfo:              undefined
-  PasswordChange:      undefined
-  NotificationLog:     undefined
+  MoreMain:               undefined
+  FixedExpenses:          undefined
+  FixedExpenseEdit:       { id?: string }
+  PaymentMethods:         undefined
+  PaymentMethodEdit:      { id?: string; returnToTransaction?: boolean }
+  MyInfo:                 undefined
+  PasswordChange:         undefined
+  PendingNotifications:   undefined
 }

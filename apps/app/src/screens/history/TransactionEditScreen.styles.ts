@@ -40,6 +40,14 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   pickerIconWrap:    { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   pickerIconEmoji:   { fontSize: 14 },
 
+  // 알림 원문 배너
+  notifBanner:      { backgroundColor: t.colors.surfaceVariant, borderRadius: t.radius.md, padding: 12, marginBottom: 24 },
+  notifBannerLabel: { fontSize: t.fontSize.xs, color: t.colors.text.disabled, marginBottom: 4 },
+  notifBannerText:  { fontSize: t.fontSize.sm, color: t.colors.text.secondary, lineHeight: 20 },
+
+  // 추천 카테고리 배지
+  recommendedBadge: { fontSize: t.fontSize.xs, color: t.colors.semantic.success, fontWeight: t.fontWeight.semiBold, marginTop: 6 },
+
   // 버튼
   submitBtn:     { backgroundColor: t.colors.primary, borderRadius: t.radius.md, paddingVertical: 16, alignItems: 'center', marginTop: 32 },
   submitBtnText: { color: t.colors.text.inverse, fontWeight: t.fontWeight.semiBold, fontSize: t.fontSize.md },

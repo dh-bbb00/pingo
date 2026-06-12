@@ -71,12 +71,15 @@ export default function SplashScreen() {
         if (role === 'ADMIN') {
           navigation.replace(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
         } else {
-          const pending = storage.getString(StorageKeys.PENDING_DEEPLINK)
-          if (pending === 'NotificationLog') {
+          const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
+          if (pendingNotificationId) {
             storage.remove(StorageKeys.PENDING_DEEPLINK)
             navigation.replace(Screens.Root.UserTabs, {
-              screen: Screens.UserTab.More,
-              params: { screen: Screens.More.NotificationLog },
+              screen: Screens.UserTab.History,
+              params: {
+                screen: Screens.History.TransactionEdit,
+                params: { notificationId: pendingNotificationId },
+              },
             } as any)
           } else {
             navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
