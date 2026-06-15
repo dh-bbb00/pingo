@@ -91,7 +91,7 @@ export const strings = {
   pendingNotifications: {
     header:              '미등록 알림',
     empty:               '미등록 결제 알림이 없습니다.',
-    expiryNotice:        '감지된 알림은 1주일 후 자동으로 삭제됩니다.',
+    expiryNotice:        '받은 알림은 1주일 후 자동으로 삭제됩니다.',
     registerBtn:         '등록',
     bulkRegisterBtn:     '일괄 등록',
     oldBadge:            '3일+',
@@ -127,19 +127,43 @@ export const strings = {
 
   notification: {
     channelName:         'Pingo 알림',
-    detectedTitle:       '새 결제가 감지됐어요',
+    detectedTitle:       '새 결제 알림이 왔어요',
     detectedBodyFmt:     (app: string, text: string) => `${app}\n${text}\n탭하면 지출 내역으로 바로 등록할 수 있어요.`,
     reminderTitle:       '아직 등록하지 않은 결제가 있어요',
-    reminderBody:        '감지된 결제 알림이 아직 가계부에 등록되지 않았어요. 탭해서 지금 바로 기록해보세요.',
+    reminderBody:        '받은 결제 알림이 아직 가계부에 등록되지 않았어요. 탭해서 지금 바로 기록해보세요.',
+  },
+
+  cancelledTransactionSearch: {
+    header:              '원 거래 내역 찾기',
+    cancelInfoTitle:     '취소 알림 내역',
+    sectionDb:           '등록된 내역',
+    sectionPending:      '미등록 알림',
+    notFound:            '원 거래 내역을 찾지 못했습니다.',
+    notFoundHint:        '가맹점명·금액·결제유형이 일치하는 내역이 없습니다.',
+    merchant:            '가맹점',
+    amount:              '취소 금액',
+    payType:             '결제유형',
+    issuer:              '카드사',
+    date:                '취소 일시',
+    lumpSum:             '일시불',
+    installmentFmt:      (n: number) => `${n}개월 할부`,
+    installmentUnknown:  '할부',
+    removePendingTitle:  '미등록 알림 삭제',
+    removePendingMsg:    '승인 직후 취소된 것으로 보입니다. 미등록 알림을 삭제하시겠습니까?',
+    removePendingOk:     '삭제',
+    notification: {
+      detectedTitle:    '결제 취소 알림이 왔어요',
+      detectedBodyFmt:  (app: string, text: string) => `${app}\n${text}\n탭하면 원 거래 내역을 찾을 수 있어요.`,
+    },
   },
 
   permission: {
     notificationListenerTitle: '알림 접근 권한 필요',
-    notificationListenerMsg:   'Pingo가 카드 결제 알림을 감지하려면 알림 접근 권한이 필요합니다.\n\n설정 화면에서 Pingo를 허용해주세요.',
+    notificationListenerMsg:   'Pingo가 카드 결제 알림을 읽으려면 알림 접근 권한이 필요합니다.\n\n설정 화면에서 Pingo를 허용해주세요.',
     later:                     '나중에',
     goToSettings:              '설정으로 이동',
     batteryOptTitle:           '배터리 최적화 설정',
-    batteryOptMsg:             '앱이 완전히 종료된 상태에서도 알림을 감지하려면 배터리 최적화를 꺼야 합니다.\n\n설정 > 애플리케이션 > Pingo > 배터리 > 제한 없음으로 설정해주세요.',
+    batteryOptMsg:             '앱이 완전히 종료된 상태에서도 알림을 읽으려면 배터리 최적화를 꺼야 합니다.\n\n설정 > 애플리케이션 > Pingo > 배터리 > 제한 없음으로 설정해주세요.',
   },
 
   paymentMethods: {
@@ -320,7 +344,7 @@ export const strings = {
 
   transactionEdit: {
     headerCreate:           '내역 추가',
-    notifBannerLabel:       '감지된 알림',
+    notifBannerLabel:       '받은 알림',
     categoryRecommended:    '추천 카테고리',
     headerEdit:          '내역 수정',
     installmentLabel:    '할부',

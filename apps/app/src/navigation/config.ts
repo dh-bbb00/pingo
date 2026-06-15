@@ -16,8 +16,9 @@ import AdminMoreScreen          from '@/screens/admin/adminMore/AdminMoreScreen'
 import SchedulerManagementScreen from '@/screens/admin/schedulerManagement/SchedulerManagementScreen'
 import SchedulerLogDetailScreen  from '@/screens/admin/schedulerManagement/SchedulerLogDetailScreen'
 
-import HistoryScreen            from '@/screens/history/HistoryScreen'
-import TransactionEditScreen    from '@/screens/history/TransactionEditScreen'
+import HistoryScreen                      from '@/screens/history/HistoryScreen'
+import TransactionEditScreen              from '@/screens/history/TransactionEditScreen'
+import CancelledTransactionSearchScreen   from '@/screens/history/CancelledTransactionSearchScreen'
 
 import CategoryScreen           from '@/screens/category/CategoryScreen'
 import CategoryEditScreen       from '@/screens/category/CategoryEditScreen'
@@ -87,8 +88,9 @@ export const adminMoreRoutes: StackRoute[] = [
 ]
 
 export const historyRoutes: StackRoute[] = [
-  { name: 'HistoryMain',     component: HistoryScreen },
-  { name: 'TransactionEdit', component: TransactionEditScreen, options: backHeader },
+  { name: 'HistoryMain',                component: HistoryScreen },
+  { name: 'TransactionEdit',            component: TransactionEditScreen,              options: backHeader },
+  { name: 'CancelledTransactionSearch', component: CancelledTransactionSearchScreen,   options: backHeader },
 ]
 
 export const categoryRoutes: StackRoute[] = [

@@ -21,6 +21,47 @@ export function isCardUsageNotification(title: string, text: string): boolean {
 }
 
 /**
+ * 카드 취소 알림 여부 판별
+ * title에 (4자리숫자)취소 패턴이 핵심 식별자
+ * 거절 알림은 제외 (취소와 거절은 다름)
+ */
+export function isCancelNotification(title: string, text: string): boolean {
+  if (/거절/.test(title)) return false
+  return /\(\d{4}\)\s*취소/.test(title) && /[\d,]+원/.test(text)
+}
+
+function parseCancelIssuerAndLast4(title: string): { issuer: string; last4: string } | null {
+  const match = title.match(/^(.+?)\((\d{4})\)\s*취소/)
+  if (!match) return null
+  return { issuer: match[1].trim(), last4: match[2] }
+}
+
+/** 카드 취소 알림 파싱 — 승인 파싱과 동일한 텍스트 구조, 타이틀 패턴만 다름 */
+export function parseCancelNotification(
+  title: string,
+  text:  string,
+): ParsedCardNotification | null {
+  const issuerData   = parseCancelIssuerAndLast4(title)
+  const amountData   = parseAmountAndPayType(text)
+  const dateTimeData = parseDateAndTime(text)
+  const merchant     = parseMerchant(text)
+
+  if (!issuerData || !amountData || !dateTimeData || !merchant) return null
+
+  return {
+    issuer:            issuerData.issuer,
+    last4:             issuerData.last4,
+    amountStr:         amountData.amountStr,
+    amount:            amountData.amount,
+    isInstallment:     amountData.isInstallment,
+    installmentMonths: amountData.installmentMonths,
+    date:              dateTimeData.date,
+    time:              dateTimeData.time,
+    merchant,
+  }
+}
+
+/**
  * 카드사명 + 끝 4자리 파싱
  * 예: "신한카드(1234)승인 김*현" → { issuer: '신한카드', last4: '1234' }
  * 예: "신한(1234)승인"           → { issuer: '신한',     last4: '1234' }

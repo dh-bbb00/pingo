@@ -28,6 +28,19 @@ export function useLogin() {
       if (role === 'ADMIN') {
         navigationRef.navigate(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
       } else {
+        const pendingCancelId = storage.getString(StorageKeys.PENDING_CANCEL_DEEPLINK)
+        if (pendingCancelId) {
+          storage.remove(StorageKeys.PENDING_CANCEL_DEEPLINK)
+          navigationRef.navigate(Screens.Root.UserTabs, {
+            screen: Screens.UserTab.History,
+            params: {
+              screen: Screens.History.CancelledTransactionSearch,
+              params: { cancelNotificationId: pendingCancelId },
+            },
+          } as any)
+          return
+        }
+
         const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
         if (pendingNotificationId) {
           storage.remove(StorageKeys.PENDING_DEEPLINK)

@@ -53,6 +53,19 @@ function navigateToTransactionEdit(notificationId: string) {
   } as any)
 }
 
+// 포그라운드 전용 — 취소 알림 탭 시 원 거래 내역 찾기 화면으로 이동
+function navigateToCancelSearch(cancelNotificationId: string) {
+  const { accessToken } = useAuthStore.getState()
+  if (!accessToken) return
+  navigationRef.navigate(Screens.Root.UserTabs, {
+    screen: Screens.UserTab.History,
+    params: {
+      screen: Screens.History.CancelledTransactionSearch,
+      params: { cancelNotificationId },
+    },
+  } as any)
+}
+
 
 export default function App() {
   useEffect(() => {
@@ -66,11 +79,15 @@ export default function App() {
       // 알림 접근 권한 확인 → 미허용 시 설정 이동 안내
       await checkAndRequestNotificationListenerPermission()
 
-      // 앱이 알림 탭으로 실행된 경우 (killed 상태) — 인증 흐름 완료 후 처리하도록 notificationId 저장
+      // 앱이 알림 탭으로 실행된 경우 (killed 상태) — 인증 흐름 완료 후 처리하도록 id 저장
       const initial = await notifee.getInitialNotification()
       if (initial?.pressAction?.id === 'pending-notifications') {
         const notificationId = initial.notification?.data?.notificationId as string | undefined
         storage.set(StorageKeys.PENDING_DEEPLINK, notificationId ?? '')
+      }
+      if (initial?.pressAction?.id === 'cancel-notification') {
+        const cancelNotificationId = initial.notification?.data?.cancelNotificationId as string | undefined
+        storage.set(StorageKeys.PENDING_CANCEL_DEEPLINK, cancelNotificationId ?? '')
       }
     }
     initAsync()
@@ -87,6 +104,10 @@ export default function App() {
       if (type === EventType.PRESS && detail.pressAction?.id === 'pending-notifications') {
         const notificationId = detail.notification?.data?.notificationId as string | undefined
         if (notificationId) navigateToTransactionEdit(notificationId)
+      }
+      if (type === EventType.PRESS && detail.pressAction?.id === 'cancel-notification') {
+        const cancelNotificationId = detail.notification?.data?.cancelNotificationId as string | undefined
+        if (cancelNotificationId) navigateToCancelSearch(cancelNotificationId)
       }
     })
 

@@ -47,8 +47,9 @@ export const Screens = {
   } satisfies Record<string, keyof UserTabParamList>,
 
   History: {
-    HistoryMain:     'HistoryMain',
-    TransactionEdit: 'TransactionEdit',
+    HistoryMain:                'HistoryMain',
+    TransactionEdit:            'TransactionEdit',
+    CancelledTransactionSearch: 'CancelledTransactionSearch',
   } satisfies Record<string, keyof HistoryStackParamList>,
 
   Category: {

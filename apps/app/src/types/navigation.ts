@@ -48,8 +48,9 @@ export type UserTabParamList = {
 }
 
 export type HistoryStackParamList = {
-  HistoryMain:     undefined
-  TransactionEdit: { id?: string; notificationId?: string }
+  HistoryMain:                 undefined
+  TransactionEdit:             { id?: string; notificationId?: string }
+  CancelledTransactionSearch:  { cancelNotificationId: string }
 }
 
 export type CategoryStackParamList = {

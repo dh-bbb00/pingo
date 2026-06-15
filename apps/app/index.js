@@ -8,8 +8,9 @@ import { name as appName } from './app.json';
 import { RNAndroidNotificationListenerHeadlessJsName } from 'react-native-android-notification-listener';
 import notifee from '@notifee/react-native';
 import { saveDetectedNotification } from './src/store/notificationLogStore';
-import { setupNotificationChannel, displayDetectedNotification, schedulePendingReminder } from './src/utils/notification';
-import { isCardUsageNotification } from './src/utils/cardNotificationParser';
+import { saveCancelNotification } from './src/store/cancelNotificationStore';
+import { setupNotificationChannel, displayDetectedNotification, schedulePendingReminder, displayCancelNotification } from './src/utils/notification';
+import { isCardUsageNotification, isCancelNotification } from './src/utils/cardNotificationParser';
 
 AppRegistry.registerComponent(appName, () => App);
 
@@ -31,7 +32,15 @@ AppRegistry.registerHeadlessTask(
     // 불필요한 알림 제외
     if (title.includes('95%') || text.includes('95%')) return;
 
-    // 카드사용 알림만 처리
+    // 카드 취소 알림 처리
+    if (isCancelNotification(title, text)) {
+      await setupNotificationChannel();
+      const cancelId = saveCancelNotification(notification);
+      await displayCancelNotification(app || '알 수 없음', text, cancelId);
+      return;
+    }
+
+    // 카드 승인 알림만 처리
     if (!isCardUsageNotification(title, text)) return;
 
     await setupNotificationChannel();

@@ -9,6 +9,7 @@ const REMINDER_PREFIX   = 'pending-reminder-'
 const REMINDER_DELAY_MS = 3 * 24 * 60 * 60 * 1000  // 3일
 
 const sn = strings.notification
+const sc = strings.cancelledTransactionSearch
 
 /** 앱 시작 시 최초 1회 호출 — 알림 채널이 없으면 표시가 안 되므로 앱 마운트 직후 보장 */
 export async function setupNotificationChannel() {
@@ -67,6 +68,21 @@ export async function schedulePendingReminder(notificationId: string) {
     },
     trigger,
   )
+}
+
+/**
+ * 카드 취소 감지 알림 표시 — 탭 시 원 거래 내역 찾기 화면으로 이동
+ */
+export async function displayCancelNotification(app: string, text: string, cancelNotificationId: string) {
+  await notifee.displayNotification({
+    title: sc.notification.detectedTitle,
+    body:  sc.notification.detectedBodyFmt(app, text),
+    data:  { cancelNotificationId },
+    android: {
+      channelId:   CHANNEL_ID,
+      pressAction: { id: 'cancel-notification', launchActivity: 'default' },
+    },
+  })
 }
 
 /**

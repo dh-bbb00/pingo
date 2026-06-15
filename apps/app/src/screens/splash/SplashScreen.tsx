@@ -71,6 +71,19 @@ export default function SplashScreen() {
         if (role === 'ADMIN') {
           navigation.replace(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
         } else {
+          const pendingCancelId = storage.getString(StorageKeys.PENDING_CANCEL_DEEPLINK)
+          if (pendingCancelId) {
+            storage.remove(StorageKeys.PENDING_CANCEL_DEEPLINK)
+            navigation.replace(Screens.Root.UserTabs, {
+              screen: Screens.UserTab.History,
+              params: {
+                screen: Screens.History.CancelledTransactionSearch,
+                params: { cancelNotificationId: pendingCancelId },
+              },
+            } as any)
+            return
+          }
+
           const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
           if (pendingNotificationId) {
             storage.remove(StorageKeys.PENDING_DEEPLINK)
