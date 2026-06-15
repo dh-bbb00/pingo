@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { useTheme } from '@/theme'
 import { usePasswordChangeForm } from './hooks/usePasswordChangeForm'
 import { useChangePassword } from './hooks/useChangePassword'
@@ -24,8 +24,9 @@ export default function PasswordChangeScreen() {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView style={styles.scroll} behavior="padding">
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Text style={styles.header}>{s.header}</Text>
 
       <TextInput
@@ -67,7 +68,8 @@ export default function PasswordChangeScreen() {
           : <Text style={styles.buttonText}>{s.submit}</Text>
         }
       </TouchableOpacity>
-      </ScrollView>
-    </TouchableWithoutFeedback>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   )
 }

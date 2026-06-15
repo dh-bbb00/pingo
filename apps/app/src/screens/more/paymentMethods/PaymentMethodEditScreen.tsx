@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform,
+  ScrollView, KeyboardAvoidingView,
 } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
@@ -86,7 +86,7 @@ export default function PaymentMethodEditScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
 
         <Text style={styles.title}>{isEdit ? s.headerEdit : s.headerCreate}</Text>
