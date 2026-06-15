@@ -10,7 +10,7 @@ export { CELL_SIZE, NUM_COLS }
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
   overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet:      { height: WIN_HEIGHT * 0.3, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 20, paddingHorizontal: 20, backgroundColor: t.colors.surface },
+  sheet:      { height: WIN_HEIGHT * 0.3, borderTopLeftRadius: t.radius.xl, borderTopRightRadius: t.radius.xl, paddingTop: 20, paddingHorizontal: 20, backgroundColor: t.colors.surface },
   title:      { marginBottom: 12, color: t.colors.text.primary, fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold },
 
   tabScroll:       { borderBottomWidth: 1, borderBottomColor: t.colors.divider, marginBottom: 8, flexGrow: 0 },
