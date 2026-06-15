@@ -71,9 +71,9 @@ export default function CategoryDeleteModal({ visible, excludeId, onConfirm, onC
   )
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
+      <View style={styles.overlay} />
+      <View style={styles.sheet}>
 
           <Text style={styles.title}>{s.deleteTitle}</Text>
           <Text style={styles.message}>{s.deleteMessage}</Text>
@@ -110,7 +110,6 @@ export default function CategoryDeleteModal({ visible, excludeId, onConfirm, onC
           </View>
 
         </View>
-      </View>
     </Modal>
   )
 }

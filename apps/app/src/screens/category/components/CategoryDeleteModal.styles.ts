@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native'
 import type { Theme } from '@/theme'
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
-  overlay:  { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  overlay:  { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
 
   sheet: {
     backgroundColor: t.colors.background,

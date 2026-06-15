@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, FlatList, StyleSheet } from 'react-native'
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useCategoriesAll } from '@/hooks/queries/useCategoriesAll'
@@ -60,10 +60,9 @@ export default function CategoryFilterModal({ visible, committedIds, onConfirm, 
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
-        <View style={styles.sheet}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
           <View style={styles.header}>
             <Text style={styles.title}>{s.filterCategoryPickerTitle}</Text>
             <TouchableOpacity onPress={() => setLocalIds([])} activeOpacity={0.7}>
@@ -90,7 +89,6 @@ export default function CategoryFilterModal({ visible, committedIds, onConfirm, 
             <Text style={styles.confirmText}>{s.filterPickerConfirm}</Text>
           </TouchableOpacity>
         </View>
-      </View>
     </Modal>
   )
 }

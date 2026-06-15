@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, SectionList, StyleSheet } from 'react-native'
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
@@ -106,10 +106,9 @@ export default function PaymentMethodPickerModal(props: Props) {
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
-        <View style={styles.sheet}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
           {props.mode === 'single' ? (
             <Text style={styles.title}>{s.paymentMethodPickerTitle}</Text>
           ) : (
@@ -150,7 +149,6 @@ export default function PaymentMethodPickerModal(props: Props) {
             </TouchableOpacity>
           )}
         </View>
-      </View>
     </Modal>
   )
 }

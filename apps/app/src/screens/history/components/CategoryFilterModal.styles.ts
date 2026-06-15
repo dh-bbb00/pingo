@@ -4,7 +4,7 @@ import type { Theme } from '@/theme'
 const { height: screenHeight } = Dimensions.get('window')
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
 
   sheet: {
     backgroundColor: t.colors.background,
