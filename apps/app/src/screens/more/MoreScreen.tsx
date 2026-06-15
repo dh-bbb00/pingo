@@ -16,8 +16,8 @@ const s = strings.more
 const MENU_ITEMS: { label: string; screen: keyof MoreStackParamList }[] = [
   { label: s.fixedExpenses,        screen: Screens.More.FixedExpenses },
   { label: s.paymentMethods,       screen: Screens.More.PaymentMethods },
-  { label: s.myInfo,               screen: Screens.More.MyInfo },
   { label: s.pendingNotifications, screen: Screens.More.PendingNotifications },
+  { label: s.myInfo,               screen: Screens.More.MyInfo },
 ]
 
 export default function MoreScreen() {
