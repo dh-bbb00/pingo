@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native'
+import type { Theme } from '@/theme'
 
 const { height: screenHeight } = Dimensions.get('window')
-import type { Theme } from '@/theme'
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
   overlay:  { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
@@ -17,7 +17,7 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   title:   { fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, paddingHorizontal: 20, marginBottom: 8 },
   message: { fontSize: t.fontSize.sm, color: t.colors.text.secondary, paddingHorizontal: 20, marginBottom: 16, lineHeight: 20 },
 
-  listWrap: { maxHeight: screenHeight * 0.35, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
+  listWrap: { height: screenHeight * 0.35, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
 
   noneItem: { borderBottomWidth: 1, borderBottomColor: t.colors.divider },
   noneIcon: { backgroundColor: t.colors.surfaceVariant },
