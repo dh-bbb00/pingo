@@ -53,6 +53,10 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   addCardBtn:  { paddingHorizontal: 20, paddingVertical: 8, borderRadius: t.radius.md, backgroundColor: t.colors.primary },
   addCardText: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },
 
+  // single 모드 결제수단 추가 버튼
+  addPaymentMethodBtn:  { marginHorizontal: 20, marginTop: 12, paddingVertical: 13, borderRadius: t.radius.md, borderWidth: 1.5, borderColor: t.colors.primary, alignItems: 'center' },
+  addPaymentMethodText: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.primary },
+
   // multi 모드 확인 버튼
   confirmBtn:  { marginHorizontal: 20, marginTop: 16, paddingVertical: 14, borderRadius: t.radius.md, backgroundColor: t.colors.primary, alignItems: 'center' },
   confirmText: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.inverse },

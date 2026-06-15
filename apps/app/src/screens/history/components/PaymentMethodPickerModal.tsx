@@ -101,9 +101,6 @@ export default function PaymentMethodPickerModal(props: Props) {
     return (
       <View style={styles.noCardWrap}>
         <Text style={styles.emptyText}>{strings.paymentMethods.noCards}</Text>
-        <TouchableOpacity style={styles.addCardBtn} onPress={() => { onClose(); props.onAddCard() }} activeOpacity={0.7}>
-          <Text style={styles.addCardText}>{strings.paymentMethods.addCard}</Text>
-        </TouchableOpacity>
       </View>
     )
   }
@@ -140,6 +137,12 @@ export default function PaymentMethodPickerModal(props: Props) {
               />
             )}
           </View>
+
+          {props.mode === 'single' && (
+            <TouchableOpacity style={styles.addPaymentMethodBtn} onPress={() => { onClose(); props.onAddCard() }} activeOpacity={0.8}>
+              <Text style={styles.addPaymentMethodText}>{strings.paymentMethods.addPaymentMethod}</Text>
+            </TouchableOpacity>
+          )}
 
           {props.mode === 'multi' && (
             <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} activeOpacity={0.8}>

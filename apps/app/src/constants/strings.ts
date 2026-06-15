@@ -146,6 +146,7 @@ export const strings = {
     header:              '결제수단 관리',
     noCards:             '등록된 카드 정보가 없습니다.',
     addCard:             '등록하기',
+    addPaymentMethod:    '+ 결제수단 추가',
     headerCreate:        '카드 등록',
     headerEdit:          '카드 수정',
     nameLabel:           '카드사',
