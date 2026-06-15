@@ -14,7 +14,8 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   logoutButton:    { margin: 20, marginTop: 'auto', padding: 16, borderRadius: t.radius.md, borderWidth: 1, borderColor: t.colors.border, alignItems: 'center' },
   logoutText:      { color: t.colors.semantic.error, fontWeight: t.fontWeight.semiBold },
 
-  devicesHeader:    { fontSize: t.fontSize.xs, color: t.colors.text.disabled, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
+  devicesHeader:          { fontSize: t.fontSize.xs, color: t.colors.text.disabled, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
+  devicesHeaderSkeleton:  { marginHorizontal: 20, marginTop: 20, marginBottom: 8 },
   deviceItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.colors.divider },
   deviceItemCurrent:{ flexDirection: 'row', alignItems: 'center', paddingLeft: 16, paddingRight: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.colors.divider, borderLeftWidth: 4, borderLeftColor: t.colors.primary },
   deviceInfo:       { flex: 1 },

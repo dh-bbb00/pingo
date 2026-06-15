@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Switch } from 'react-native'
+import SkeletonBox from '@/components/containers/SkeletonBox'
 import { showConfirm } from '@/store/confirmStore'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -25,8 +26,8 @@ export default function MyInfoScreen() {
 
   const navigation = useNavigation<Nav>()
   const { logout } = useAuthStore()
-  const { data: myInfo, refetch: refetchMyInfo } = useMyInfo()
-  const { data: devices, refetch: refetchDevices } = useMyDevices()
+  const { data: myInfo,  isLoading: infoLoading,    refetch: refetchMyInfo  } = useMyInfo()
+  const { data: devices, isLoading: devicesLoading, refetch: refetchDevices } = useMyDevices()
   const { refreshing, onRefresh } = usePullToRefresh(() => Promise.all([refetchMyInfo(), refetchDevices()]))
   const { mutate: deleteDevice } = useDeleteDevice()
 
@@ -60,7 +61,10 @@ export default function MyInfoScreen() {
 
       <View style={styles.section}>
         <Text style={styles.label}>{s.emailLabel}</Text>
-        <Text style={styles.value}>{myInfo?.email ?? '-'}</Text>
+        {infoLoading
+          ? <SkeletonBox width="55%" height={14} radius={4} />
+          : <Text style={styles.value}>{myInfo?.email ?? '-'}</Text>
+        }
       </View>
 
       <TouchableOpacity
@@ -81,7 +85,20 @@ export default function MyInfoScreen() {
         />
       </View>
 
-      {devices && devices.length > 0 && (
+      {devicesLoading ? (
+        <>
+          <SkeletonBox width={80} height={10} radius={4} style={styles.devicesHeaderSkeleton} />
+          {[0, 1].map(i => (
+            <View key={i} style={styles.deviceItem}>
+              <View style={styles.deviceInfo}>
+                <SkeletonBox width="45%" height={13} radius={4} style={{ marginBottom: 6 }} />
+                <SkeletonBox width="30%" height={10} radius={4} />
+              </View>
+              <SkeletonBox width={44} height={26} radius={6} />
+            </View>
+          ))}
+        </>
+      ) : devices && devices.length > 0 && (
         <>
           <Text style={styles.devicesHeader}>{s.devicesHeader}</Text>
           {devices.map((device) => (
