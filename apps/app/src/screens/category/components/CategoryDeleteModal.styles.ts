@@ -1,4 +1,6 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Dimensions } from 'react-native'
+
+const { height: screenHeight } = Dimensions.get('window')
 import type { Theme } from '@/theme'
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
@@ -10,13 +12,12 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
     borderTopRightRadius: t.radius.xl,
     paddingTop: 24,
     paddingBottom: 32,
-    maxHeight: '80%',
   },
 
   title:   { fontSize: t.fontSize.lg, fontWeight: t.fontWeight.bold, color: t.colors.text.primary, paddingHorizontal: 20, marginBottom: 8 },
   message: { fontSize: t.fontSize.sm, color: t.colors.text.secondary, paddingHorizontal: 20, marginBottom: 16, lineHeight: 20 },
 
-  listWrap: { flex: 1, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
+  listWrap: { maxHeight: screenHeight * 0.35, borderTopWidth: 1, borderBottomWidth: 1, borderColor: t.colors.divider },
 
   noneItem: { borderBottomWidth: 1, borderBottomColor: t.colors.divider },
   noneIcon: { backgroundColor: t.colors.surfaceVariant },
