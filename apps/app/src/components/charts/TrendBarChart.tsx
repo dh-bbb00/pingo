@@ -305,7 +305,7 @@ const ss = StyleSheet.create({
   scrollRow:    { flexDirection: 'row' },
   yAxisWrap:    { width: Y_AXIS_W, height: CHART_H + LABEL_H, zIndex: 1 },
   yAxisText:    { position: 'absolute', right: 4, fontSize: 9 },
-  barsClip:     { width: CHART_W, height: CHART_H + LABEL_H },
+  barsClip:     { width: CHART_W, height: CHART_H + LABEL_H, overflow: 'hidden' },
   emptyWrap:    { height: 80, alignItems: 'center', justifyContent: 'center', marginHorizontal: 16 },
   emptyText:    { fontSize: 13 },
 })
