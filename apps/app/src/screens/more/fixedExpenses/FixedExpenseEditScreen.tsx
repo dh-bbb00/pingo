@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Switch, Platform,
+  ScrollView, KeyboardAvoidingView, Switch, Platform, Keyboard,
 } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
@@ -289,7 +289,12 @@ export default function FixedExpenseEditScreen() {
           placeholderTextColor={theme.colors.text.disabled}
           value={form.memo}
           onChangeText={(v) => setField('memo', v)}
-          onFocus={() => setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 300)}
+          onFocus={() => {
+            const sub = Keyboard.addListener('keyboardDidShow', () => {
+              scrollViewRef.current?.scrollToEnd({ animated: true })
+              sub.remove()
+            })
+          }}
           multiline
           maxLength={200}
         />
