@@ -270,7 +270,7 @@ function CategoryBar({
 
   return (
     <View style={styles.catRow}>
-      <View style={[styles.catDot, { backgroundColor: item.category?.color ?? theme.colors.surfaceVariant }]} />
+      <Text style={styles.catIcon}>{item.category?.icon ?? ''}</Text>
       <View style={styles.catBody}>
         <View style={styles.catTopRow}>
           <Text style={styles.catName} numberOfLines={1}>{item.category?.name ?? s.noCategory}</Text>

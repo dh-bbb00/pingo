@@ -31,8 +31,8 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
 
   // 카테고리 바
   catRow:          { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
-  catDot:          { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
-  catDotPlaceholder: { width: 10, height: 10, marginRight: 10 },
+  catIcon:           { fontSize: 18, width: 26, marginRight: 8, textAlign: 'center' },
+  catDotPlaceholder: { width: 26, marginRight: 8 },
   catBody:         { flex: 1 },
   catTopRow:       { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   catName:         { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.primary, flex: 1, marginRight: 8 },
