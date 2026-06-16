@@ -240,7 +240,7 @@ export default function HistoryScreen() {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate(Screens.History.TransactionEdit, {})}
+        onPress={() => navigation.push(Screens.History.TransactionEdit, {})}
         activeOpacity={0.8}
       >
         <Text style={styles.fabText}>+</Text>

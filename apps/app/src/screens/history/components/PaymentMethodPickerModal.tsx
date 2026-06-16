@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
@@ -29,6 +30,7 @@ export default function PaymentMethodPickerModal(props: Props) {
   const { visible, onClose } = props
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
+  const insets = useSafeAreaInsets()
 
   const { data: methods, isLoading } = usePaymentMethods()
 
@@ -108,7 +110,7 @@ export default function PaymentMethodPickerModal(props: Props) {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
+      <View style={[styles.sheet, { paddingBottom: styles.sheet.paddingBottom + insets.bottom }]}>
           {props.mode === 'single' ? (
             <Text style={styles.title}>{s.paymentMethodPickerTitle}</Text>
           ) : (

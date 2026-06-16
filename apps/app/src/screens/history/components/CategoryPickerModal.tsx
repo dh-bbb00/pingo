@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { View, Text, Modal, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { useCategories } from '@/hooks/queries/useCategories'
@@ -21,6 +22,7 @@ interface Props {
 export default function CategoryPickerModal({ visible, selectedId, onSelect, onClose, onAddCategory }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
+  const insets = useSafeAreaInsets()
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useCategories('name_asc')
   const categories = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
@@ -63,7 +65,7 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
+      <View style={[styles.sheet, { paddingBottom: styles.sheet.paddingBottom + insets.bottom }]}>
           <Text style={styles.title}>{s.categoryPickerTitle}</Text>
 
           <View style={styles.listWrap}>
