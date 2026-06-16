@@ -58,11 +58,14 @@ export default function SummaryCard({ total, prevTotal, dateTab, budget, isLoadi
     trendColor = theme.colors.semantic.income
   }
 
-  const budgetPct   = budget && budget > 0 ? Math.round((total / budget) * 100) : null
-  const isOver      = budgetPct !== null && budgetPct >= OVER_PCT
-  const isWarn      = budgetPct !== null && budgetPct >= WARN_PCT && !isOver
-  const barColor    = isOver ? theme.colors.semantic.error : isWarn ? theme.colors.semantic.warning : theme.colors.primary
-  const barWidth    = budgetPct !== null ? `${Math.min(budgetPct, 100)}%` : '0%'
+  const budgetPct    = budget && budget > 0 ? Math.round((total / budget) * 100) : null
+  const isOver       = budgetPct !== null && budgetPct >= OVER_PCT
+  const isWarn       = budgetPct !== null && budgetPct >= WARN_PCT && !isOver
+  const barColor     = isWarn ? theme.colors.semantic.warning : theme.colors.primary
+  const barWidth     = budgetPct !== null ? `${Math.min(budgetPct, 100)}%` : '0%'
+  // 초과 시: 트랙 100% 안에서 예산분(primary) + 초과분(error) 비율로 분할
+  const budgetSegPct = isOver && budget ? Math.round((budget / total) * 100) : 0
+  const overSegPct   = isOver ? 100 - budgetSegPct : 0
 
   return (
     <View style={[ss.wrap, { backgroundColor: theme.colors.surface }]}>
@@ -77,7 +80,14 @@ export default function SummaryCard({ total, prevTotal, dateTab, budget, isLoadi
       {budget != null && budget > 0 && (
         <View style={ss.budgetWrap}>
           <View style={[ss.budgetBarTrack, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <View style={[ss.budgetBar, { width: barWidth as any, backgroundColor: barColor }]} />
+            {isOver ? (
+              <>
+                <View style={[ss.budgetBar, { width: `${budgetSegPct}%`, backgroundColor: theme.colors.primary }]} />
+                <View style={[ss.budgetBar, { width: `${overSegPct}%`, backgroundColor: theme.colors.semantic.error }]} />
+              </>
+            ) : (
+              <View style={[ss.budgetBar, { width: barWidth as any, backgroundColor: barColor }]} />
+            )}
           </View>
           <View style={ss.budgetMeta}>
             <Text style={[ss.budgetLabel, { color: theme.colors.text.secondary }]}>
@@ -102,8 +112,8 @@ const ss = StyleSheet.create({
   unit:           { fontSize: 16, fontWeight: '400' },
   trend:          { fontSize: 13, marginTop: 4 },
   budgetWrap:     { marginTop: 16 },
-  budgetBarTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
-  budgetBar:      { height: 6, borderRadius: 3 },
+  budgetBarTrack: { height: 6, borderRadius: 3, overflow: 'hidden', flexDirection: 'row' },
+  budgetBar:      { height: 6 },
   budgetMeta:     { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
   budgetLabel:    { fontSize: 12 },
   budgetPct:      { fontSize: 12, fontWeight: '600' },
