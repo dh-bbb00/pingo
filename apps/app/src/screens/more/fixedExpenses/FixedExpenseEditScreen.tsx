@@ -43,7 +43,8 @@ export default function FixedExpenseEditScreen() {
   const { mutate: update,  isPending: updating  } = useUpdateFixedExpense()
   const { mutate: deleteFe, isPending: deleting } = useDeleteFixedExpense()
 
-  const initialized = useRef(false)
+  const initialized   = useRef(false)
+  const scrollViewRef = useRef<ScrollView>(null)
 
   // edit 모드: 기존 데이터를 폼에 1회 세팅
   useEffect(() => {
@@ -190,7 +191,7 @@ export default function FixedExpenseEditScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+      <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
 
         <Text style={styles.screenTitle}>{title}</Text>
 
@@ -288,6 +289,7 @@ export default function FixedExpenseEditScreen() {
           placeholderTextColor={theme.colors.text.disabled}
           value={form.memo}
           onChangeText={(v) => setField('memo', v)}
+          onFocus={() => setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 300)}
           multiline
           maxLength={200}
         />

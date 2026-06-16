@@ -66,6 +66,7 @@ export default function TransactionEditScreen() {
   const defaultPMApplied    = useRef(false)
   const notifInitialized    = useRef(false)
   const recommendationApplied = useRef(false)
+  const scrollViewRef       = useRef<ScrollView>(null)
 
   // 가맹점명 기반 추천 카테고리 조회 — 알림 플로우이고 폼이 초기화된 후에만 실행
   const { data: recommendedCategoryId } = useCategoryRecommendation(
@@ -251,7 +252,7 @@ export default function TransactionEditScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+      <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
 
         <Text style={styles.screenTitle}>{title}</Text>
 
@@ -396,6 +397,7 @@ export default function TransactionEditScreen() {
           placeholderTextColor={theme.colors.text.disabled}
           value={form.memo}
           onChangeText={(v) => setField('memo', v)}
+          onFocus={() => setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 300)}
           multiline
           maxLength={200}
         />
