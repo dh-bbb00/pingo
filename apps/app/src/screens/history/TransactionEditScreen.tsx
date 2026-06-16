@@ -105,13 +105,14 @@ export default function TransactionEditScreen() {
     notificationId ? handleAfterNotificationCreate : undefined
   )
 
-  // 결제수단 등록 후 복귀: 저장된 폼 + 새 결제수단 ID 복원 (1회 실행)
+  // 결제수단/카테고리 등록 후 복귀: 저장된 폼 + 새 ID 복원 (1회 실행)
   useEffect(() => {
     if (pendingStore.pendingForm && !initialized.current) {
       initialized.current = true
       setForm({
         ...pendingStore.pendingForm,
         ...(pendingStore.newPaymentMethodId && { paymentMethodId: pendingStore.newPaymentMethodId }),
+        ...(pendingStore.newCategoryId      && { categoryId:      pendingStore.newCategoryId }),
       })
       pendingStore.clear()
     }
@@ -237,6 +238,17 @@ export default function TransactionEditScreen() {
       screen: Screens.UserTab.More,
       params: {
         screen: Screens.More.PaymentMethodEdit,
+        params: { returnToTransaction: true },
+      },
+    })
+  }
+
+  const handleAddCategory = () => {
+    pendingStore.save(form)
+    navigationRef.navigate(Screens.Root.UserTabs as any, {
+      screen: Screens.UserTab.Category,
+      params: {
+        screen: Screens.Category.CategoryEdit,
         params: { returnToTransaction: true },
       },
     })
@@ -436,6 +448,7 @@ export default function TransactionEditScreen() {
         selectedId={form.categoryId}
         onSelect={handleCategorySelect}
         onClose={() => setShowCategoryPicker(false)}
+        onAddCategory={handleAddCategory}
       />
 
       <PaymentMethodPickerModal

@@ -55,7 +55,7 @@ export type HistoryStackParamList = {
 
 export type CategoryStackParamList = {
   CategoryMain: undefined
-  CategoryEdit: { id?: string }
+  CategoryEdit: { id?: string; returnToTransaction?: boolean }
 }
 
 export type MoreStackParamList = {

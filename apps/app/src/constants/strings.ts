@@ -336,6 +336,7 @@ export const strings = {
     deleteMessage:    '이 카테고리에 속한 내역들을 이동할 카테고리를 선택해주세요.',
     deleteNoCategory: '선택안함 (기타)',
     deleteConfirm:    '삭제',
+    addCategory:      '+ 카테고리 추가',
     errNameEmpty:     '카테고리명을 입력해주세요.',
     colorPickerTitle: '색상 선택',
     colorPickerConfirm: '선택',

@@ -33,4 +33,6 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   loader:    { paddingVertical: 12 },
   emptyText: { textAlign: 'center', paddingVertical: 24, fontSize: t.fontSize.sm, color: t.colors.text.secondary },
 
+  addBtn:     { marginHorizontal: 20, marginTop: 12, paddingVertical: 13, borderRadius: t.radius.md, borderWidth: 1.5, borderColor: t.colors.primary, alignItems: 'center' },
+  addBtnText: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.primary },
 })

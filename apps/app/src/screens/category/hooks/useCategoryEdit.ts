@@ -6,6 +6,9 @@ import { handleApiError } from '@/api/errorHandler'
 import { queryKeys } from '@/constants/queryKeys'
 import { strings } from '@/constants/strings'
 import type { CategoryForm } from '@/api/endpoints/categories.api'
+import { usePendingTransactionStore } from '@/store/pendingTransactionStore'
+import { navigationRef } from '@/navigation/navigationRef'
+import { Screens } from '@/constants/screens'
 
 function toPayload(form: CategoryForm) {
   return {
@@ -17,16 +20,26 @@ function toPayload(form: CategoryForm) {
   }
 }
 
-export function useCreateCategory() {
-  const queryClient = useQueryClient()
-  const navigation  = useNavigation()
+export function useCreateCategory(returnToTransaction = false) {
+  const queryClient  = useQueryClient()
+  const navigation   = useNavigation()
+  const pendingStore = usePendingTransactionStore()
 
   return useMutation({
     mutationFn: (form: CategoryForm) => categoriesApi.create(toPayload(form)),
-    onSuccess: async () => {
+    onSuccess: async (res) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
-      navigation.goBack()
       Toast.show({ type: 'success', text1: strings.categoryEdit.successCreate })
+
+      if (returnToTransaction) {
+        pendingStore.setNewCategoryId(res.data.data.id)
+        navigationRef.navigate(Screens.Root.UserTabs as any, {
+          screen: Screens.UserTab.History,
+          params: { screen: Screens.History.TransactionEdit },
+        })
+      } else {
+        navigation.goBack()
+      }
     },
     onError: (error) => handleApiError(error),
   })

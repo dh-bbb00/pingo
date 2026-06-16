@@ -11,13 +11,14 @@ const s = strings.transactionEdit
 const NO_CATEGORY_ID = ''
 
 interface Props {
-  visible:    boolean
-  selectedId: string   // '' = 기타
-  onSelect:   (categoryId: string) => void
-  onClose:    () => void
+  visible:       boolean
+  selectedId:    string   // '' = 기타
+  onSelect:      (categoryId: string) => void
+  onClose:       () => void
+  onAddCategory?: () => void
 }
 
-export default function CategoryPickerModal({ visible, selectedId, onSelect, onClose }: Props) {
+export default function CategoryPickerModal({ visible, selectedId, onSelect, onClose, onAddCategory }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
@@ -89,6 +90,15 @@ export default function CategoryPickerModal({ visible, selectedId, onSelect, onC
             )}
           </View>
 
+          {onAddCategory && (
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => { onClose(); onAddCategory() }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.addBtnText}>{strings.categoryEdit.addCategory}</Text>
+            </TouchableOpacity>
+          )}
         </View>
     </Modal>
   )

@@ -26,12 +26,13 @@ export default function CategoryEditScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const { params } = useRoute<Route>()
-  const isEdit  = !!params?.id
-  const title   = isEdit ? s.headerEdit : s.headerCreate
+  const isEdit             = !!params?.id
+  const returnToTransaction = !!params?.returnToTransaction
+  const title              = isEdit ? s.headerEdit : s.headerCreate
 
   const { data: categoryData, isLoading: loadingCategory } = useCategoryById(isEdit ? params?.id : undefined)
   const { form, setField, setForm, isValid } = useCategoryForm()
-  const { mutate: create, isPending: creating } = useCreateCategory()
+  const { mutate: create, isPending: creating } = useCreateCategory(returnToTransaction)
   const { mutate: update, isPending: updating } = useUpdateCategory(params?.id ?? '')
   const { mutate: deleteCat, isPending: deleting } = useDeleteCategory(params?.id ?? '')
 
