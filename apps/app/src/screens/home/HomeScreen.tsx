@@ -110,9 +110,15 @@ export default function HomeScreen() {
                 const color = over ? theme.colors.semantic.error : theme.colors.semantic.warning
                 const bg    = over ? theme.colors.semantic.errorBackground : theme.colors.semantic.warningBackground
                 return (
-                  <View
+                  <TouchableOpacity
                     key={item.category?.id ?? idx}
                     style={[styles.alertRow, { backgroundColor: bg, borderLeftColor: color }]}
+                    onPress={() => navigation.navigate(Screens.UserTab.Stats as any, {
+                      initialTab: 'category',
+                      dateTab:    DATE_TAB.MONTH,
+                      categoryId: item.category?.id,
+                    })}
+                    activeOpacity={0.7}
                   >
                     <Text style={styles.alertIcon}>{over ? '🚨' : '⚠️'}</Text>
                     <View style={styles.alertBody}>
@@ -122,7 +128,7 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                     <Text style={[styles.alertPct, { color }]}>{pct}%</Text>
-                  </View>
+                  </TouchableOpacity>
                 )
               })}
             </View>
