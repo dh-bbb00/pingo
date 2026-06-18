@@ -329,6 +329,11 @@ function RecentTxRow({
   return (
     <>
       {showDivider && <View style={styles.txDivider} />}
+      {tooltipVisible && tx.memo && (
+        <Animated.View style={[styles.txTooltip, { opacity: fadeAnim }]}>
+          <Text style={styles.txTooltipText} numberOfLines={3}>{tx.memo}</Text>
+        </Animated.View>
+      )}
       <TouchableOpacity
         style={styles.txRow}
         onLongPress={handleLongPress}
@@ -342,11 +347,6 @@ function RecentTxRow({
         <View style={styles.txBody}>
           <Text style={styles.txMerchant} numberOfLines={1}>{tx.merchantName}</Text>
           <Text style={styles.txSub}>{dateStr}  {tx.category?.name ?? strings.home.noCategory}</Text>
-          {tooltipVisible && tx.memo && (
-            <Animated.View style={[styles.txTooltip, { opacity: fadeAnim }]}>
-              <Text style={styles.txTooltipText} numberOfLines={3}>{tx.memo}</Text>
-            </Animated.View>
-          )}
         </View>
         <Text style={styles.txAmount}>{tx.amount.toLocaleString()}원</Text>
       </TouchableOpacity>

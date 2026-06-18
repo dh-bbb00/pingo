@@ -9,6 +9,6 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   merchant: { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary, marginBottom: 2 },
   sub:      { fontSize: t.fontSize.xs, color: t.colors.text.secondary },
   amount:      { fontSize: t.fontSize.md, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
-  tooltip:     { marginTop: 5, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 8 },
+  tooltip:     { marginHorizontal: 20, marginBottom: 2, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8 },
   tooltipText: { fontSize: t.fontSize.xs, lineHeight: 16 },
 })

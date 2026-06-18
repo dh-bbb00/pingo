@@ -43,44 +43,46 @@ function Top10Row({ item, idx, isLast, theme }: {
   }
 
   return (
-    <TouchableOpacity
-      style={[ss.row, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.colors.divider }]}
-      onLongPress={handleLongPress}
-      onPressOut={handlePressOut}
-      delayLongPress={300}
-      activeOpacity={0.7}
-    >
-      <Text style={[ss.rank, { color: idx < 3 ? theme.colors.primary : theme.colors.text.disabled }]}>
-        {idx + 1}
-      </Text>
+    <View>
+      {tooltipVisible && item.memo && (
+        <Animated.View style={[ss.tooltip, { backgroundColor: theme.colors.surfaceVariant, opacity: fadeAnim }]}>
+          <Text style={[ss.tooltipText, { color: theme.colors.text.secondary }]} numberOfLines={3}>
+            {item.memo}
+          </Text>
+        </Animated.View>
+      )}
+      <TouchableOpacity
+        style={[ss.row, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.colors.divider }]}
+        onLongPress={handleLongPress}
+        onPressOut={handlePressOut}
+        delayLongPress={300}
+        activeOpacity={0.7}
+      >
+        <Text style={[ss.rank, { color: idx < 3 ? theme.colors.primary : theme.colors.text.disabled }]}>
+          {idx + 1}
+        </Text>
 
-      <View style={ss.info}>
-        <View style={ss.nameRow}>
-          {item.category?.icon ? (
-            <Text style={ss.icon}>{item.category.icon}</Text>
-          ) : null}
-          <Text style={[ss.merchant, { color: theme.colors.text.primary }]} numberOfLines={1}>
-            {item.merchantName}
+        <View style={ss.info}>
+          <View style={ss.nameRow}>
+            {item.category?.icon ? (
+              <Text style={ss.icon}>{item.category.icon}</Text>
+            ) : null}
+            <Text style={[ss.merchant, { color: theme.colors.text.primary }]} numberOfLines={1}>
+              {item.merchantName}
+            </Text>
+          </View>
+          <Text style={[ss.sub, { color: theme.colors.text.disabled }]}>
+            {item.category?.name ?? s.other}
+            {'  ·  '}
+            {formatDate(item.transactionDate)}
           </Text>
         </View>
-        <Text style={[ss.sub, { color: theme.colors.text.disabled }]}>
-          {item.category?.name ?? s.other}
-          {'  ·  '}
-          {formatDate(item.transactionDate)}
-        </Text>
-        {tooltipVisible && item.memo && (
-          <Animated.View style={[ss.tooltip, { backgroundColor: theme.colors.surfaceVariant, opacity: fadeAnim }]}>
-            <Text style={[ss.tooltipText, { color: theme.colors.text.secondary }]} numberOfLines={3}>
-              {item.memo}
-            </Text>
-          </Animated.View>
-        )}
-      </View>
 
-      <Text style={[ss.amount, { color: theme.colors.text.primary }]}>
-        {item.amount.toLocaleString()}{s.currencyUnit}
-      </Text>
-    </TouchableOpacity>
+        <Text style={[ss.amount, { color: theme.colors.text.primary }]}>
+          {item.amount.toLocaleString()}{s.currencyUnit}
+        </Text>
+      </TouchableOpacity>
+    </View>
   )
 }
 
@@ -134,7 +136,7 @@ const ss = StyleSheet.create({
   merchant:    { fontSize: 14, fontWeight: '500', flexShrink: 1 },
   sub:         { fontSize: 12 },
   amount:      { fontSize: 14, fontWeight: '600' },
-  tooltip:     { marginTop: 5, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 8 },
+  tooltip:     { marginHorizontal: 16, marginBottom: 2, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8 },
   tooltipText: { fontSize: 12, lineHeight: 16 },
   skRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
   skMid:       { flex: 1 },

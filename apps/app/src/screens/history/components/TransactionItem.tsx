@@ -36,31 +36,33 @@ export default function TransactionItem({ item, onPress }: Props) {
   const cat = item.category
 
   return (
-    <TouchableOpacity
-      style={styles.row}
-      onPress={onPress}
-      onLongPress={handleLongPress}
-      onPressOut={handlePressOut}
-      delayLongPress={300}
-      activeOpacity={0.7}
-    >
-      <View style={[styles.iconWrap, { backgroundColor: cat?.color ?? theme.colors.surfaceVariant }]}>
-        <Text style={styles.iconEmoji}>{cat?.icon ?? '•'}</Text>
-      </View>
-      <View style={styles.middle}>
-        <Text style={styles.merchant} numberOfLines={1}>{item.merchantName}</Text>
-        <Text style={styles.sub} numberOfLines={1}>
-          {[cat?.name ?? strings.history.noCategory, item.paymentMethod?.name].filter(Boolean).join(' · ')}
-        </Text>
-        {tooltipVisible && item.memo && (
-          <Animated.View style={[styles.tooltip, { backgroundColor: theme.colors.surfaceVariant, opacity: fadeAnim }]}>
-            <Text style={[styles.tooltipText, { color: theme.colors.text.secondary }]} numberOfLines={3}>
-              {item.memo}
-            </Text>
-          </Animated.View>
-        )}
-      </View>
-      <Text style={styles.amount}>{item.amount.toLocaleString()}원</Text>
-    </TouchableOpacity>
+    <View>
+      {tooltipVisible && item.memo && (
+        <Animated.View style={[styles.tooltip, { backgroundColor: theme.colors.surfaceVariant, opacity: fadeAnim }]}>
+          <Text style={[styles.tooltipText, { color: theme.colors.text.secondary }]} numberOfLines={3}>
+            {item.memo}
+          </Text>
+        </Animated.View>
+      )}
+      <TouchableOpacity
+        style={styles.row}
+        onPress={onPress}
+        onLongPress={handleLongPress}
+        onPressOut={handlePressOut}
+        delayLongPress={300}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.iconWrap, { backgroundColor: cat?.color ?? theme.colors.surfaceVariant }]}>
+          <Text style={styles.iconEmoji}>{cat?.icon ?? '•'}</Text>
+        </View>
+        <View style={styles.middle}>
+          <Text style={styles.merchant} numberOfLines={1}>{item.merchantName}</Text>
+          <Text style={styles.sub} numberOfLines={1}>
+            {[cat?.name ?? strings.history.noCategory, item.paymentMethod?.name].filter(Boolean).join(' · ')}
+          </Text>
+        </View>
+        <Text style={styles.amount}>{item.amount.toLocaleString()}원</Text>
+      </TouchableOpacity>
+    </View>
   )
 }
