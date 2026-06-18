@@ -26,6 +26,7 @@ list:      { paddingBottom: 100 },
   footer:    { paddingVertical: 20 },
 
   // ── FAB ──────────────────────────────────────────────────────────────────────
-  fab:     { position: 'absolute', right: 24, bottom: 24, width: 52, height: 52, borderRadius: 16, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center', elevation: 3 },
-  fabText: { color: t.colors.text.inverse, fontSize: 26, lineHeight: 30, includeFontPadding: false },
+  fab:        { position: 'absolute', right: 24, bottom: 24, width: 52, height: 52, borderRadius: 16, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center', elevation: 3 },
+  fabDisabled: { opacity: 0.4 },
+  fabText:    { color: t.colors.text.inverse, fontSize: 26, lineHeight: 30, includeFontPadding: false },
 })

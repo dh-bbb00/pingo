@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'
+import Toast from 'react-native-toast-message'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -52,8 +53,9 @@ export default function CategoryScreen() {
     }
   }
 
-  const categories = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
+  const categories  = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data])
   const meta        = data?.pages[0]?.pagination
+  const isAtLimit   = !isLoading && (meta?.total ?? 0) >= 20
 
   const SortHeader = (
     <View style={styles.sortRow}>
@@ -139,8 +141,14 @@ export default function CategoryScreen() {
       )}
 
       <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate(Screens.Category.CategoryEdit, {})}
+        style={[styles.fab, isAtLimit && styles.fabDisabled]}
+        onPress={() => {
+          if (isAtLimit) {
+            Toast.show({ type: 'info', text1: s.limitReached })
+            return
+          }
+          navigation.navigate(Screens.Category.CategoryEdit, {})
+        }}
         activeOpacity={0.8}
       >
         <Text style={styles.fabText}>+</Text>

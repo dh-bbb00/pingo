@@ -49,6 +49,7 @@ export function handleApiError(
     case ApiErrorCode.RATE_LIMIT_EXCEEDED:
     case ApiErrorCode.INTERNAL_ERROR:
     case ApiErrorCode.VALIDATION_ERROR:
+    case ApiErrorCode.CATEGORY_LIMIT_EXCEEDED:
       Toast.show({ type: 'error', text1: message ?? c.errorFallback })
       break
 

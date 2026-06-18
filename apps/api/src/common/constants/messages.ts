@@ -27,4 +27,7 @@ export const MSG = {
     notFound:      '요청한 리소스를 찾을 수 없습니다.',
     internalError: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
   },
+  category: {
+    limitExceeded: '카테고리는 최대 20개까지 등록할 수 있습니다.',
+  },
 } as const;

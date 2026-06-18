@@ -133,6 +133,18 @@ export const ApiErrorCode = {
    */
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 
+  // ─────────────────────────────────────────────
+  // Category
+  // ─────────────────────────────────────────────
+
+  /**
+   * 카테고리 최대 등록 수 초과.
+   * - 발생: 사용자당 카테고리 20개 초과 시도
+   * - HTTP: 409
+   * - FE: 토스트 안내
+   */
+  CATEGORY_LIMIT_EXCEEDED: 'CATEGORY_LIMIT_EXCEEDED',
+
 } as const
 
 export type ApiErrorCode = (typeof ApiErrorCode)[keyof typeof ApiErrorCode]

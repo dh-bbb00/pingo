@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -6,6 +6,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { GetCategoriesQueryDto, CategorySortValue } from './dto/get-categories-query.dto';
 import { MSG } from '../common/constants/messages';
+import { ApiErrorCode } from '../common/constants/error-codes';
 
 @Injectable()
 export class CategoriesService {
@@ -112,6 +113,11 @@ export class CategoriesService {
    * budget이 함께 전달되면 이번 달 예산도 같이 등록한다.
    */
   async create(userId: string, dto: CreateCategoryDto) {
+    const count = await this.prisma.category.count({ where: { userId } });
+    if (count >= 20) {
+      throw new ConflictException({ errorCode: ApiErrorCode.CATEGORY_LIMIT_EXCEEDED, message: MSG.category.limitExceeded });
+    }
+
     const { budget, ...categoryData } = dto;
     const category = await this.prisma.category.create({
       data: { ...categoryData, userId },

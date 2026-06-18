@@ -308,9 +308,10 @@ export const strings = {
     countFmt:       (n: number) => `${n}개`,
     budgetFmt:      (n: number) => `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원`,
     noBudget:       '예산 없음',
-    sortBudget: '예산',
-    sortName:   '이름',
-    sortDate:   '등록일',
+    sortBudget:     '예산',
+    sortName:       '이름',
+    sortDate:       '등록일',
+    limitReached:   '카테고리는 최대 20개까지 등록할 수 있습니다.',
   },
 
   categoryEdit: {

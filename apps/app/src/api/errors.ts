@@ -10,11 +10,12 @@ export const ApiErrorCode = {
   REJECTED_ACCOUNT:      'REJECTED_ACCOUNT',
   INVALID_REFRESH_TOKEN: 'INVALID_REFRESH_TOKEN',
   RATE_LIMIT_EXCEEDED:   'RATE_LIMIT_EXCEEDED',
-  VALIDATION_ERROR:      'VALIDATION_ERROR',
-  UNAUTHORIZED:          'UNAUTHORIZED',
-  FORBIDDEN:             'FORBIDDEN',
-  NOT_FOUND:             'NOT_FOUND',
-  INTERNAL_ERROR:        'INTERNAL_ERROR',
+  VALIDATION_ERROR:          'VALIDATION_ERROR',
+  UNAUTHORIZED:              'UNAUTHORIZED',
+  FORBIDDEN:                 'FORBIDDEN',
+  NOT_FOUND:                 'NOT_FOUND',
+  INTERNAL_ERROR:            'INTERNAL_ERROR',
+  CATEGORY_LIMIT_EXCEEDED:   'CATEGORY_LIMIT_EXCEEDED',
 } as const
 
 export type ApiErrorCode = (typeof ApiErrorCode)[keyof typeof ApiErrorCode]
