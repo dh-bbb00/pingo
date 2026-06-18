@@ -29,6 +29,8 @@ export default function SplashScreen() {
     // refresh token이 있고 autoLogin=true인 경우 /auth/refresh를 호출해 토큰을 재발급받는다.
     // 재발급이 성공하면 만료가 다시 30일 연장된다 (rolling).
     // 30일 동안 앱을 켜지 않으면 refresh token이 만료되어 로그인 화면으로 이동한다.
+    const minDelay = new Promise<void>(resolve => setTimeout(resolve, 1000))
+
     async function bootstrap() {
       const refreshToken = storage.getString(StorageKeys.REFRESH_TOKEN)
       const autoLogin    = storage.getBoolean(StorageKeys.AUTO_LOGIN)
@@ -103,7 +105,7 @@ export default function SplashScreen() {
       }
     }
 
-    bootstrap()
+    Promise.all([bootstrap(), minDelay])
   }, [navigation, setTokens, setUserInfo])
 
   return (
