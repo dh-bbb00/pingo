@@ -13,6 +13,7 @@ export interface HomeSummaryTransaction {
   id:              string
   amount:          number
   merchantName:    string
+  memo:            string | null
   transactionDate: string
   categoryId:      string | null
   paymentMethodId: string | null
@@ -65,6 +66,7 @@ export interface Top10Item {
   id:              string
   merchantName:    string
   amount:          number
+  memo:            string | null
   transactionDate: string
   category:      { id: string; name: string; icon: string; color: string } | null
   paymentMethod: { id: string; name: string; type: string } | null

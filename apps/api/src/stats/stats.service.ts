@@ -207,6 +207,7 @@ export class StatsService {
         id:              true,
         merchantName:    true,
         amount:          true,
+        memo:            true,
         transactionDate: true,
         category:      { select: { id: true, name: true, icon: true, color: true } },
         paymentMethod: { select: { id: true, name: true, type: true } },

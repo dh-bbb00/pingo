@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import {
-  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl,
+  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Animated,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
@@ -307,19 +307,49 @@ function RecentTxRow({
   const d = new Date(tx.transactionDate)
   const dateStr = `${d.getMonth() + 1}.${d.getDate()}`
 
+  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const fadeAnim  = useRef(new Animated.Value(0)).current
+  const activeRef = useRef(false)
+
+  const handleLongPress = () => {
+    if (!tx.memo) return
+    activeRef.current = true
+    setTooltipVisible(true)
+    Animated.timing(fadeAnim, { toValue: 1, duration: 150, useNativeDriver: true }).start()
+  }
+
+  const handlePressOut = () => {
+    if (!activeRef.current) return
+    activeRef.current = false
+    Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
+      if (finished) setTooltipVisible(false)
+    })
+  }
+
   return (
     <>
       {showDivider && <View style={styles.txDivider} />}
-      <View style={styles.txRow}>
+      <TouchableOpacity
+        style={styles.txRow}
+        onLongPress={handleLongPress}
+        onPressOut={handlePressOut}
+        delayLongPress={300}
+        activeOpacity={0.7}
+      >
         <View style={[styles.txIcon, { backgroundColor: tx.category?.color ?? theme.colors.surfaceVariant }]}>
           <Text style={styles.txIconEmoji}>{tx.category?.icon ?? '•'}</Text>
         </View>
         <View style={styles.txBody}>
           <Text style={styles.txMerchant} numberOfLines={1}>{tx.merchantName}</Text>
           <Text style={styles.txSub}>{dateStr}  {tx.category?.name ?? strings.home.noCategory}</Text>
+          {tooltipVisible && tx.memo && (
+            <Animated.View style={[styles.txTooltip, { opacity: fadeAnim }]}>
+              <Text style={styles.txTooltipText} numberOfLines={3}>{tx.memo}</Text>
+            </Animated.View>
+          )}
         </View>
         <Text style={styles.txAmount}>{tx.amount.toLocaleString()}원</Text>
-      </View>
+      </TouchableOpacity>
     </>
   )
 }

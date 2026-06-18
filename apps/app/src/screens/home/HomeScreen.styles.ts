@@ -42,14 +42,16 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   catBudgetHint:   { fontSize: t.fontSize.xs, color: t.colors.text.disabled, marginTop: 4, textAlign: 'right' },
 
   // 최근 거래
-  txDivider: { height: 1, backgroundColor: t.colors.divider, marginVertical: 2 },
-  txRow:     { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
-  txIcon:    { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  txDivider:   { height: 1, backgroundColor: t.colors.divider, marginVertical: 2 },
+  txRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
+  txIcon:      { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   txIconEmoji: { fontSize: 16 },
-  txBody:    { flex: 1 },
-  txMerchant:{ fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.primary },
-  txSub:     { fontSize: t.fontSize.xs, color: t.colors.text.secondary, marginTop: 2 },
-  txAmount:  { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
+  txBody:      { flex: 1 },
+  txMerchant:  { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.primary },
+  txSub:       { fontSize: t.fontSize.xs, color: t.colors.text.secondary, marginTop: 2 },
+  txAmount:    { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
+  txTooltip:     { marginTop: 5, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 8, backgroundColor: t.colors.surfaceVariant },
+  txTooltipText: { fontSize: t.fontSize.xs, color: t.colors.text.secondary, lineHeight: 16 },
 
   // 소비 추이
   trendCard:        { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end', paddingVertical: 8 },
