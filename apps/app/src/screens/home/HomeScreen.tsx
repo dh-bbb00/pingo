@@ -320,6 +320,7 @@ function RecentTxRow({
         ref={rowRef}
         style={styles.txRow}
         onLongPress={show}
+        onPressOut={hide}
         delayLongPress={300}
         activeOpacity={0.7}
       >

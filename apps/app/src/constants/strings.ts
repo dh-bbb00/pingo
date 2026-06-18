@@ -12,6 +12,7 @@ export const strings = {
     logoutConfirmMsg:   '로그아웃 하시겠습니까?',
     confirm:            '확인',
     cancel:             '취소',
+    memo:               '메모',
   },
 
   splash: {

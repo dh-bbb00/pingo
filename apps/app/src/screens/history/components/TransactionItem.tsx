@@ -29,6 +29,7 @@ export default function TransactionItem({ item, onPress }: Props) {
         style={styles.row}
         onPress={onPress}
         onLongPress={show}
+        onPressOut={hide}
         delayLongPress={300}
         activeOpacity={0.7}
       >

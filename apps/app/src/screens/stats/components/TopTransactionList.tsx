@@ -36,6 +36,7 @@ function Top10Row({ item, idx, isLast, theme }: {
         ref={rowRef}
         style={[ss.row, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.colors.divider }]}
         onLongPress={show}
+        onPressOut={hide}
         delayLongPress={300}
         activeOpacity={0.7}
       >
