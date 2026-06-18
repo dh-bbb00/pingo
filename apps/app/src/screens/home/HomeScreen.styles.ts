@@ -50,8 +50,6 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   txMerchant:  { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.primary },
   txSub:       { fontSize: t.fontSize.xs, color: t.colors.text.secondary, marginTop: 2 },
   txAmount:    { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.semiBold, color: t.colors.text.primary },
-  txTooltip:     { marginBottom: 2, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8, backgroundColor: t.colors.surfaceVariant },
-  txTooltipText: { fontSize: t.fontSize.xs, color: t.colors.text.secondary, lineHeight: 16 },
 
   // 소비 추이
   trendCard:        { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end', paddingVertical: 8 },

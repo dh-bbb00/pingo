@@ -1,6 +1,6 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo } from 'react'
 import {
-  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Animated,
+  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
@@ -11,6 +11,8 @@ import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
 import { useHomeSummary } from './hooks/useHomeSummary'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
+import { useMemoTooltip } from '@/hooks/useMemoTooltip'
+import MemoTooltip from '@/components/MemoTooltip'
 import { makeStyles } from './HomeScreen.styles'
 import type { HomeSummaryCategory, HomeSummaryTransaction } from '@/api/endpoints/stats.api'
 import { DATE_TAB } from '@/api/endpoints/stats.api'
@@ -306,38 +308,18 @@ function RecentTxRow({
 }) {
   const d = new Date(tx.transactionDate)
   const dateStr = `${d.getMonth() + 1}.${d.getDate()}`
-
-  const [tooltipVisible, setTooltipVisible] = useState(false)
-  const fadeAnim  = useRef(new Animated.Value(0)).current
-  const activeRef = useRef(false)
-
-  const handleLongPress = () => {
-    if (!tx.memo) return
-    activeRef.current = true
-    setTooltipVisible(true)
-    Animated.timing(fadeAnim, { toValue: 1, duration: 150, useNativeDriver: true }).start()
-  }
-
-  const handlePressOut = () => {
-    if (!activeRef.current) return
-    activeRef.current = false
-    Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
-      if (finished) setTooltipVisible(false)
-    })
-  }
+  const { rowRef, visible, bottom, show, hide } = useMemoTooltip(tx.memo)
 
   return (
     <>
       {showDivider && <View style={styles.txDivider} />}
-      {tooltipVisible && tx.memo && (
-        <Animated.View style={[styles.txTooltip, { opacity: fadeAnim }]}>
-          <Text style={styles.txTooltipText} numberOfLines={3}>{tx.memo}</Text>
-        </Animated.View>
+      {tx.memo && (
+        <MemoTooltip memo={tx.memo} visible={visible} bottom={bottom} onDismiss={hide} />
       )}
       <TouchableOpacity
+        ref={rowRef}
         style={styles.txRow}
-        onLongPress={handleLongPress}
-        onPressOut={handlePressOut}
+        onLongPress={show}
         delayLongPress={300}
         activeOpacity={0.7}
       >

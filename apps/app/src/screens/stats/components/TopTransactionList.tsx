@@ -1,9 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native'
+import React from 'react'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import SkeletonBox from '@/components/containers/SkeletonBox'
 import type { Top10Item } from '@/api/endpoints/stats.api'
+import { useMemoTooltip } from '@/hooks/useMemoTooltip'
+import MemoTooltip from '@/components/MemoTooltip'
 
 const s = strings.stats
 
@@ -23,38 +25,17 @@ function Top10Row({ item, idx, isLast, theme }: {
   isLast: boolean
   theme:  ReturnType<typeof useTheme>['theme']
 }) {
-  const [tooltipVisible, setTooltipVisible] = useState(false)
-  const fadeAnim  = useRef(new Animated.Value(0)).current
-  const activeRef = useRef(false)
-
-  const handleLongPress = () => {
-    if (!item.memo) return
-    activeRef.current = true
-    setTooltipVisible(true)
-    Animated.timing(fadeAnim, { toValue: 1, duration: 150, useNativeDriver: true }).start()
-  }
-
-  const handlePressOut = () => {
-    if (!activeRef.current) return
-    activeRef.current = false
-    Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
-      if (finished) setTooltipVisible(false)
-    })
-  }
+  const { rowRef, visible, bottom, show, hide } = useMemoTooltip(item.memo)
 
   return (
-    <View>
-      {tooltipVisible && item.memo && (
-        <Animated.View style={[ss.tooltip, { backgroundColor: theme.colors.surfaceVariant, opacity: fadeAnim }]}>
-          <Text style={[ss.tooltipText, { color: theme.colors.text.secondary }]} numberOfLines={3}>
-            {item.memo}
-          </Text>
-        </Animated.View>
+    <>
+      {item.memo && (
+        <MemoTooltip memo={item.memo} visible={visible} bottom={bottom} onDismiss={hide} />
       )}
       <TouchableOpacity
+        ref={rowRef}
         style={[ss.row, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.colors.divider }]}
-        onLongPress={handleLongPress}
-        onPressOut={handlePressOut}
+        onLongPress={show}
         delayLongPress={300}
         activeOpacity={0.7}
       >
@@ -82,7 +63,7 @@ function Top10Row({ item, idx, isLast, theme }: {
           {item.amount.toLocaleString()}{s.currencyUnit}
         </Text>
       </TouchableOpacity>
-    </View>
+    </>
   )
 }
 
@@ -136,8 +117,6 @@ const ss = StyleSheet.create({
   merchant:    { fontSize: 14, fontWeight: '500', flexShrink: 1 },
   sub:         { fontSize: 12 },
   amount:      { fontSize: 14, fontWeight: '600' },
-  tooltip:     { marginHorizontal: 16, marginBottom: 2, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8 },
-  tooltipText: { fontSize: 12, lineHeight: 16 },
   skRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
   skMid:       { flex: 1 },
   skGap:       { marginBottom: 4 },
