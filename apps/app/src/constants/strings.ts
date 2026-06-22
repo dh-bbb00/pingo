@@ -451,6 +451,11 @@ export const strings = {
     vsPrevSame:          (period: string) => `전${period}과 동일`,
     vsPrevNone:          (period: string) => `전${period} 지출 없음`,
     categoryDiffFmt:     (period: string, sign: '+' | '-', amount: number) => `전${period} 대비 ${sign}${amount.toLocaleString()}원`,
+    monthlyComparison:   '최근 3개월 지출',
+    monthFmt:            (m: number) => `${m}월`,
+    diffMore:            (amount: number) => `▲ ${amount.toLocaleString()}원`,
+    diffLess:            (amount: number) => `▼ ${amount.toLocaleString()}원`,
+    diffSame:            '전달과 동일',
   },
 
   fixedExpenses: {

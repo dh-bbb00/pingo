@@ -6,6 +6,7 @@ import { getDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } fr
 import { DATE_TAB } from '@/api/endpoints/stats.api'
 import type { StatsDateTab } from '@/api/endpoints/stats.api'
 import SummaryCard from './SummaryCard'
+import MonthlyComparisonCard from './MonthlyComparisonCard'
 import TrendBarChart from '@/components/charts/TrendBarChart'
 import TopTransactionList from './TopTransactionList'
 import { strings } from '@/constants/strings'
@@ -48,11 +49,24 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
   const params     = useMemo(() => range     ? { ...range,     categoryId: selectedCategoryId! } : null, [range,     selectedCategoryId])
   const prevParams = useMemo(() => prevRange ? { ...prevRange, categoryId: selectedCategoryId! } : null, [prevRange, selectedCategoryId])
 
-  const { data: catData,     isLoading: catLoading  } = useStatsByCategory(params)
-  const { data: prevCatData }                         = useStatsByCategory(prevParams)
-  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate(dateTab === DATE_TAB.MONTH && params ? params : null)
-  const { data: byMonthData, isLoading: monthLoading } = useStatsByMonth(dateTab === DATE_TAB.YEAR  && params ? params : null)
-  const { data: top10Data,   isLoading: top10Loading  } = useStatsTop10(params)
+  // 월 탭: 최근 4개월 범위 (3개 표시 + 이전 달 비교 기준)
+  const recentMonthsParams = useMemo(() => {
+    if (dateTab !== DATE_TAB.MONTH || !selectedCategoryId) return null
+    const y = date.getFullYear()
+    const m = date.getMonth()
+    return {
+      startDate:  new Date(y, m - 3, 1).toISOString(),
+      endDate:    new Date(y, m + 1, 0, 23, 59, 59, 999).toISOString(),
+      categoryId: selectedCategoryId,
+    }
+  }, [dateTab, date, selectedCategoryId])
+
+  const { data: catData,          isLoading: catLoading     } = useStatsByCategory(params)
+  const { data: prevCatData }                                  = useStatsByCategory(prevParams)
+  const { data: byDateData,       isLoading: dateLoading     } = useStatsByDate(dateTab === DATE_TAB.MONTH && params ? params : null)
+  const { data: byMonthData,      isLoading: monthLoading    } = useStatsByMonth(dateTab === DATE_TAB.YEAR  && params ? params : null)
+  const { data: recentMonthsData = [], isLoading: recentMonthsLoading } = useStatsByMonth(recentMonthsParams)
+  const { data: top10Data,        isLoading: top10Loading    } = useStatsTop10(params)
 
   const chartLoading =
     (dateTab === DATE_TAB.MONTH && dateLoading) ||
@@ -116,6 +130,9 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
             budget={budgetForTab}
             isLoading={catLoading}
           />
+          {dateTab === DATE_TAB.MONTH && (
+            <MonthlyComparisonCard data={recentMonthsData} isLoading={recentMonthsLoading} />
+          )}
           {(dateTab === DATE_TAB.MONTH || dateTab === DATE_TAB.YEAR) && (
             <TrendBarChart
               data={barData ?? []}
