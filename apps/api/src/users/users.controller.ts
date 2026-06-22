@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Body, Param, Query, UseGuards, Post } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -93,6 +93,17 @@ export class UsersController {
   ): Promise<BasicResponse<unknown>> {
     const data = await this.usersService.getDevice(user.id, user.deviceId);
     return { success: true, data };
+  }
+
+  /** FCM 토큰 등록/갱신 — 앱 시작 시 호출 */
+  @Post('me/device/fcm-token')
+  @ApiOperation({ summary: 'FCM 토큰 저장' })
+  async saveFcmToken(
+    @CurrentUser() user: { id: string; deviceId: string },
+    @Body('fcmToken') fcmToken: string,
+  ): Promise<BasicResponse<null>> {
+    await this.usersService.saveFcmToken(user.deviceId, fcmToken);
+    return { success: true, data: null };
   }
 
   /** 기기 삭제 — 로그아웃 처리도 겸함 */

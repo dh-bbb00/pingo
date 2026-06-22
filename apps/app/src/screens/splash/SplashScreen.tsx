@@ -9,6 +9,8 @@ import { storage, StorageKeys } from '@/utils/storage'
 import { getDeviceId } from '@/utils/device'
 import { fixedExpensesApi } from '@/api/endpoints/fixedExpenses.api'
 import { syncFixedExpenseReminders } from '@/utils/notification'
+import { usersApi } from '@/api/endpoints/users.api'
+import messaging from '@react-native-firebase/messaging'
 import type { RootStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
@@ -59,6 +61,11 @@ export default function SplashScreen() {
 
         setTokens(accessToken, newRefreshToken)
         setUserInfo(role, approvalStatus)
+
+        // FCM 토큰 발급 후 서버에 저장 — 실패 시 무시
+        messaging().getToken()
+          .then(fcmToken => usersApi.saveFcmToken(fcmToken))
+          .catch(() => {})
 
         const currentDeviceUid = await getDeviceId()
         if (storedDeviceUid && storedDeviceUid !== currentDeviceUid) {

@@ -51,6 +51,7 @@ model Device {
   osVersion  String   // getSystemVersion() 예: "Android 15"
   appVersion String   // getVersion()     예: "1.0.0"
   isTrusted  Boolean  @default(false) // 관리자 승인 완료 후 true. deviceUid 변경 감지 시 false로 초기화
+  fcmToken   String?  // FCM 푸시 토큰 — 앱 시작 시 갱신
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

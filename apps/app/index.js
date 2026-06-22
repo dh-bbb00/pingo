@@ -7,6 +7,7 @@ import App from './App';
 import { name as appName } from './app.json';
 import { RNAndroidNotificationListenerHeadlessJsName } from 'react-native-android-notification-listener';
 import notifee from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
 import { saveDetectedNotification } from './src/store/notificationLogStore';
 import { saveCancelNotification } from './src/store/cancelNotificationStore';
 import { setupNotificationChannel, displayDetectedNotification, schedulePendingReminder, displayCancelNotification } from './src/utils/notification';
@@ -59,5 +60,19 @@ notifee.onBackgroundEvent(async ({ type, detail }) => {
   const { EventType } = await import('@notifee/react-native');
   if (type === EventType.PRESS && detail.pressAction?.id === 'pending-notifications') {
     // 백그라운드 탭은 앱 실행 후 getInitialNotification으로 처리
+  }
+});
+
+// FCM 백그라운드/종료 상태 메시지 핸들러 — 앱이 꺼져 있어도 Notifee로 알림 표시
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+  await setupNotificationChannel();
+  const title = remoteMessage.notification?.title ?? '';
+  const body  = remoteMessage.notification?.body  ?? '';
+  if (title || body) {
+    await notifee.displayNotification({
+      title,
+      body,
+      android: { channelId: 'pingo-default', pressAction: { id: 'default' } },
+    });
   }
 });

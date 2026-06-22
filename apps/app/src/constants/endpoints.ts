@@ -41,6 +41,7 @@ export const endpoints = {
     password:  `${V1}/users/me/password`,
     myDevices: `${V1}/users/me/devices`,
     device:    (id: string) => `${V1}/users/me/devices/${id}`,
+    fcmToken:  `${V1}/users/me/device/fcm-token`,
     suspend:   (id: string) => `${V1}/users/${id}/suspend`,
     unsuspend: (id: string) => `${V1}/users/${id}/unsuspend`,
   },

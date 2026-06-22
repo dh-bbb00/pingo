@@ -67,6 +67,9 @@ export const usersApi = {
   deleteDevice: (id: string) =>
     apiClient.delete(endpoints.users.device(id)),
 
+  saveFcmToken: (fcmToken: string) =>
+    apiClient.post(endpoints.users.fcmToken, { fcmToken }),
+
   suspend: (id: string) =>
     apiClient.patch(endpoints.users.suspend(id)),
 

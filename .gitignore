@@ -40,6 +40,9 @@ yarn-error.log*
 # Cloudflared tunnel credentials (contain private keys)
 cloudflared/*.json
 
+# Firebase 서비스 계정 키 (비공개 키 — 절대 커밋 금지)
+apps/api/firebase-service-account.json
+
 # API server logs (production file rotation)
 apps/api/logs/
 

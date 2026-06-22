@@ -17,6 +17,7 @@ import { FixedExpensesModule } from './fixed-expenses/fixed-expenses.module';
 import { StatsModule } from './stats/stats.module';
 import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { FirebaseModule } from './firebase/firebase.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -34,6 +35,7 @@ import { HealthController } from './health/health.controller';
     StatsModule,
     PaymentMethodsModule,
     SchedulerModule,
+    FirebaseModule,
   ],
   controllers: [HealthController],
   providers: [

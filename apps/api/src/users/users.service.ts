@@ -97,6 +97,11 @@ export class UsersService {
     return { users, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
   }
 
+  /** FCM 토큰 저장/갱신 */
+  async saveFcmToken(deviceId: string, fcmToken: string): Promise<void> {
+    await this.prisma.device.update({ where: { id: deviceId }, data: { fcmToken } });
+  }
+
   /** 기기 삭제 — 연결된 refresh token 함께 삭제 */
   async removeDevice(userId: string, deviceId: string): Promise<void> {
     await this.prisma.refreshToken.deleteMany({ where: { userId, deviceId } });
