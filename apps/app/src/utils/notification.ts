@@ -5,8 +5,9 @@ import { strings } from '@/constants/strings'
 export const CHANNEL_ID = 'pingo-default'
 
 // 예약 알림 id를 `${prefix}${notificationId}` 형태로 만들어, 등록 완료 시 정확한 알림만 취소할 수 있게 한다.
-const REMINDER_PREFIX   = 'pending-reminder-'
-const REMINDER_DELAY_MS = 3 * 24 * 60 * 60 * 1000  // 3일
+const REMINDER_PREFIX        = 'pending-reminder-'
+const FIXED_EXPENSE_PREFIX   = 'fixed-expense-'
+const REMINDER_DELAY_MS      = 3 * 24 * 60 * 60 * 1000  // 3일
 
 const sn = strings.notification
 const sc = strings.cancelledTransactionSearch
@@ -95,4 +96,61 @@ export async function cancelPendingReminder(notificationId: string) {
   } catch {
     // 이미 발송됐거나 등록된 적 없는 경우
   }
+}
+
+/**
+ * dayOfMonth 기준으로 다음 발송 시각을 계산한다.
+ * 당월 해당일 9시가 아직 지나지 않았으면 이번 달, 지났으면 다음 달로 예약한다.
+ */
+function nextFixedExpenseAt9AM(dayOfMonth: number): number {
+  const now       = new Date()
+  const candidate = new Date(now.getFullYear(), now.getMonth(), dayOfMonth, 9, 0, 0, 0)
+  if (candidate.getTime() > Date.now()) return candidate.getTime()
+  // 이번 달 9시가 이미 지난 경우 → 다음 달 동일 일자
+  return new Date(now.getFullYear(), now.getMonth() + 1, dayOfMonth, 9, 0, 0, 0).getTime()
+}
+
+/** 고정 지출 당일 9시 알림 예약. 앱 시작마다 재호출해 매월 연속성을 유지한다. */
+export async function scheduleFixedExpenseReminder(id: string, dayOfMonth: number, merchantName: string) {
+  const trigger: TimestampTrigger = {
+    type:      TriggerType.TIMESTAMP,
+    timestamp: nextFixedExpenseAt9AM(dayOfMonth),
+  }
+  await notifee.createTriggerNotification(
+    {
+      id:    `${FIXED_EXPENSE_PREFIX}${id}`,
+      title: sn.fixedExpenseTitle,
+      body:  sn.fixedExpenseBody(merchantName),
+      android: {
+        channelId:   CHANNEL_ID,
+        pressAction: { id: 'default' },
+      },
+    },
+    trigger,
+  )
+}
+
+/** 고정 지출 알림 취소. 삭제하거나 비활성화할 때 호출한다. */
+export async function cancelFixedExpenseReminder(id: string) {
+  try {
+    await notifee.cancelTriggerNotification(`${FIXED_EXPENSE_PREFIX}${id}`)
+  } catch {
+    // 이미 발송됐거나 등록된 적 없는 경우
+  }
+}
+
+/**
+ * 앱 시작 시 활성 고정 지출 알림을 전체 동기화한다.
+ * TimestampTrigger는 1회 발송 후 소멸하므로, 매 앱 시작마다 다음 달 일자로 재예약해야 한다.
+ */
+export async function syncFixedExpenseReminders(
+  items: { id: string; dayOfMonth: number; merchantName: string; isActive: boolean }[],
+) {
+  await Promise.all(
+    items.map(item =>
+      item.isActive
+        ? scheduleFixedExpenseReminder(item.id, item.dayOfMonth, item.merchantName)
+        : cancelFixedExpenseReminder(item.id),
+    ),
+  )
 }

@@ -127,11 +127,13 @@ export const strings = {
   },
 
   notification: {
-    channelName:         'Pingo 알림',
-    detectedTitle:       '새 결제 알림이 왔어요',
-    detectedBodyFmt:     (app: string, text: string) => `${app}\n${text}\n탭하면 지출 내역으로 바로 등록할 수 있어요.`,
-    reminderTitle:       '아직 등록하지 않은 결제가 있어요',
-    reminderBody:        '받은 결제 알림이 아직 가계부에 등록되지 않았어요. 탭해서 지금 바로 기록해보세요.',
+    channelName:              'Pingo 알림',
+    detectedTitle:            '새 결제 알림이 왔어요',
+    detectedBodyFmt:          (app: string, text: string) => `${app}\n${text}\n탭하면 지출 내역으로 바로 등록할 수 있어요.`,
+    reminderTitle:            '아직 등록하지 않은 결제가 있어요',
+    reminderBody:             '받은 결제 알림이 아직 가계부에 등록되지 않았어요. 탭해서 지금 바로 기록해보세요.',
+    fixedExpenseTitle:        '오늘 고정 지출 납부일이에요',
+    fixedExpenseBody:         (merchantName: string) => `${merchantName} 납부일입니다. 잊지 말고 확인해보세요!`,
   },
 
   cancelledTransactionSearch: {

@@ -7,6 +7,8 @@ import { endpoints } from '@/constants/endpoints'
 import { useAuthStore } from '@/store/authStore'
 import { storage, StorageKeys } from '@/utils/storage'
 import { getDeviceId } from '@/utils/device'
+import { fixedExpensesApi } from '@/api/endpoints/fixedExpenses.api'
+import { syncFixedExpenseReminders } from '@/utils/notification'
 import type { RootStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
@@ -73,6 +75,11 @@ export default function SplashScreen() {
         if (role === 'ADMIN') {
           navigation.replace(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
         } else {
+          // 고정 지출 납부일 알림 동기화 — TimestampTrigger는 1회성이므로 매 앱 시작마다 재예약
+          fixedExpensesApi.getList()
+            .then(r => syncFixedExpenseReminders(r.data.data))
+            .catch(() => {})
+
           const pendingCancelId = storage.getString(StorageKeys.PENDING_CANCEL_DEEPLINK)
           if (pendingCancelId) {
             storage.remove(StorageKeys.PENDING_CANCEL_DEEPLINK)

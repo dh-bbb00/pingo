@@ -22,6 +22,7 @@ import { Screens } from '@/constants/screens'
 import { navigationRef } from '@/navigation/navigationRef'
 import Toast from 'react-native-toast-message'
 import { showConfirm } from '@/store/confirmStore'
+import { scheduleFixedExpenseReminder, cancelFixedExpenseReminder } from '@/utils/notification'
 
 type Route = RouteProp<MoreStackParamList, 'FixedExpenseEdit'>
 type Nav   = NativeStackNavigationProp<MoreStackParamList, 'FixedExpenseEdit'>
@@ -79,6 +80,13 @@ export default function FixedExpenseEditScreen() {
 
   // 저장 후 자동등록 체크 및 컨펌 흐름
   const handlePostSave = async (fixedExpenseId: string, baseSuccessText: string) => {
+    // isActive 상태에 따라 납부일 알림 예약/취소 (실패해도 저장 흐름은 계속)
+    if (form.isActive) {
+      scheduleFixedExpenseReminder(fixedExpenseId, Number(form.dayOfMonth), form.merchantName.trim()).catch(() => {})
+    } else {
+      cancelFixedExpenseReminder(fixedExpenseId).catch(() => {})
+    }
+
     if (!form.isActive) {
       Toast.show({ type: 'success', text1: baseSuccessText })
       navigation.goBack()
@@ -161,8 +169,11 @@ export default function FixedExpenseEditScreen() {
         text: s.confirmDeleteOk,
         style: 'destructive',
         onPress: () => deleteFe(params!.id!, {
-          onSuccess: () => navigation.goBack(),
-          onError:   (e) => handleApiError(e),
+          onSuccess: () => {
+            cancelFixedExpenseReminder(params!.id!).catch(() => {})
+            navigation.goBack()
+          },
+          onError: (e) => handleApiError(e),
         }),
       },
     ])
