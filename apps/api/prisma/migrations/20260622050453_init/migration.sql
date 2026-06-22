@@ -2,10 +2,25 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "UserStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE "UserStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED');
 
 -- CreateEnum
 CREATE TYPE "ApprovalStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "RequestType" AS ENUM ('NEW_USER', 'NEW_DEVICE');
+
+-- CreateEnum
+CREATE TYPE "PaymentMethodType" AS ENUM ('CASH', 'GIFT_CARD', 'CARD');
+
+-- CreateEnum
+CREATE TYPE "SchedulerLogType" AS ENUM ('BUDGET_ROLLOVER', 'FIXED_EXPENSES', 'INSTALLMENTS');
+
+-- CreateEnum
+CREATE TYPE "SchedulerTrigger" AS ENUM ('CRON', 'MANUAL');
+
+-- CreateEnum
+CREATE TYPE "SchedulerLogStatus" AS ENUM ('NOT_RUN', 'SUCCESS', 'FAILURE');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -30,6 +45,7 @@ CREATE TABLE "Device" (
     "osVersion" TEXT NOT NULL,
     "appVersion" TEXT NOT NULL,
     "isTrusted" BOOLEAN NOT NULL DEFAULT false,
+    "fcmToken" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -41,6 +57,7 @@ CREATE TABLE "ApprovalRequest" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "deviceId" TEXT NOT NULL,
+    "type" "RequestType" NOT NULL DEFAULT 'NEW_USER',
     "status" "ApprovalStatus" NOT NULL DEFAULT 'PENDING',
     "reviewedById" TEXT,
     "reviewedAt" TIMESTAMP(3),
@@ -79,7 +96,6 @@ CREATE TABLE "Category" (
     "name" TEXT NOT NULL,
     "icon" TEXT,
     "color" TEXT,
-    "budget" INTEGER,
     "isBudgetFixed" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -88,15 +104,47 @@ CREATE TABLE "Category" (
 );
 
 -- CreateTable
+CREATE TABLE "CategoryMonthlyBudget" (
+    "id" TEXT NOT NULL,
+    "categoryId" TEXT NOT NULL,
+    "year" INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
+    "budget" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CategoryMonthlyBudget_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "payment_methods" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "type" "PaymentMethodType" NOT NULL,
+    "name" TEXT NOT NULL,
+    "cardNumber" TEXT,
+    "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "payment_methods_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Transaction" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "categoryId" TEXT NOT NULL,
+    "categoryId" TEXT,
+    "paymentMethodId" TEXT,
     "amount" INTEGER NOT NULL,
     "merchantName" TEXT NOT NULL,
-    "cardCompany" TEXT,
     "memo" TEXT,
     "transactionDate" TIMESTAMP(3) NOT NULL,
+    "installmentMonths" INTEGER,
+    "totalAmount" INTEGER,
+    "installmentEndDate" TIMESTAMP(3),
+    "originalTransactionId" TEXT,
+    "fixedExpenseId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -104,13 +152,29 @@ CREATE TABLE "Transaction" (
 );
 
 -- CreateTable
+CREATE TABLE "SchedulerLog" (
+    "id" TEXT NOT NULL,
+    "type" "SchedulerLogType" NOT NULL,
+    "year" INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
+    "status" "SchedulerLogStatus" NOT NULL DEFAULT 'NOT_RUN',
+    "runAt" TIMESTAMP(3),
+    "totalCount" INTEGER,
+    "successCount" INTEGER,
+    "error" TEXT,
+    "triggeredBy" "SchedulerTrigger",
+
+    CONSTRAINT "SchedulerLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "FixedExpense" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
+    "paymentMethodId" TEXT,
     "amount" INTEGER NOT NULL,
     "merchantName" TEXT NOT NULL,
-    "cardCompany" TEXT,
     "memo" TEXT,
     "dayOfMonth" INTEGER NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
@@ -148,7 +212,31 @@ CREATE INDEX "RefreshToken_userId_idx" ON "RefreshToken"("userId");
 CREATE UNIQUE INDEX "Category_userId_name_key" ON "Category"("userId", "name");
 
 -- CreateIndex
+CREATE INDEX "CategoryMonthlyBudget_categoryId_idx" ON "CategoryMonthlyBudget"("categoryId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CategoryMonthlyBudget_categoryId_year_month_key" ON "CategoryMonthlyBudget"("categoryId", "year", "month");
+
+-- CreateIndex
+CREATE INDEX "payment_methods_userId_idx" ON "payment_methods"("userId");
+
+-- CreateIndex
 CREATE INDEX "Transaction_userId_transactionDate_idx" ON "Transaction"("userId", "transactionDate");
+
+-- CreateIndex
+CREATE INDEX "Transaction_originalTransactionId_idx" ON "Transaction"("originalTransactionId");
+
+-- CreateIndex
+CREATE INDEX "Transaction_fixedExpenseId_idx" ON "Transaction"("fixedExpenseId");
+
+-- CreateIndex
+CREATE INDEX "SchedulerLog_type_year_month_idx" ON "SchedulerLog"("type", "year", "month");
+
+-- CreateIndex
+CREATE INDEX "SchedulerLog_year_month_idx" ON "SchedulerLog"("year", "month");
+
+-- CreateIndex
+CREATE INDEX "SchedulerLog_status_idx" ON "SchedulerLog"("status");
 
 -- AddForeignKey
 ALTER TABLE "Device" ADD CONSTRAINT "Device_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -172,13 +260,31 @@ ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_deviceId_fkey" FOREIGN K
 ALTER TABLE "Category" ADD CONSTRAINT "Category_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "CategoryMonthlyBudget" ADD CONSTRAINT "CategoryMonthlyBudget_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "payment_methods" ADD CONSTRAINT "payment_methods_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_paymentMethodId_fkey" FOREIGN KEY ("paymentMethodId") REFERENCES "payment_methods"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_originalTransactionId_fkey" FOREIGN KEY ("originalTransactionId") REFERENCES "Transaction"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_fixedExpenseId_fkey" FOREIGN KEY ("fixedExpenseId") REFERENCES "FixedExpense"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FixedExpense" ADD CONSTRAINT "FixedExpense_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "FixedExpense" ADD CONSTRAINT "FixedExpense_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "FixedExpense" ADD CONSTRAINT "FixedExpense_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FixedExpense" ADD CONSTRAINT "FixedExpense_paymentMethodId_fkey" FOREIGN KEY ("paymentMethodId") REFERENCES "payment_methods"("id") ON DELETE SET NULL ON UPDATE CASCADE;
