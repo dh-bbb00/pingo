@@ -170,6 +170,7 @@ model PaymentMethod {
   name       String            // CARD: 카드사명, CASH: "현금", GIFT_CARD: "상품권"
   cardNumber String?           // CARD 전용 카드번호 (예: 끝 4자리). CASH·GIFT_CARD는 null
   isDefault  Boolean           @default(false) // 기본 결제수단 여부 (내정보 화면에서 관리)
+  deletedAt  DateTime?                          // 소프트 삭제 — null이면 활성, 값 있으면 삭제됨
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 

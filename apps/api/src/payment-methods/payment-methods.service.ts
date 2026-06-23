@@ -8,18 +8,27 @@ import { MSG } from '../common/constants/messages';
 export class PaymentMethodsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * 결제수단 목록 — CASH·GIFT_CARD 고정 항목 먼저, 이후 CARD를 등록순으로 반환
-   */
+  /** 결제수단 목록 — CASH·GIFT_CARD 고정 항목 먼저, 이후 CARD를 등록순으로 반환 (소프트 삭제 제외) */
   findAll(userId: string) {
     return this.prisma.paymentMethod.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       orderBy: [{ type: 'asc' }, { createdAt: 'asc' }],
     });
   }
 
-  /** CARD 타입 결제수단 등록 */
-  create(userId: string, dto: CreatePaymentMethodDto) {
+  /** CARD 타입 결제수단 등록. 이름·카드번호가 동일한 소프트 삭제 항목이 있으면 복원 */
+  async create(userId: string, dto: CreatePaymentMethodDto) {
+    if (dto.cardNumber) {
+      const deleted = await this.prisma.paymentMethod.findFirst({
+        where: { userId, name: dto.name, cardNumber: dto.cardNumber, deletedAt: { not: null } },
+      });
+      if (deleted) {
+        return this.prisma.paymentMethod.update({
+          where: { id: deleted.id },
+          data: { deletedAt: null },
+        });
+      }
+    }
     return this.prisma.paymentMethod.create({
       data: { userId, type: 'CARD', name: dto.name, ...(dto.cardNumber && { cardNumber: dto.cardNumber }) },
     });
@@ -37,7 +46,7 @@ export class PaymentMethodsService {
     if (dto.isDefault) {
       await this.prisma.$transaction([
         this.prisma.paymentMethod.updateMany({
-          where: { userId, isDefault: true },
+          where: { userId, isDefault: true, deletedAt: null },
           data: { isDefault: false },
         }),
         this.prisma.paymentMethod.update({
@@ -58,17 +67,20 @@ export class PaymentMethodsService {
     });
   }
 
-  /** CARD 타입만 삭제 가능. 삭제 시 연결된 Transaction.paymentMethodId는 자동 SetNull */
+  /** CARD 타입만 소프트 삭제 가능. 기존 내역은 카드 정보를 그대로 유지 */
   async remove(userId: string, id: string) {
     const method = await this.findOneOrThrow(userId, id);
     if (method.type !== 'CARD') {
       throw new ForbiddenException(MSG.paymentMethod.cannotDeleteFixed);
     }
-    return this.prisma.paymentMethod.delete({ where: { id } });
+    return this.prisma.paymentMethod.update({
+      where: { id },
+      data: { deletedAt: new Date(), isDefault: false },
+    });
   }
 
   private async findOneOrThrow(userId: string, id: string) {
-    const method = await this.prisma.paymentMethod.findFirst({ where: { id, userId } });
+    const method = await this.prisma.paymentMethod.findFirst({ where: { id, userId, deletedAt: null } });
     if (!method) throw new NotFoundException(MSG.common.notFound);
     return method;
   }
