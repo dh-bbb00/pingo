@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform,
+  ScrollView, KeyboardAvoidingView,
 } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
@@ -76,7 +76,7 @@ export default function CategoryEditScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior="padding"
     >
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
 
