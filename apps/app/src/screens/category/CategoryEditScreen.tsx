@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView,
+  ScrollView, KeyboardAvoidingView, Keyboard,
 } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
@@ -51,6 +51,9 @@ export default function CategoryEditScreen() {
     }
   }, [categoryData, isEdit, setForm])
 
+  const scrollViewRef = useRef<ScrollView>(null)
+  const [budgetY,    setBudgetY]    = useState(0)
+
   const [showColor,  setShowColor]  = useState(false)
   const [showEmoji,  setShowEmoji]  = useState(false)
   const [showDelete, setShowDelete] = useState(false)
@@ -78,7 +81,7 @@ export default function CategoryEditScreen() {
       style={styles.container}
       behavior="padding"
     >
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+      <ScrollView ref={scrollViewRef} style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
 
         {/* ── 타이틀 ── */}
         <Text style={styles.screenTitle}>{title}</Text>
@@ -116,17 +119,25 @@ export default function CategoryEditScreen() {
         <View style={styles.sectionGap} />
 
         {/* ── 월 예산 ── */}
-        <Text style={styles.label}>{s.budgetLabel}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={s.budgetPlaceholder}
-          placeholderTextColor={theme.colors.text.disabled}
-          value={form.budget.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          onChangeText={(v) => setField('budget', v.replace(/[^0-9]/g, ''))}
-          keyboardType="number-pad"
-          returnKeyType="done"
-        />
-        <Text style={styles.hintText}>{s.budgetHint}</Text>
+        <View onLayout={(e) => setBudgetY(e.nativeEvent.layout.y)}>
+          <Text style={styles.label}>{s.budgetLabel}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder={s.budgetPlaceholder}
+            placeholderTextColor={theme.colors.text.disabled}
+            value={form.budget.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            onChangeText={(v) => setField('budget', v.replace(/[^0-9]/g, ''))}
+            keyboardType="number-pad"
+            returnKeyType="done"
+            onFocus={() => {
+              const sub = Keyboard.addListener('keyboardDidShow', () => {
+                scrollViewRef.current?.scrollTo({ y: budgetY - 16, animated: true })
+                sub.remove()
+              })
+            }}
+          />
+          <Text style={styles.hintText}>{s.budgetHint}</Text>
+        </View>
 
         <View style={styles.sectionGap} />
 
