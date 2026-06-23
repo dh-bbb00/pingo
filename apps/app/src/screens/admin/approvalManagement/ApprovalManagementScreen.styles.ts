@@ -4,7 +4,7 @@ import type { Theme } from '@/theme'
 export const makeStyles = (t: Theme) => StyleSheet.create({
   container:      { flex: 1, backgroundColor: t.colors.background },
   headerRow:      { flexDirection: 'row', alignItems: 'baseline', gap: 8, padding: 20, paddingTop: 60, paddingBottom: 0 },
-  header:         { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold },
+  header:         { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
   count:          { fontSize: t.fontSize.sm, color: t.colors.text.secondary },
 
   tabBar:         { flexDirection: 'row', marginHorizontal: 20, marginTop: 16, borderRadius: t.radius.md, backgroundColor: t.colors.surfaceVariant, padding: 4 },
