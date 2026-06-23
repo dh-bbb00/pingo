@@ -9,6 +9,8 @@ import { navigationRef } from '@/navigation/navigationRef'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { storage, StorageKeys } from '@/utils/storage'
+import messaging from '@react-native-firebase/messaging'
+import { usersApi } from '@/api/endpoints/users.api'
 
 export function useLogin() {
   const { setTokens, setUserInfo, setDeviceAccessToken } = useAuthStore()
@@ -25,6 +27,9 @@ export function useLogin() {
       const { accessToken, refreshToken, role, approvalStatus } = resp.data
       setTokens(accessToken, refreshToken)
       setUserInfo(role, approvalStatus)
+      messaging().getToken()
+        .then(fcmToken => usersApi.saveFcmToken(fcmToken))
+        .catch(() => {})
       if (role === 'ADMIN') {
         navigationRef.navigate(Screens.Root.AdminTabs, { screen: Screens.AdminTab.UserManagement })
       } else {
