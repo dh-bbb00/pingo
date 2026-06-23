@@ -21,7 +21,7 @@ export class PaymentMethodsService {
   /** CARD 타입 결제수단 등록 */
   create(userId: string, dto: CreatePaymentMethodDto) {
     return this.prisma.paymentMethod.create({
-      data: { userId, type: 'CARD', name: dto.name },
+      data: { userId, type: 'CARD', name: dto.name, ...(dto.cardNumber && { cardNumber: dto.cardNumber }) },
     });
   }
 
@@ -42,7 +42,7 @@ export class PaymentMethodsService {
         }),
         this.prisma.paymentMethod.update({
           where: { id },
-          data: { ...(dto.name && { name: dto.name }), isDefault: true },
+          data: { ...(dto.name && { name: dto.name }), ...(dto.cardNumber !== undefined && { cardNumber: dto.cardNumber }), isDefault: true },
         }),
       ]);
       return this.prisma.paymentMethod.findUnique({ where: { id } });

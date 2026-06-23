@@ -20,7 +20,7 @@ export const paymentMethodsApi = {
   create: (payload: { name: string; cardNumber?: string; isDefault?: boolean }) =>
     apiClient.post<BasicResponse<PaymentMethod>>(endpoints.paymentMethods.base, payload),
 
-  update: (id: string, payload: { name?: string; isDefault?: boolean }) =>
+  update: (id: string, payload: { name?: string; cardNumber?: string; isDefault?: boolean }) =>
     apiClient.patch<BasicResponse<PaymentMethod>>(endpoints.paymentMethods.detail(id), payload),
 
   delete: (id: string) =>
