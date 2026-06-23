@@ -124,6 +124,7 @@ CREATE TABLE "payment_methods" (
     "name" TEXT NOT NULL,
     "cardNumber" TEXT,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
