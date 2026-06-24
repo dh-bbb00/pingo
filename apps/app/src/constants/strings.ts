@@ -423,6 +423,8 @@ export const strings = {
     filterPickerConfirm:         '확인',
     filterPaymentPickerTitle:    '결제수단 필터',
     filterCategoryPickerTitle:   '카테고리 필터',
+    searchPlaceholder:           '가맹점명 또는 메모 검색',
+    searchEmpty:                 '검색 결과가 없습니다.',
   },
 
   stats: {

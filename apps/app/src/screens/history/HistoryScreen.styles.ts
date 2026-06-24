@@ -20,6 +20,12 @@ export const makeStyles = (t: Theme) => StyleSheet.create({
   filterChipText:       { fontSize: t.fontSize.sm, color: t.colors.text.secondary },
   filterChipTextActive: { color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
 
+  // 검색바
+  searchWrap:      { flexDirection: 'row', alignItems: 'center', marginHorizontal: 20, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: t.radius.md, backgroundColor: t.colors.surface },
+  searchInput:     { flex: 1, fontSize: t.fontSize.sm, color: t.colors.text.primary, padding: 0 },
+  searchClear:     { paddingLeft: 8 },
+  searchClearText: { fontSize: t.fontSize.sm, color: t.colors.text.disabled },
+
   // 요약
   summaryRow:    { paddingHorizontal: 20, paddingVertical: 4, marginBottom: 4 },
   summaryAmount: { fontSize: t.fontSize.sm, fontWeight: t.fontWeight.medium, color: t.colors.text.secondary },

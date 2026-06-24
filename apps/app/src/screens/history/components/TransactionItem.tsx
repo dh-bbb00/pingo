@@ -8,11 +8,12 @@ import { useMemoTooltip } from '@/hooks/useMemoTooltip'
 import MemoTooltip from '@/components/tooltip/MemoTooltip'
 
 interface Props {
-  item:    Transaction
-  onPress: () => void
+  item:      Transaction
+  onPress:   () => void
+  showMemo?: boolean
 }
 
-export default function TransactionItem({ item, onPress }: Props) {
+export default function TransactionItem({ item, onPress, showMemo }: Props) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
   const { rowRef, visible, bottom, show, hide } = useMemoTooltip(item.memo)
@@ -41,6 +42,9 @@ export default function TransactionItem({ item, onPress }: Props) {
           <Text style={styles.sub} numberOfLines={1}>
             {[cat?.name ?? strings.history.noCategory, item.paymentMethod?.name].filter(Boolean).join(' · ')}
           </Text>
+          {showMemo && item.memo && (
+            <Text style={styles.memo} numberOfLines={1}>{item.memo}</Text>
+          )}
         </View>
         <Text style={styles.amount}>{item.amount.toLocaleString()}원</Text>
       </TouchableOpacity>

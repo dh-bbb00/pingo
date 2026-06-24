@@ -9,6 +9,7 @@ export interface TransactionFilter {
   endDate?:          string
   categoryIds?:      string[]
   paymentMethodIds?: string[]
+  keyword?:          string
 }
 
 export function useTransactions(filter: TransactionFilter) {

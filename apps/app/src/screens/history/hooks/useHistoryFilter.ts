@@ -9,6 +9,7 @@ export function useHistoryFilter() {
     periodEnd:        null,
     categoryIds:      [],
     paymentMethodIds: [],
+    keyword:          '',
   })
 
   function setTab(tab: HistoryDateTab) {
@@ -39,5 +40,9 @@ export function useHistoryFilter() {
     setFilter((prev) => ({ ...prev, paymentMethodIds: ids }))
   }
 
-  return { filter, setTab, setDate, togglePeriod, setPeriodEnd, setCategoryIds, setPaymentMethodIds }
+  function setKeyword(keyword: string) {
+    setFilter((prev) => ({ ...prev, keyword }))
+  }
+
+  return { filter, setTab, setDate, togglePeriod, setPeriodEnd, setCategoryIds, setPaymentMethodIds, setKeyword }
 }

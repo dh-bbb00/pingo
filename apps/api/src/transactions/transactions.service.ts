@@ -27,6 +27,12 @@ export class TransactionsService {
     if (filter.categoryIds?.length) where.categoryId = { in: filter.categoryIds };
     if (filter.paymentMethodIds?.length) where.paymentMethodId = { in: filter.paymentMethodIds };
     if (filter.merchantName) where.merchantName = { contains: filter.merchantName };
+    if (filter.keyword) {
+      where.OR = [
+        { merchantName: { contains: filter.keyword, mode: 'insensitive' } },
+        { memo:         { contains: filter.keyword, mode: 'insensitive' } },
+      ];
+    }
     if (filter.amountMin !== undefined || filter.amountMax !== undefined) {
       where.amount = {
         ...(filter.amountMin !== undefined && { gte: filter.amountMin }),

@@ -48,6 +48,7 @@ export interface TransactionListParams {
   categoryIds?:      string[]
   paymentMethodIds?: string[]
   merchantName?:     string
+  keyword?:          string
 }
 
 export interface TransactionPayload {
@@ -71,6 +72,7 @@ export interface HistoryFilter {
   periodEnd:        Date | null
   categoryIds:      string[]
   paymentMethodIds: string[]
+  keyword:          string
 }
 
 export interface TransactionForm {

@@ -59,4 +59,9 @@ export class TransactionFilterDto {
   @IsOptional()
   @IsString({ message: VM.string })
   merchantName?: string;
+
+  @ApiProperty({ required: false, description: '가맹점명 + 메모 통합 키워드 검색' })
+  @IsOptional()
+  @IsString({ message: VM.string })
+  keyword?: string;
 }

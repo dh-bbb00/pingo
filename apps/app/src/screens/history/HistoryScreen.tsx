@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { View, Text, SectionList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
+import { View, Text, SectionList, TouchableOpacity, ActivityIndicator, RefreshControl, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -65,9 +65,25 @@ export default function HistoryScreen() {
   const styles = useMemo(() => makeStyles(theme), [theme])
 
   const navigation = useNavigation<Nav>()
-  const { filter, setTab, setDate, setCategoryIds, setPaymentMethodIds } = useHistoryFilter()
+  const { filter, setTab, setDate, setCategoryIds, setPaymentMethodIds, setKeyword } = useHistoryFilter()
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
   const [showPaymentMethodPicker, setShowPaymentMethodPicker] = useState(false)
+
+  const [searchText, setSearchText] = useState('')
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function handleSearchChange(text: string) {
+    setSearchText(text)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => setKeyword(text.trim()), 300)
+  }
+
+  function clearSearch() {
+    setSearchText('')
+    setKeyword('')
+  }
+
+  useEffect(() => () => { if (searchTimer.current) clearTimeout(searchTimer.current) }, [])
 
   const categoryLabel = filter.categoryIds.length === 0
     ? s.filterCategory
@@ -81,7 +97,10 @@ export default function HistoryScreen() {
     const base = {
       ...(filter.categoryIds.length      && { categoryIds:      filter.categoryIds }),
       ...(filter.paymentMethodIds.length && { paymentMethodIds: filter.paymentMethodIds }),
+      ...(filter.keyword                 && { keyword:          filter.keyword }),
     }
+    // 키워드 검색 중에는 날짜 범위 없이 전체 내역에서 검색
+    if (filter.keyword) return base
     if (filter.tab === s.tabMonth) {
       return {
         ...base,
@@ -101,7 +120,7 @@ export default function HistoryScreen() {
       startDate: startOfDay(d).toISOString(),
       endDate:   endOfDay(d).toISOString(),
     }
-  }, [filter.date, filter.tab, filter.categoryIds, filter.paymentMethodIds])
+  }, [filter.date, filter.tab, filter.categoryIds, filter.paymentMethodIds, filter.keyword])
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useTransactions(queryFilter)
   const { refreshing, onRefresh } = usePullToRefresh(refetch)
@@ -125,6 +144,7 @@ export default function HistoryScreen() {
     <TransactionItem
       item={item}
       onPress={() => navigation.navigate(Screens.History.TransactionEdit, { id: item.id })}
+      showMemo={!!filter.keyword}
     />
   )
 
@@ -171,6 +191,23 @@ export default function HistoryScreen() {
         todayBadge={s.today}
         variant="flat"
       />
+
+      {/* 검색바 */}
+      <View style={styles.searchWrap}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder={s.searchPlaceholder}
+          placeholderTextColor={theme.colors.text.disabled}
+          value={searchText}
+          onChangeText={handleSearchChange}
+          returnKeyType="search"
+        />
+        {searchText.length > 0 && (
+          <TouchableOpacity style={styles.searchClear} onPress={clearSearch}>
+            <Text style={styles.searchClearText}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
       {/* 카테고리 + 결제수단 필터 */}
       <View style={styles.filterRow}>
@@ -225,7 +262,7 @@ export default function HistoryScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
-              <Text style={styles.empty}>{s.empty}</Text>
+              <Text style={styles.empty}>{filter.keyword ? s.searchEmpty : s.empty}</Text>
             </View>
           }
           ListFooterComponent={
