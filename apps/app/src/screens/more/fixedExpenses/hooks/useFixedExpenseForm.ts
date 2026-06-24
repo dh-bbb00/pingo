@@ -5,7 +5,7 @@ export function useFixedExpenseForm(defaultData?: Partial<FixedExpenseForm>) {
   const [form, setForm] = useState<FixedExpenseForm>({
     merchantName:    defaultData?.merchantName    ?? '',
     amount:          defaultData?.amount          ?? '',
-    categoryId:      defaultData?.categoryId      ?? '',
+    categoryId:      defaultData?.categoryId      ?? null,
     paymentMethodId: defaultData?.paymentMethodId ?? '',
     memo:            defaultData?.memo            ?? '',
     dayOfMonth:      defaultData?.dayOfMonth      ?? '',

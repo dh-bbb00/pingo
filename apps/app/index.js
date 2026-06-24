@@ -76,3 +76,17 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     });
   }
 });
+
+// FCM 포그라운드 메시지 핸들러 — 앱이 열려 있을 때도 Notifee로 알림 표시
+messaging().onMessage(async (remoteMessage) => {
+  await setupNotificationChannel();
+  const title = remoteMessage.notification?.title ?? '';
+  const body  = remoteMessage.notification?.body  ?? '';
+  if (title || body) {
+    await notifee.displayNotification({
+      title,
+      body,
+      android: { channelId: 'pingo-default', pressAction: { id: 'default' } },
+    });
+  }
+});

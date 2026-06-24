@@ -257,7 +257,7 @@ model SchedulerLog {
 model FixedExpense {
   id              String   @id @default(cuid())
   userId          String
-  categoryId      String
+  categoryId      String?       // null = 미지정 (카테고리 삭제 시 자동 SetNull)
   paymentMethodId String?
   amount          Int      // 원 단위
   merchantName    String   // 가맹점명
@@ -268,7 +268,7 @@ model FixedExpense {
   updatedAt       DateTime @updatedAt
 
   user          User          @relation(fields: [userId], references: [id])
-  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category      Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
   transactions  Transaction[]  @relation("FixedExpenseTransactions")
 }

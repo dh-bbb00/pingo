@@ -4,5 +4,6 @@ services:
       target: development
     volumes:
       - ./apps/api/src:/app/apps/api/src
+      - ./apps/api/firebase-service-account.json:/app/apps/api/firebase-service-account.json:ro
     environment:
       NODE_ENV: development

@@ -30,4 +30,8 @@ export const MSG = {
   category: {
     limitExceeded: '카테고리는 최대 20개까지 등록할 수 있습니다.',
   },
+  fixedExpensePush: {
+    title: '고정 지출 등록 완료',
+    body:  '이번 달 고정 지출이 등록되었습니다.',
+  },
 } as const;

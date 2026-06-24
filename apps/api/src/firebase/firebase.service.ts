@@ -28,10 +28,14 @@ export class FirebaseService implements OnModuleInit {
     if (validTokens.length === 0) return;
 
     try {
-      await getMessaging().sendEachForMulticast({
+      const response = await getMessaging().sendEachForMulticast({
         tokens: validTokens,
         notification: { title, body },
-        android: { priority: 'high' },
+        android: { priority: 'high', notification: { channelId: 'pingo-default' } },
+      });
+      this.logger.log(`FCM 결과 — 성공: ${response.successCount}, 실패: ${response.failureCount}`);
+      response.responses.forEach((r, i) => {
+        if (!r.success) this.logger.error(`FCM 토큰 [${i}] 실패: ${r.error?.code} ${r.error?.message}`);
       });
     } catch (err) {
       this.logger.error('FCM 전송 실패', (err as Error).message);

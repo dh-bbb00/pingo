@@ -9,6 +9,8 @@ import { FixedExpensesService } from '../fixed-expenses/fixed-expenses.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { SchedulerLogService } from './scheduler-log.service';
 import { AppLoggerService } from '../logger/logger.service';
+import { FirebaseService } from '../firebase/firebase.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { MSG } from '../common/constants/messages';
 import type { BasicResponse, PageResponse } from '../common/types/response.type';
 
@@ -24,6 +26,8 @@ export class SchedulerController {
     private readonly transactionsService:  TransactionsService,
     private readonly schedulerLogService:  SchedulerLogService,
     private readonly logger:               AppLoggerService,
+    private readonly firebase:             FirebaseService,
+    private readonly prisma:               PrismaService,
   ) {}
 
   /** 월간 스케줄러 수동 실행 — 서버 다운 등으로 자동 실행을 놓쳤을 때 사용 */
@@ -68,6 +72,7 @@ export class SchedulerController {
         totalCount:   fixedResult.totalCount,
         successCount: fixedResult.successCount,
       });
+      await this.notifyFixedExpenseUsers();
     } catch (err) {
       await this.schedulerLogService.writeLog({
         type: SchedulerLogType.FIXED_EXPENSES, year, month,
@@ -151,6 +156,7 @@ export class SchedulerController {
     }
 
     this.logger.log(`${type} 수동 실행 완료 — ${result.successCount}/${result.totalCount}건`, 'SchedulerController');
+    if (type === SchedulerLogType.FIXED_EXPENSES) await this.notifyFixedExpenseUsers();
     return { success: true, data: result };
   }
 
@@ -213,6 +219,27 @@ export class SchedulerController {
       month !== undefined ? Number(month) : undefined,
     );
     return { success: true, data };
+  }
+
+  /** 고정 지출이 있는 유저에게 완료 알림 발송 */
+  private async notifyFixedExpenseUsers(): Promise<void> {
+    try {
+      this.logger.log('고정 지출 완료 알림 발송 시작', 'SchedulerController');
+      const devices = await this.prisma.device.findMany({
+        where: {
+          user: { role: 'USER', status: 'APPROVED', fixedExpenses: { some: { isActive: true } } },
+          fcmToken: { not: null },
+        },
+        select: { fcmToken: true },
+      });
+      this.logger.log(`알림 대상 기기 ${devices.length}개`, 'SchedulerController');
+      const tokens = devices.map(d => d.fcmToken!);
+      if (tokens.length === 0) return;
+      await this.firebase.sendMulticast(tokens, MSG.fixedExpensePush.title, MSG.fixedExpensePush.body);
+      this.logger.log(`고정 지출 완료 알림 ${tokens.length}건 발송`, 'SchedulerController');
+    } catch (err) {
+      this.logger.error('고정 지출 완료 알림 발송 실패', (err as Error).stack, 'SchedulerController');
+    }
   }
 
   /** 로그 단건 조회 */

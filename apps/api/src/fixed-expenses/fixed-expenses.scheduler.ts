@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { SchedulerLogType, SchedulerTrigger } from '@prisma/client';
+import { MSG } from '../common/constants/messages';
+import { SchedulerLogStatus, SchedulerLogType, SchedulerTrigger } from '@prisma/client';
 import { FixedExpensesService } from './fixed-expenses.service';
 import { SchedulerLogService } from '../scheduler/scheduler-log.service';
 import { AppLoggerService } from '../logger/logger.service';
@@ -44,6 +45,42 @@ export class FixedExpensesScheduler {
       });
       this.logger.error('고정 지출 자동 생성 실패', (err as Error).stack, 'FixedExpensesScheduler');
       await this.notifyAdmins();
+    }
+  }
+
+  /** 매월 1일 08:00 — 00:05 스케줄러가 성공한 경우에만 유저에게 등록 완료 알림 발송 */
+  @Cron('0 8 1 * *')
+  async handleMonthlyUserNotification() {
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    const successLog = await this.prisma.schedulerLog.findFirst({
+      where: { type: SchedulerLogType.FIXED_EXPENSES, year, month, status: SchedulerLogStatus.SUCCESS },
+    });
+    if (!successLog) {
+      this.logger.log('고정 지출 성공 로그 없음 — 알림 발송 생략', 'FixedExpensesScheduler');
+      return;
+    }
+
+    try {
+      const devices = await this.prisma.device.findMany({
+        where: {
+          user: {
+            role: 'USER',
+            status: 'APPROVED',
+            fixedExpenses: { some: { isActive: true } },
+          },
+          fcmToken: { not: null },
+        },
+        select: { fcmToken: true },
+      });
+      const tokens = devices.map(d => d.fcmToken!);
+      if (tokens.length === 0) return;
+      await this.firebase.sendMulticast(tokens, MSG.fixedExpensePush.title, MSG.fixedExpensePush.body);
+      this.logger.log(`고정 지출 완료 알림 ${tokens.length}건 발송`, 'FixedExpensesScheduler');
+    } catch (err) {
+      this.logger.error('고정 지출 완료 알림 발송 실패', (err as Error).stack, 'FixedExpensesScheduler');
     }
   }
 

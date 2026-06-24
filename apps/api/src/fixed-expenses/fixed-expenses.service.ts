@@ -25,7 +25,7 @@ export class FixedExpensesService {
 
   create(userId: string, dto: CreateFixedExpenseDto) {
     return this.prisma.fixedExpense.create({
-      data:    { ...dto, userId },
+      data:    { ...dto, userId, categoryId: dto.categoryId ?? null },
       include: this.INCLUDE,
     });
   }

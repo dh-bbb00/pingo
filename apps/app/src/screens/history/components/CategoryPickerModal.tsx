@@ -13,7 +13,7 @@ const NO_CATEGORY_ID = ''
 
 interface Props {
   visible:       boolean
-  selectedId:    string   // '' = 기타
+  selectedId:    string | null   // null = 미지정
   onSelect:      (categoryId: string) => void
   onClose:       () => void
   onAddCategory?: () => void
