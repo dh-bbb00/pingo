@@ -15,6 +15,7 @@ import {
 } from './src/utils/notificationPermission'
 import { useAuthStore } from './src/store/authStore'
 import { storage, StorageKeys } from './src/utils/storage'
+import { View } from 'react-native'
 import { useTheme } from './src/theme'
 import PendingNotificationsBanner from './src/components/banner/PendingNotificationsBanner'
 
@@ -121,10 +122,12 @@ export default function App() {
   return (
     <AppProviders>
       <SafeAreaProvider>
-        <ThemedNavigationContainer>
-          <RootNavigator />
-        </ThemedNavigationContainer>
-        <PendingNotificationsBanner />
+        <View style={{ flex: 1 }}>
+          <PendingNotificationsBanner />
+          <ThemedNavigationContainer>
+            <RootNavigator />
+          </ThemedNavigationContainer>
+        </View>
       </SafeAreaProvider>
     </AppProviders>
   )
