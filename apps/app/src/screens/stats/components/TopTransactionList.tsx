@@ -5,7 +5,7 @@ import { strings } from '@/constants/strings'
 import SkeletonBox from '@/components/containers/SkeletonBox'
 import type { Top10Item } from '@/api/endpoints/stats.api'
 import { useMemoTooltip } from '@/hooks/useMemoTooltip'
-import MemoTooltip from '@/components/MemoTooltip'
+import MemoTooltip from '@/components/tooltip/MemoTooltip'
 
 const s = strings.stats
 

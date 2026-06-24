@@ -8,7 +8,7 @@ import type { SchedulerLog, CurrentMonthStatusItem } from '@/api/endpoints/sched
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
-import DateNavigator from '@/components/DateNavigator'
+import DateNavigator from '@/components/date/DateNavigator'
 import {
   useCurrentMonthStatus,
   useSchedulerLogs,

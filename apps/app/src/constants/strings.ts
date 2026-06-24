@@ -525,6 +525,10 @@ export const strings = {
     noDevice:              '등록된 기기 없음',
   },
 
+  pendingBanner: {
+    message: (count: number) => `미등록 결제 알림 ${count}건 — 탭하여 확인`,
+  },
+
   userTabs: {
     home:     '홈',
     history:  '내역',

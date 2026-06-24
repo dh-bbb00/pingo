@@ -5,7 +5,7 @@ import { strings } from '@/constants/strings'
 import type { Transaction } from '@/api/endpoints/transactions.api'
 import { makeStyles } from './TransactionItem.styles'
 import { useMemoTooltip } from '@/hooks/useMemoTooltip'
-import MemoTooltip from '@/components/MemoTooltip'
+import MemoTooltip from '@/components/tooltip/MemoTooltip'
 
 interface Props {
   item:    Transaction
