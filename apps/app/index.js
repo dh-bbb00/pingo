@@ -12,6 +12,7 @@ import { saveDetectedNotification } from './src/store/notificationLogStore';
 import { saveCancelNotification } from './src/store/cancelNotificationStore';
 import { setupNotificationChannel, displayDetectedNotification, schedulePendingReminder, displayCancelNotification } from './src/utils/notification';
 import { isCardUsageNotification, isCancelNotification } from './src/utils/cardNotificationParser';
+import { storage, StorageKeys } from './src/utils/storage';
 
 AppRegistry.registerComponent(appName, () => App);
 
@@ -55,11 +56,17 @@ AppRegistry.registerHeadlessTask(
   },
 );
 
-// notifee 백그라운드 이벤트 — 알림 탭 시 처리 (앱이 백그라운드일 때)
+// notifee 백그라운드 이벤트 — 앱이 백그라운드일 때 알림 탭 처리
+// killed 상태는 getInitialNotification으로 처리, 백그라운드는 여기서 storage에 저장 후 AppState active 시 네비게이트
 notifee.onBackgroundEvent(async ({ type, detail }) => {
   const { EventType } = await import('@notifee/react-native');
   if (type === EventType.PRESS && detail.pressAction?.id === 'pending-notifications') {
-    // 백그라운드 탭은 앱 실행 후 getInitialNotification으로 처리
+    const notificationId = detail.notification?.data?.notificationId;
+    if (notificationId) storage.set(StorageKeys.PENDING_DEEPLINK, String(notificationId));
+  }
+  if (type === EventType.PRESS && detail.pressAction?.id === 'cancel-notification') {
+    const cancelNotificationId = detail.notification?.data?.cancelNotificationId;
+    if (cancelNotificationId) storage.set(StorageKeys.PENDING_CANCEL_DEEPLINK, String(cancelNotificationId));
   }
 });
 

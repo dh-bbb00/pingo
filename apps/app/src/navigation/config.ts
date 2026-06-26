@@ -106,7 +106,7 @@ export const moreRoutes: StackRoute[] = [
   { name: 'PaymentMethodEdit', component: PaymentMethodEditScreen,  options: backHeader },
   { name: 'MyInfo',             component: MyInfoScreen,             options: backHeader },
   { name: 'PasswordChange',     component: PasswordChangeScreen,     options: backHeader },
-  { name: 'PendingNotifications', component: PendingNotificationsScreen, options: backHeader },
+  { name: 'PendingNotifications', component: PendingNotificationsScreen, options: { headerShown: false } },
 ]
 
 export const userTabRoutes: TabRoute[] = [

@@ -11,6 +11,8 @@ import { fixedExpensesApi } from '@/api/endpoints/fixedExpenses.api'
 import { syncFixedExpenseReminders } from '@/utils/notification'
 import { usersApi } from '@/api/endpoints/users.api'
 import messaging from '@react-native-firebase/messaging'
+import notifee from '@notifee/react-native'
+import { resetToTransactionEdit, resetToCancelSearch } from '@/navigation/navigationRef'
 import type { RootStackParamList } from '@/types/navigation'
 import { useTheme } from '@/theme'
 import { Screens } from '@/constants/screens'
@@ -36,6 +38,17 @@ export default function SplashScreen() {
     const minDelay = new Promise<void>(resolve => setTimeout(resolve, 1000))
 
     async function bootstrap() {
+      // killed 상태에서 알림 탭으로 앱이 실행된 경우 — 어떤 분기로 이동하든 딥링크 유지되도록 먼저 처리
+      const initial = await notifee.getInitialNotification()
+      if (initial?.pressAction?.id === 'pending-notifications') {
+        const notificationId = initial.notification?.data?.notificationId as string | undefined
+        if (notificationId) storage.set(StorageKeys.PENDING_DEEPLINK, notificationId)
+      }
+      if (initial?.pressAction?.id === 'cancel-notification') {
+        const cancelNotificationId = initial.notification?.data?.cancelNotificationId as string | undefined
+        if (cancelNotificationId) storage.set(StorageKeys.PENDING_CANCEL_DEEPLINK, cancelNotificationId)
+      }
+
       const refreshToken = storage.getString(StorageKeys.REFRESH_TOKEN)
       const autoLogin    = storage.getBoolean(StorageKeys.AUTO_LOGIN)
 
@@ -90,26 +103,16 @@ export default function SplashScreen() {
           const pendingCancelId = storage.getString(StorageKeys.PENDING_CANCEL_DEEPLINK)
           if (pendingCancelId) {
             storage.remove(StorageKeys.PENDING_CANCEL_DEEPLINK)
-            navigation.replace(Screens.Root.UserTabs, {
-              screen: Screens.UserTab.History,
-              params: {
-                screen: Screens.History.CancelledTransactionSearch,
-                params: { cancelNotificationId: pendingCancelId },
-              },
-            } as any)
+            navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
+            resetToCancelSearch(pendingCancelId)
             return
           }
 
           const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
           if (pendingNotificationId) {
             storage.remove(StorageKeys.PENDING_DEEPLINK)
-            navigation.replace(Screens.Root.UserTabs, {
-              screen: Screens.UserTab.History,
-              params: {
-                screen: Screens.History.TransactionEdit,
-                params: { notificationId: pendingNotificationId },
-              },
-            } as any)
+            navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
+            resetToTransactionEdit(pendingNotificationId)
           } else {
             navigation.replace(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
           }

@@ -3,8 +3,7 @@ import { TouchableOpacity, Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '@/store/authStore'
 import { useNotificationLogStore } from '@/store/notificationLogStore'
-import { navigationRef } from '@/navigation/navigationRef'
-import { Screens } from '@/constants/screens'
+import { resetToPendingNotifications } from '@/navigation/navigationRef'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { makeStyles } from './PendingNotificationsBanner.styles'
@@ -21,12 +20,7 @@ export default function PendingNotificationsBanner() {
 
   if (!accessToken || role !== 'USER' || approvalStatus !== 'APPROVED' || count === 0) return null
 
-  const handlePress = () => {
-    navigationRef.navigate(Screens.Root.UserTabs as any, {
-      screen: Screens.UserTab.More,
-      params: { screen: Screens.More.PendingNotifications },
-    })
-  }
+  const handlePress = () => resetToPendingNotifications()
 
   return (
     <TouchableOpacity style={styles.banner} onPress={handlePress} activeOpacity={0.85}>

@@ -5,9 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import BootSplash from 'react-native-bootsplash'
 import notifee, { EventType } from '@notifee/react-native'
 import { RootNavigator } from './src/navigation/RootNavigator'
-import { navigationRef } from './src/navigation/navigationRef'
+import { navigationRef, resetToTransactionEdit, resetToCancelSearch } from './src/navigation/navigationRef'
 import { AppProviders } from './src/providers'
-import { Screens } from './src/constants/screens'
 import { setupNotificationChannel } from './src/utils/notification'
 import {
   checkAndRequestNotificationListenerPermission,
@@ -42,30 +41,17 @@ function ThemedNavigationContainer({ children }: { children: React.ReactNode }) 
   )
 }
 
-// 포그라운드 전용 — 앱이 열린 상태에서 감지 알림 탭 시 직접 등록 화면으로 이동
+// 포그라운드/백그라운드 전용 — 로그인 상태에서 알림 탭 시 호출
 function navigateToTransactionEdit(notificationId: string) {
   const { accessToken } = useAuthStore.getState()
   if (!accessToken) return
-  navigationRef.navigate(Screens.Root.UserTabs, {
-    screen: Screens.UserTab.History,
-    params: {
-      screen: Screens.History.TransactionEdit,
-      params: { notificationId },
-    },
-  } as any)
+  resetToTransactionEdit(notificationId)
 }
 
-// 포그라운드 전용 — 취소 알림 탭 시 원 거래 내역 찾기 화면으로 이동
 function navigateToCancelSearch(cancelNotificationId: string) {
   const { accessToken } = useAuthStore.getState()
   if (!accessToken) return
-  navigationRef.navigate(Screens.Root.UserTabs, {
-    screen: Screens.UserTab.History,
-    params: {
-      screen: Screens.History.CancelledTransactionSearch,
-      params: { cancelNotificationId },
-    },
-  } as any)
+  resetToCancelSearch(cancelNotificationId)
 }
 
 
@@ -81,23 +67,31 @@ export default function App() {
       // 알림 접근 권한 확인 → 미허용 시 설정 이동 안내
       await checkAndRequestNotificationListenerPermission()
 
-      // 앱이 알림 탭으로 실행된 경우 (killed 상태) — 인증 흐름 완료 후 처리하도록 id 저장
-      const initial = await notifee.getInitialNotification()
-      if (initial?.pressAction?.id === 'pending-notifications') {
-        const notificationId = initial.notification?.data?.notificationId as string | undefined
-        storage.set(StorageKeys.PENDING_DEEPLINK, notificationId ?? '')
-      }
-      if (initial?.pressAction?.id === 'cancel-notification') {
-        const cancelNotificationId = initial.notification?.data?.cancelNotificationId as string | undefined
-        storage.set(StorageKeys.PENDING_CANCEL_DEEPLINK, cancelNotificationId ?? '')
-      }
+      // killed 상태 알림 탭 딥링크는 SplashScreen.bootstrap() 에서 처리
     }
     initAsync()
 
-    // 설정 갔다 돌아올 때 권한 재확인 → 새로 허용됐으면 배터리 최적화 안내
+    // 설정 갔다 돌아올 때 권한 재확인 + 백그라운드 알림 탭 딥링크 처리
     const appStateSub = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
         checkAndRequestBatteryOptimizationIfAuthorized()
+
+        // 백그라운드 상태에서 알림 탭 → onBackgroundEvent가 storage에 저장 → 여기서 네비게이트
+        // accessToken이 있을 때(로그인 상태)만 처리 — 미로그인 상태에서 권한 다이얼로그 등으로
+        // AppState가 active로 전환되면 PENDING_DEEPLINK가 소비되는 문제 방지
+        const { accessToken } = useAuthStore.getState()
+        if (accessToken) {
+          const pendingId = storage.getString(StorageKeys.PENDING_DEEPLINK)
+          if (pendingId) {
+            storage.remove(StorageKeys.PENDING_DEEPLINK)
+            navigateToTransactionEdit(pendingId)
+          }
+          const pendingCancelId = storage.getString(StorageKeys.PENDING_CANCEL_DEEPLINK)
+          if (pendingCancelId) {
+            storage.remove(StorageKeys.PENDING_CANCEL_DEEPLINK)
+            navigateToCancelSearch(pendingCancelId)
+          }
+        }
       }
     })
 

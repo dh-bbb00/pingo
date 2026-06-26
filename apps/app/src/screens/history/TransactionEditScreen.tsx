@@ -122,6 +122,7 @@ export default function TransactionEditScreen() {
   // 알림 데이터 초기화 — paymentMethods 로드 후 1회 실행
   useEffect(() => {
     if (!notificationId || isEdit || notifInitialized.current || !paymentMethods) return
+    useNotificationLogStore.getState().load()
     const { notifications } = useNotificationLogStore.getState()
     const notification = notifications.find(n => n.id === notificationId)
     if (!notification) return

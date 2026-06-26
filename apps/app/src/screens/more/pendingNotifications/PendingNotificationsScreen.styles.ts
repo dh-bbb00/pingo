@@ -3,8 +3,10 @@ import type { Theme } from '@/theme'
 
 export const makeStyles = (t: Theme) => StyleSheet.create({
   container:      { flex: 1, backgroundColor: t.colors.background },
-  header:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 },
-  headerTitle:    { fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
+  header:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingTop: 12, paddingBottom: 12 },
+  backBtn:        { width: 44, alignItems: 'center' },
+  backBtnText:    { fontSize: 32, color: t.colors.text.primary, lineHeight: 36 },
+  headerTitle:    { flex: 1, textAlign: 'center', fontSize: t.fontSize.xl, fontWeight: t.fontWeight.bold, color: t.colors.text.primary },
   bulkBtn:        { fontSize: t.fontSize.sm, color: t.colors.primary, fontWeight: t.fontWeight.semiBold },
   expiryBanner:   { marginHorizontal: 16, marginBottom: 8, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: t.colors.surfaceVariant, borderRadius: t.radius.sm },
   expiryText:     { fontSize: t.fontSize.xs, color: t.colors.text.secondary },

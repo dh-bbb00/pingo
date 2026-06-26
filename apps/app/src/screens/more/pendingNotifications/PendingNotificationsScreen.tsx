@@ -3,7 +3,9 @@ import {
   View, Text, FlatList, TouchableOpacity,
   RefreshControl, Alert, ActivityIndicator,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import { useNavigation } from '@react-navigation/native'
 import { useTheme } from '@/theme'
 import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
@@ -79,8 +81,10 @@ function buildPayload(notification: DetectedNotification, parsed: NonNullable<Re
 }
 
 export default function PendingNotificationsScreen() {
-  const { theme } = useTheme()
-  const styles    = useMemo(() => makeStyles(theme), [theme])
+  const { theme }  = useTheme()
+  const insets     = useSafeAreaInsets()
+  const styles     = useMemo(() => makeStyles(theme), [theme])
+  const navigation = useNavigation()
   const queryClient = useQueryClient()
 
   const { notifications, load, markAsRegistered } = useNotificationLogStore()
@@ -234,13 +238,18 @@ export default function PendingNotificationsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={8}>
+          <Text style={styles.backBtnText}>‹</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>{s.header}</Text>
-        {unregistered.length > 0 && (
+        {unregistered.length > 0 ? (
           <TouchableOpacity onPress={handleBulkRegister} disabled={bulkLoading}>
             <Text style={styles.bulkBtn}>{s.bulkRegisterBtn}</Text>
           </TouchableOpacity>
+        ) : (
+          <View style={styles.backBtn} />
         )}
       </View>
 

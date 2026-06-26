@@ -5,7 +5,7 @@ import { handleApiError } from '@/api/errorHandler'
 import { ApiErrorCode, parseApiError } from '@/api/errors'
 import { getDeviceId } from '@/utils/device'
 import { useAuthStore } from '@/store/authStore'
-import { navigationRef } from '@/navigation/navigationRef'
+import { navigationRef, resetToTransactionEdit, resetToCancelSearch } from '@/navigation/navigationRef'
 import { Screens } from '@/constants/screens'
 import { strings } from '@/constants/strings'
 import { storage, StorageKeys } from '@/utils/storage'
@@ -36,26 +36,14 @@ export function useLogin() {
         const pendingCancelId = storage.getString(StorageKeys.PENDING_CANCEL_DEEPLINK)
         if (pendingCancelId) {
           storage.remove(StorageKeys.PENDING_CANCEL_DEEPLINK)
-          navigationRef.navigate(Screens.Root.UserTabs, {
-            screen: Screens.UserTab.History,
-            params: {
-              screen: Screens.History.CancelledTransactionSearch,
-              params: { cancelNotificationId: pendingCancelId },
-            },
-          } as any)
+          resetToCancelSearch(pendingCancelId)
           return
         }
 
         const pendingNotificationId = storage.getString(StorageKeys.PENDING_DEEPLINK)
         if (pendingNotificationId) {
           storage.remove(StorageKeys.PENDING_DEEPLINK)
-          navigationRef.navigate(Screens.Root.UserTabs, {
-            screen: Screens.UserTab.History,
-            params: {
-              screen: Screens.History.TransactionEdit,
-              params: { notificationId: pendingNotificationId },
-            },
-          } as any)
+          resetToTransactionEdit(pendingNotificationId)
         } else {
           navigationRef.navigate(Screens.Root.UserTabs, { screen: Screens.UserTab.Home })
         }
