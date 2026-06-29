@@ -24,7 +24,7 @@ import CategoryPickerModal from './components/CategoryPickerModal'
 import PaymentMethodPickerModal from './components/PaymentMethodPickerModal'
 import DateNavigator from '@/components/date/DateNavigator'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
-import { navigationRef } from '@/navigation/navigationRef'
+import { navigationRef, resetToPendingNotifications } from '@/navigation/navigationRef'
 import { Screens } from '@/constants/screens'
 import { makeStyles } from './TransactionEditScreen.styles'
 import { useNotificationLogStore } from '@/store/notificationLogStore'
@@ -73,12 +73,9 @@ export default function TransactionEditScreen() {
     notificationId && notifInitialized.current ? form.merchantName : undefined
   )
 
-  // 알림 등록 후 다음 알림으로 이동하거나 미등록 리스트로 복귀
+  // 알림 등록 후 미등록 리스트로 복귀 — reset으로 History 스택도 초기화해 TransactionEdit이 남지 않게 한다
   const goToPendingList = useCallback(() => {
-    navigationRef.navigate(Screens.Root.UserTabs as any, {
-      screen: Screens.UserTab.More,
-      params: { screen: Screens.More.PendingNotifications },
-    })
+    resetToPendingNotifications()
   }, [])
 
   const handleAfterNotificationCreate = useCallback(() => {
