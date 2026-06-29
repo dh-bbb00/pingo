@@ -46,8 +46,8 @@ AppRegistry.registerHeadlessTask(
     if (!isCardUsageNotification(title, text)) return;
 
     await setupNotificationChannel();
-    const notificationId = saveDetectedNotification(notification);
-    await schedulePendingReminder(notificationId);
+    const reminderId     = await schedulePendingReminder();
+    const notificationId = saveDetectedNotification(notification, reminderId);
     await displayDetectedNotification(
       app || '알 수 없음',
       String(notification.text ?? ''),

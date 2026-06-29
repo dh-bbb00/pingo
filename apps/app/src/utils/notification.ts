@@ -4,10 +4,17 @@ import { strings } from '@/constants/strings'
 
 export const CHANNEL_ID = 'pingo-default'
 
-// 예약 알림 id를 `${prefix}${notificationId}` 형태로 만들어, 등록 완료 시 정확한 알림만 취소할 수 있게 한다.
-const REMINDER_PREFIX        = 'pending-reminder-'
-const FIXED_EXPENSE_PREFIX   = 'fixed-expense-'
-const REMINDER_DELAY_MS      = 3 * 24 * 60 * 60 * 1000  // 3일
+const FIXED_EXPENSE_PREFIX = 'fixed-expense-'
+const REMINDER_DELAY_MS    = 3 * 24 * 60 * 60 * 1000  // 3일
+
+// 발송 예정 날짜(YYYYMMDD)를 ID에 포함 — 같은 날 여러 알림이 생겨도 예약이 덮어써져서 1개만 발송된다.
+function reminderIdForTimestamp(ts: number): string {
+  const d = new Date(ts)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `pending-reminder-${y}${m}${day}`
+}
 
 const sn = strings.notification
 const sc = strings.cancelledTransactionSearch
@@ -47,19 +54,21 @@ export async function displayDetectedNotification(app: string, text: string, not
 }
 
 /**
- * 알림 저장 시점에 3일 뒤 예약 알림을 등록한다.
+ * 알림 저장 시점에 3일 뒤 예약 알림을 등록하고 reminderId를 반환한다.
+ * ID에 발송 예정 날짜를 포함하므로, 같은 날 여러 알림이 감지돼도 예약이 덮어써져 1개만 발송된다.
  * Notifee TimestampTrigger는 내부적으로 Android AlarmManager를 사용하므로
  * 앱이 완전히 종료된 상태에서도 OS가 직접 발송 — AppState와 무관하게 동작한다.
- * 등록 완료 시 cancelPendingReminder로 반드시 취소해야 불필요한 알림을 막을 수 있다.
  */
-export async function schedulePendingReminder(notificationId: string) {
+export async function schedulePendingReminder(): Promise<string> {
+  const remindAt  = Date.now() + REMINDER_DELAY_MS
+  const reminderId = reminderIdForTimestamp(remindAt)
   const trigger: TimestampTrigger = {
     type:      TriggerType.TIMESTAMP,
-    timestamp: Date.now() + REMINDER_DELAY_MS,
+    timestamp: remindAt,
   }
   await notifee.createTriggerNotification(
     {
-      id:    `${REMINDER_PREFIX}${notificationId}`,
+      id:    reminderId,
       title: sn.reminderTitle,
       body:  sn.reminderBody,
       android: {
@@ -69,6 +78,7 @@ export async function schedulePendingReminder(notificationId: string) {
     },
     trigger,
   )
+  return reminderId
 }
 
 /**
@@ -87,12 +97,13 @@ export async function displayCancelNotification(app: string, text: string, cance
 }
 
 /**
- * 내역 등록 완료 시 해당 알림의 예약 알림을 취소한다.
+ * 내역 등록 완료 시 해당 예약 알림을 취소한다.
+ * 같은 reminderId를 공유하는 미등록 알림이 남아있으면 호출하지 않아야 한다.
  * 이미 발송됐거나 AlarmManager에 등록되지 않은 경우 notifee가 예외를 던지므로 무시한다.
  */
-export async function cancelPendingReminder(notificationId: string) {
+export async function cancelPendingReminder(reminderId: string) {
   try {
-    await notifee.cancelTriggerNotification(`${REMINDER_PREFIX}${notificationId}`)
+    await notifee.cancelTriggerNotification(reminderId)
   } catch {
     // 이미 발송됐거나 등록된 적 없는 경우
   }
