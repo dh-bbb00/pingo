@@ -16,7 +16,6 @@ import { useAuthStore } from './src/store/authStore'
 import { storage, StorageKeys } from './src/utils/storage'
 import { View } from 'react-native'
 import { useTheme } from './src/theme'
-import PendingNotificationsBanner from './src/components/banner/PendingNotificationsBanner'
 
 // NavigationContainer에 테마 배경을 주입 — 슬라이드 애니메이션 중 흰 플래시 방지
 function ThemedNavigationContainer({ children }: { children: React.ReactNode }) {
@@ -117,7 +116,6 @@ export default function App() {
     <AppProviders>
       <SafeAreaProvider>
         <View style={{ flex: 1 }}>
-          <PendingNotificationsBanner />
           <ThemedNavigationContainer>
             <RootNavigator />
           </ThemedNavigationContainer>

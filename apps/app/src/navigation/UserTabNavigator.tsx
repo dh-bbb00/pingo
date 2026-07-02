@@ -1,18 +1,22 @@
 import React from 'react'
+import { View } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { StackActions } from '@react-navigation/native'
 import type { UserTabParamList } from '@/types/navigation'
 import { userTabRoutes } from './config'
 import { AppTabBar } from './AppTabBar'
+import PendingNotificationsBanner from '@/components/banner/PendingNotificationsBanner'
 
 const Tab = createBottomTabNavigator<UserTabParamList>()
 
 export function UserTabNavigator() {
   return (
-    <Tab.Navigator
-      tabBar={AppTabBar}
-      screenOptions={{ headerShown: false }}
-    >
+    <View style={{ flex: 1 }}>
+      <PendingNotificationsBanner />
+      <Tab.Navigator
+        tabBar={AppTabBar}
+        screenOptions={{ headerShown: false }}
+      >
       {userTabRoutes.map(({ name, component, options }) => (
         <Tab.Screen
           key={name}
@@ -30,6 +34,7 @@ export function UserTabNavigator() {
           }) : undefined}
         />
       ))}
-    </Tab.Navigator>
+      </Tab.Navigator>
+    </View>
   )
 }
