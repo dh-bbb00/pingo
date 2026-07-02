@@ -129,11 +129,12 @@ function parseDateAndTime(text: string): { date: string; time: string } | null {
 }
 
 /**
- * 가맹점명 파싱 — 날짜/시간 뒤, '/' 구분자 앞까지
+ * 가맹점명 파싱 — 날짜/시간 뒤, '/' 구분자 또는 '누적' 앞까지
  * 예: "06/19 11;13 가맹점 / 누적 2,222,222원" → '가맹점'
+ * 예: "06/19 11;13 가맹점 누적1,433,234"       → '가맹점'
  */
 function parseMerchant(text: string): string | null {
-  const match = text.match(/\d{2}[;:]\d{2}\s+(.+?)(?:\s*\/|$)/)
+  const match = text.match(/\d{2}[;:]\d{2}\s+(.+?)(?:\s*\/|\s*누적|$)/)
   if (!match) return null
   return match[1].trim()
 }
