@@ -12,26 +12,28 @@ export interface ParsedCardNotification {
 
 /**
  * 카드 승인 알림 여부 판별
- * title에 (4자리숫자)승인 패턴이 핵심 식별자 — 카드사명에 '카드' 없어도 동작
+ * (4자리숫자)승인 패턴이 핵심 식별자 — title/text 어디에 있어도 감지
  * 취소/거절 알림은 제외
  */
 export function isCardUsageNotification(title: string, text: string): boolean {
-  if (/취소|거절/.test(title)) return false
-  return /\(\d{4}\)\s*승인/.test(title) && /[\d,]+원/.test(text)
+  const combined = `${title} ${text}`
+  if (/취소|거절/.test(combined)) return false
+  return /\(\d{4}\)\s*승인/.test(combined) && /[\d,]+원/.test(combined)
 }
 
 /**
  * 카드 취소 알림 여부 판별
- * title에 (4자리숫자)취소 패턴이 핵심 식별자
+ * (4자리숫자)취소 패턴이 핵심 식별자 — title/text 어디에 있어도 감지
  * 거절 알림은 제외 (취소와 거절은 다름)
  */
 export function isCancelNotification(title: string, text: string): boolean {
-  if (/거절/.test(title)) return false
-  return /\(\d{4}\)\s*취소/.test(title) && /[\d,]+원/.test(text)
+  const combined = `${title} ${text}`
+  if (/거절/.test(combined)) return false
+  return /\(\d{4}\)\s*취소/.test(combined) && /[\d,]+원/.test(combined)
 }
 
-function parseCancelIssuerAndLast4(title: string): { issuer: string; last4: string } | null {
-  const match = title.match(/^(.+?)\((\d{4})\)\s*취소/)
+function parseCancelIssuerAndLast4(title: string, text: string): { issuer: string; last4: string } | null {
+  const match = title.match(/^(.+?)\((\d{4})\)\s*취소/) ?? text.match(/(.+?)\((\d{4})\)\s*취소/)
   if (!match) return null
   return { issuer: match[1].trim(), last4: match[2] }
 }
@@ -41,7 +43,7 @@ export function parseCancelNotification(
   title: string,
   text:  string,
 ): ParsedCardNotification | null {
-  const issuerData   = parseCancelIssuerAndLast4(title)
+  const issuerData   = parseCancelIssuerAndLast4(title, text)
   const amountData   = parseAmountAndPayType(text)
   const dateTimeData = parseDateAndTime(text)
   const merchant     = parseMerchant(text)
@@ -62,12 +64,12 @@ export function parseCancelNotification(
 }
 
 /**
- * 카드사명 + 끝 4자리 파싱
+ * 카드사명 + 끝 4자리 파싱 — title 우선, 없으면 text에서 찾음
  * 예: "신한카드(1234)승인 김*현" → { issuer: '신한카드', last4: '1234' }
  * 예: "신한(1234)승인"           → { issuer: '신한',     last4: '1234' }
  */
-function parseIssuerAndLast4(title: string): { issuer: string; last4: string } | null {
-  const match = title.match(/^(.+?)\((\d{4})\)\s*승인/)
+function parseIssuerAndLast4(title: string, text: string): { issuer: string; last4: string } | null {
+  const match = title.match(/(.+?)\((\d{4})\)\s*승인/) ?? text.match(/(.+?)\((\d{4})\)\s*승인/)
   if (!match) return null
   return { issuer: match[1].trim(), last4: match[2] }
 }
@@ -140,7 +142,7 @@ export function parseCardNotification(
   title: string,
   text:  string,
 ): ParsedCardNotification | null {
-  const issuerData   = parseIssuerAndLast4(title)
+  const issuerData   = parseIssuerAndLast4(title, text)
   const amountData   = parseAmountAndPayType(text)
   const dateTimeData = parseDateAndTime(text)
   const merchant     = parseMerchant(text)
