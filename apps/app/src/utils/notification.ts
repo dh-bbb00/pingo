@@ -1,4 +1,4 @@
-import notifee, { AndroidImportance, TriggerType } from '@notifee/react-native'
+import notifee, { AndroidImportance, AndroidStyle, TriggerType } from '@notifee/react-native'
 import type { TimestampTrigger } from '@notifee/react-native'
 import { strings } from '@/constants/strings'
 
@@ -42,13 +42,15 @@ export async function displayNotification(title: string, body: string) {
  * TransactionEditScreen으로 직접 이동할 수 있게 한다.
  */
 export async function displayDetectedNotification(app: string, text: string, notificationId: string) {
+  const body = sn.detectedBodyFmt(app, text)
   await notifee.displayNotification({
     title: sn.detectedTitle,
-    body:  sn.detectedBodyFmt(app, text),
+    body,
     data:  { notificationId },
     android: {
       channelId:   CHANNEL_ID,
       pressAction: { id: 'pending-notifications', launchActivity: 'default' },
+      style: { type: AndroidStyle.BIGTEXT, text: body },
     },
   })
 }
@@ -85,13 +87,15 @@ export async function schedulePendingReminder(): Promise<string> {
  * 카드 취소 감지 알림 표시 — 탭 시 원 거래 내역 찾기 화면으로 이동
  */
 export async function displayCancelNotification(app: string, text: string, cancelNotificationId: string) {
+  const body = sc.notification.detectedBodyFmt(app, text)
   await notifee.displayNotification({
     title: sc.notification.detectedTitle,
-    body:  sc.notification.detectedBodyFmt(app, text),
+    body,
     data:  { cancelNotificationId },
     android: {
       channelId:   CHANNEL_ID,
       pressAction: { id: 'cancel-notification', launchActivity: 'default' },
+      style: { type: AndroidStyle.BIGTEXT, text: body },
     },
   })
 }

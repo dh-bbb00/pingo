@@ -65,8 +65,12 @@ export const useNotificationLogStore = create<NotificationLogStore>((set, get) =
   },
 }))
 
-/** 저장 후 id를 반환 — 호출부에서 즉시 알림 표시에 사용 */
-export function saveDetectedNotification(notification: Record<string, unknown>, reminderId: string): string {
+/**
+ * 저장 후 id를 반환 — 호출부에서 즉시 알림 표시에 사용.
+ * 같은 text + time을 가진 알림이 이미 있으면 중복으로 보고 null 반환.
+ * (헤드리스 태스크가 동일 알림에 대해 두 번 호출되는 경우 방어)
+ */
+export function saveDetectedNotification(notification: Record<string, unknown>, reminderId: string): string | null {
   // icon/iconLarge/image 는 base64 이진 데이터 — raw 가독성을 위해 제외
   const displayObj: Record<string, unknown> = { ...notification }
   delete displayObj.icon
@@ -85,6 +89,10 @@ export function saveDetectedNotification(notification: Record<string, unknown>, 
   }
   const existing = storage.getString(StorageKeys.DETECTED_NOTIFICATIONS)
   const list: DetectedNotification[] = existing ? JSON.parse(existing) : []
+
+  const isDuplicate = list.some(n => n.text === item.text && n.time === item.time)
+  if (isDuplicate) return null
+
   list.unshift(item)
   storage.set(StorageKeys.DETECTED_NOTIFICATIONS, JSON.stringify(list))
   return id

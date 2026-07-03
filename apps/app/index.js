@@ -48,6 +48,7 @@ AppRegistry.registerHeadlessTask(
     await setupNotificationChannel();
     const reminderId     = await schedulePendingReminder();
     const notificationId = saveDetectedNotification(notification, reminderId);
+    if (!notificationId) return;  // 중복 알림 무시
     await displayDetectedNotification(
       app || '알 수 없음',
       String(notification.text ?? ''),
