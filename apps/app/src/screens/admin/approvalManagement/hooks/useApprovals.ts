@@ -10,6 +10,7 @@ export function useApprovals(status: ApprovalStatus) {
       const res = await approvalsApi.getList(status)
       return res.data.data
     },
+    staleTime: 0, // 실시간성이 중요한 승인 목록은 항상 최신 데이터 사용
   })
 }
 
