@@ -42,7 +42,7 @@ export async function displayNotification(title: string, body: string) {
  * TransactionEditScreen으로 직접 이동할 수 있게 한다.
  */
 export async function displayDetectedNotification(app: string, text: string, notificationId: string) {
-  const body = sn.detectedBodyFmt(app, text)
+  const body = sn.detectedBodyFmt(app, text).replace(/\n/g, '<br>')
   await notifee.displayNotification({
     title: sn.detectedTitle,
     body,
@@ -87,7 +87,7 @@ export async function schedulePendingReminder(): Promise<string> {
  * 카드 취소 감지 알림 표시 — 탭 시 원 거래 내역 찾기 화면으로 이동
  */
 export async function displayCancelNotification(app: string, text: string, cancelNotificationId: string) {
-  const body = sc.notification.detectedBodyFmt(app, text)
+  const body = sc.notification.detectedBodyFmt(app, text).replace(/\n/g, '<br>')
   await notifee.displayNotification({
     title: sc.notification.detectedTitle,
     body,
