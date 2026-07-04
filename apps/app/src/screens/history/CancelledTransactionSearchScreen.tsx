@@ -9,7 +9,7 @@ import { strings } from '@/constants/strings'
 import { Screens } from '@/constants/screens'
 import { useCancelNotificationStore } from '@/store/cancelNotificationStore'
 import { useNotificationLogStore } from '@/store/notificationLogStore'
-import { parseCancelNotification, parseCardNotification } from '@/utils/cardNotificationParser'
+import { parseCancelNotification, parseCardNotification, parsePaymentNotification } from '@/utils/cardNotificationParser'
 import { useCancelledTransactionSearch, matchesCancelInfo, merchantIncludes } from './hooks/useCancelledTransactionSearch'
 import type { Transaction } from '@/api/endpoints/transactions.api'
 import type { DetectedNotification } from '@/store/notificationLogStore'
@@ -37,7 +37,8 @@ export default function CancelledTransactionSearchScreen() {
 
   const cancelNotification = cancelStore.notifications.find(n => n.id === params.cancelNotificationId)
   const parsed = cancelNotification
-    ? parseCancelNotification(cancelNotification.title, cancelNotification.text)
+    ? (parseCancelNotification(cancelNotification.title, cancelNotification.text)
+       ?? parsePaymentNotification(cancelNotification.title, cancelNotification.text))
     : null
 
   const { data: dbMatches, isLoading } = useCancelledTransactionSearch(parsed)
@@ -46,7 +47,7 @@ export default function CancelledTransactionSearchScreen() {
   const pendingMatches = useMemo(() => {
     if (!parsed) return []
     return pendingStore.notifications.filter(n => {
-      const p = parseCardNotification(n.title, n.text)
+      const p = parseCardNotification(n.title, n.text) ?? parsePaymentNotification(n.title, n.text)
       if (!p) return false
       if (!merchantIncludes(p.merchant, parsed.merchant)) return false
       if (p.isInstallment !== parsed.isInstallment) return false

@@ -11,7 +11,7 @@ import messaging from '@react-native-firebase/messaging';
 import { saveDetectedNotification } from './src/store/notificationLogStore';
 import { saveCancelNotification } from './src/store/cancelNotificationStore';
 import { setupNotificationChannel, displayDetectedNotification, schedulePendingReminder, displayCancelNotification } from './src/utils/notification';
-import { isCardUsageNotification, isCancelNotification } from './src/utils/cardNotificationParser';
+import { isCardUsageNotification, isCancelNotification, isPaymentNotification, isPaymentCancelNotification } from './src/utils/cardNotificationParser';
 import { storage, StorageKeys } from './src/utils/storage';
 
 AppRegistry.registerComponent(appName, () => App);
@@ -34,7 +34,15 @@ AppRegistry.registerHeadlessTask(
     // 불필요한 알림 제외
     if (title.includes('95%') || text.includes('95%')) return;
 
-    // 카드 취소 알림 처리
+    // 결제취소 알림 처리 (결제 형식 — "N원 결제취소")
+    if (isPaymentCancelNotification(title, text)) {
+      await setupNotificationChannel();
+      const cancelId = saveCancelNotification(notification);
+      await displayCancelNotification(app || '알 수 없음', text, cancelId);
+      return;
+    }
+
+    // 카드 취소 알림 처리 (승인 형식 — "(4자리)취소")
     if (isCancelNotification(title, text)) {
       await setupNotificationChannel();
       const cancelId = saveCancelNotification(notification);
@@ -42,7 +50,17 @@ AppRegistry.registerHeadlessTask(
       return;
     }
 
-    // 카드 승인 알림만 처리
+    // 결제 알림 처리 (결제 형식 — "N원 결제")
+    if (isPaymentNotification(title, text)) {
+      await setupNotificationChannel();
+      const reminderId     = await schedulePendingReminder();
+      const notificationId = saveDetectedNotification(notification, reminderId);
+      if (!notificationId) return;
+      await displayDetectedNotification(app || '알 수 없음', text, notificationId);
+      return;
+    }
+
+    // 카드 승인 알림만 처리 (승인 형식 — "(4자리)승인")
     if (!isCardUsageNotification(title, text)) return;
 
     await setupNotificationChannel();

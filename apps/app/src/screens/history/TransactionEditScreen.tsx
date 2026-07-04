@@ -28,7 +28,7 @@ import { navigationRef, resetToPendingNotifications } from '@/navigation/navigat
 import { Screens } from '@/constants/screens'
 import { makeStyles } from './TransactionEditScreen.styles'
 import { useNotificationLogStore } from '@/store/notificationLogStore'
-import { parseCardNotification } from '@/utils/cardNotificationParser'
+import { parseCardNotification, parsePaymentNotification } from '@/utils/cardNotificationParser'
 
 type Route = RouteProp<HistoryStackParamList, 'TransactionEdit'>
 type Nav   = NativeStackNavigationProp<HistoryStackParamList, 'TransactionEdit'>
@@ -124,6 +124,7 @@ export default function TransactionEditScreen() {
     const notification = notifications.find(n => n.id === notificationId)
     if (!notification) return
     const parsed = parseCardNotification(notification.title, notification.text)
+              ?? parsePaymentNotification(notification.title, notification.text)
     if (!parsed) return
 
     notifInitialized.current = true
@@ -134,10 +135,16 @@ export default function TransactionEditScreen() {
 
     const receivedMs   = parseInt(notification.time, 10)
     const receivedDate = new Date(isNaN(receivedMs) ? Date.now() : receivedMs)
-    const [month, day] = parsed.date.split('/').map(Number)
-    const [hour, min]  = parsed.time.split(':').map(Number)
-    let txDate = new Date(receivedDate.getFullYear(), month - 1, day, hour, min, 0, 0)
-    if (txDate > new Date()) txDate.setFullYear(txDate.getFullYear() - 1)
+    // date/time이 null인 결제 형식은 알림 수신 시각을 그대로 사용
+    let txDate: Date
+    if (parsed.date && parsed.time) {
+      const [month, day] = parsed.date.split('/').map(Number)
+      const [hour, min]  = parsed.time.split(':').map(Number)
+      txDate = new Date(receivedDate.getFullYear(), month - 1, day, hour, min, 0, 0)
+      if (txDate > new Date()) txDate.setFullYear(txDate.getFullYear() - 1)
+    } else {
+      txDate = receivedDate
+    }
 
     // 카드사+끝4자리로 결제수단 자동 매칭
     const matched   = paymentMethods.find(pm =>

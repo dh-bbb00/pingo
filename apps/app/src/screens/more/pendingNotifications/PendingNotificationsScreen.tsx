@@ -13,7 +13,7 @@ import { navigationRef } from '@/navigation/navigationRef'
 import { useNotificationLogStore, isOldUnregistered } from '@/store/notificationLogStore'
 import type { DetectedNotification } from '@/store/notificationLogStore'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
-import { parseCardNotification } from '@/utils/cardNotificationParser'
+import { parseCardNotification, parsePaymentNotification } from '@/utils/cardNotificationParser'
 import { transactionsApi } from '@/api/endpoints/transactions.api'
 import { handleApiError } from '@/api/errorHandler'
 import { useQueryClient } from '@tanstack/react-query'
@@ -25,16 +25,22 @@ const s = strings.pendingNotifications
 /**
  * 파싱된 날짜(MM/DD)는 연도 정보가 없으므로, 알림 수신 시각(item.time)의 연도를 사용.
  * 단, 연말→연초 경계에서 12월 알림을 1월에 등록하면 미래 날짜가 될 수 있으므로 작년으로 보정.
+ * date/time이 null인 결제 형식은 알림 수신 시각을 그대로 사용.
  */
 function buildTxDate(notification: DetectedNotification, parsed: ReturnType<typeof parseCardNotification>) {
   if (!parsed) return new Date()
   const receivedMs   = parseInt(notification.time, 10)
   const receivedDate = new Date(isNaN(receivedMs) ? Date.now() : receivedMs)
+  if (!parsed.date || !parsed.time) return receivedDate
   const [month, day] = parsed.date.split('/').map(Number)
   const [hour, min]  = parsed.time.split(':').map(Number)
   let d = new Date(receivedDate.getFullYear(), month - 1, day, hour, min, 0, 0)
   if (d > new Date()) d.setFullYear(d.getFullYear() - 1)
   return d
+}
+
+function parseNotification(title: string, text: string) {
+  return parseCardNotification(title, text) ?? parsePaymentNotification(title, text)
 }
 
 /**
@@ -146,9 +152,9 @@ export default function PendingNotificationsScreen() {
   }
 
   function handleBulkRegister() {
-    // 파싱 불가 알림은 일괄 등록 대상에서 제외 — 필수 정보(금액/가맹점/날짜) 부재
+    // 파싱 불가 알림은 일괄 등록 대상에서 제외 — 필수 정보(금액/가맹점) 부재
     const parseable = unregistered
-      .map(n => ({ n, parsed: parseCardNotification(n.title, n.text) }))
+      .map(n => ({ n, parsed: parseNotification(n.title, n.text) }))
       .filter((x): x is { n: DetectedNotification; parsed: NonNullable<ReturnType<typeof parseCardNotification>> } =>
         x.parsed !== null
       )
@@ -159,7 +165,19 @@ export default function PendingNotificationsScreen() {
     }
 
     const listText = parseable
-      .map(x => `• ${x.parsed.merchant}  ${x.parsed.amountStr}  (${x.parsed.date})`)
+      .map(x => {
+        let dateStr = x.parsed.date ?? ''
+        if (!dateStr) {
+          const ms = parseInt(x.n.time, 10)
+          const d  = new Date(isNaN(ms) ? Date.now() : ms)
+          const mo = String(d.getMonth() + 1).padStart(2, '0')
+          const dy = String(d.getDate()).padStart(2, '0')
+          const hr = String(d.getHours()).padStart(2, '0')
+          const mn = String(d.getMinutes()).padStart(2, '0')
+          dateStr  = `${mo}/${dy} ${hr}:${mn}`
+        }
+        return `• ${x.parsed.merchant}  ${x.parsed.amountStr}  (${dateStr})`
+      })
       .join('\n')
 
     Alert.alert(
@@ -173,7 +191,7 @@ export default function PendingNotificationsScreen() {
   }
 
   function renderItem({ item }: { item: DetectedNotification }) {
-    const parsed     = parseCardNotification(item.title, item.text)
+    const parsed     = parseNotification(item.title, item.text)
     const isOld      = isOldUnregistered(item)
     const receivedMs = parseInt(item.time, 10)
     const receivedAt = isNaN(receivedMs)

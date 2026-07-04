@@ -1,12 +1,12 @@
 export interface ParsedCardNotification {
   issuer:            string        // 카드사명 (예: '신한카드', '신한')
-  last4:             string        // 카드번호 끝 4자리
+  last4:             string | null // 카드번호 끝 4자리. null = 결제 형식처럼 번호 미포함 알림
   amountStr:         string        // 결제금액 문자열 (예: '10,000원')
   amount:            number        // 결제금액 숫자 (원 단위)
   isInstallment:     boolean       // 할부 여부
   installmentMonths: number | null // 할부 개월수. null = 일시불 또는 개월수 불명
-  date:              string        // 결제일 (MM/DD)
-  time:              string        // 결제시각 (HH:MM)
+  date:              string | null // 결제일 (MM/DD). null = 결제 형식처럼 날짜 미포함 → 알림 수신 시각 사용
+  time:              string | null // 결제시각 (HH:MM). null = 결제 형식처럼 시각 미포함 → 알림 수신 시각 사용
   merchant:          string        // 가맹점명
 }
 
@@ -159,6 +159,57 @@ export function parseCardNotification(
     installmentMonths: amountData.installmentMonths,
     date:              dateTimeData.date,
     time:              dateTimeData.time,
+    merchant,
+  }
+}
+
+/**
+ * 결제 형식 알림 여부 판별 — "N원 결제" 패턴 (결제취소 제외)
+ * 예: "50,000원 결제"
+ */
+export function isPaymentNotification(title: string, text: string): boolean {
+  if (/결제취소/.test(title)) return false
+  return /[\d,]+원\s*결제/.test(title)
+}
+
+/**
+ * 결제취소 형식 알림 여부 판별 — "N원 결제취소" 패턴
+ * 예: "50,000원 결제취소"
+ */
+export function isPaymentCancelNotification(title: string, text: string): boolean {
+  return /[\d,]+원\s*결제취소/.test(title)
+}
+
+/**
+ * 결제/결제취소 형식 파싱 — 날짜·카드번호 없음, 알림 수신 시각을 날짜로 사용
+ * 예:
+ *   title: "50,000원 결제"
+ *   text:  "토스뱅크 체크카드 | 푸줏간생고기점\n잔액 10,000원"
+ */
+export function parsePaymentNotification(
+  title: string,
+  text:  string,
+): ParsedCardNotification | null {
+  const amountMatch = title.match(/([\d,]+)원/)
+  if (!amountMatch) return null
+  const amountStr = `${amountMatch[1]}원`
+  const amount    = parseInt(amountMatch[1].replace(/,/g, ''), 10)
+
+  // "카드사 | 가맹점명" 구분자로 파싱
+  const pipeMatch = text.match(/^([^|]+)\|\s*([^\n\r]+)/)
+  if (!pipeMatch) return null
+  const issuer   = pipeMatch[1].trim()
+  const merchant = pipeMatch[2].trim()
+
+  return {
+    issuer,
+    last4:             null,
+    amountStr,
+    amount,
+    isInstallment:     false,
+    installmentMonths: null,
+    date:              null,
+    time:              null,
     merchant,
   }
 }
