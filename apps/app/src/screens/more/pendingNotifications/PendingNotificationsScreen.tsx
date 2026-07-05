@@ -93,7 +93,7 @@ export default function PendingNotificationsScreen() {
   const navigation = useNavigation()
   const queryClient = useQueryClient()
 
-  const { notifications, load, markAsRegistered } = useNotificationLogStore()
+  const { notifications, load, markAsRegistered, remove } = useNotificationLogStore()
   const { refreshing, onRefresh } = usePullToRefresh(load)
 
   // 일괄 등록 진행 중 오버레이 표시용
@@ -212,8 +212,7 @@ export default function PendingNotificationsScreen() {
             )}
             <Text style={styles.receivedTime}>{receivedAt}</Text>
           </View>
-          {/* 파싱 성공한 경우만 등록 버튼 노출 — 파싱 불가는 수동 등록 불가 */}
-          {parsed && (
+          <View style={styles.cardActions}>
             <TouchableOpacity
               style={styles.registerBtn}
               onPress={() => navigateToRegister(item.id)}
@@ -221,7 +220,17 @@ export default function PendingNotificationsScreen() {
             >
               <Text style={styles.registerBtnText}>{s.registerBtn}</Text>
             </TouchableOpacity>
-          )}
+            <TouchableOpacity
+              style={styles.deleteBtn}
+              onPress={() => Alert.alert(s.deleteConfirmTitle, s.deleteConfirmMsg, [
+                { text: s.deleteConfirmCancel, style: 'cancel' },
+                { text: s.deleteConfirmOk, style: 'destructive', onPress: () => remove(item.id) },
+              ])}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.deleteBtnText}>{s.deleteBtn}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {parsed ? (

@@ -20,6 +20,7 @@ interface NotificationLogStore {
   load:             () => void
   clear:            () => void
   markAsRegistered: (id: string) => void
+  remove:           (id: string) => void
 }
 
 function filterExpired(list: DetectedNotification[]): DetectedNotification[] {
@@ -54,6 +55,17 @@ export const useNotificationLogStore = create<NotificationLogStore>((set, get) =
   },
 
   markAsRegistered: (id: string) => {
+    const target  = get().notifications.find(n => n.id === id)
+    const updated = get().notifications.filter(n => n.id !== id)
+    storage.set(StorageKeys.DETECTED_NOTIFICATIONS, JSON.stringify(updated))
+    set({ notifications: updated })
+    // 같은 reminderId를 공유하는 미등록 알림이 남아있으면 예약 유지
+    if (target && !updated.some(n => n.reminderId === target.reminderId)) {
+      cancelPendingReminder(target.reminderId)
+    }
+  },
+
+  remove: (id: string) => {
     const target  = get().notifications.find(n => n.id === id)
     const updated = get().notifications.filter(n => n.id !== id)
     storage.set(StorageKeys.DETECTED_NOTIFICATIONS, JSON.stringify(updated))
