@@ -35,7 +35,8 @@ export function isCancelNotification(title: string, text: string): boolean {
 function parseCancelIssuerAndLast4(title: string, text: string): { issuer: string; last4: string } | null {
   const match = title.match(/^(.+?)\((\d{4})\)\s*취소/) ?? text.match(/(.+?)\((\d{4})\)\s*취소/)
   if (!match) return null
-  return { issuer: match[1].trim(), last4: match[2] }
+  // "[카드사명(1234)취소]" 형식에서 앞 대괄호 제거
+  return { issuer: match[1].trim().replace(/^\[/, ''), last4: match[2] }
 }
 
 /** 카드 취소 알림 파싱 — 승인 파싱과 동일한 텍스트 구조, 타이틀 패턴만 다름 */
@@ -71,7 +72,8 @@ export function parseCancelNotification(
 function parseIssuerAndLast4(title: string, text: string): { issuer: string; last4: string } | null {
   const match = title.match(/(.+?)\((\d{4})\)\s*승인/) ?? text.match(/(.+?)\((\d{4})\)\s*승인/)
   if (!match) return null
-  return { issuer: match[1].trim(), last4: match[2] }
+  // "[카드사명(1234)승인]" 형식에서 앞 대괄호 제거
+  return { issuer: match[1].trim().replace(/^\[/, ''), last4: match[2] }
 }
 
 /**
@@ -129,11 +131,17 @@ function parseDateAndTime(text: string): { date: string; time: string } | null {
 }
 
 /**
- * 가맹점명 파싱 — 날짜/시간 뒤, '/' 구분자 또는 '누적' 앞까지
- * 예: "06/19 11;13 가맹점 / 누적 2,222,222원" → '가맹점'
- * 예: "06/19 11;13 가맹점 누적1,433,234"       → '가맹점'
+ * 가맹점명 파싱 — 두 가지 형식 지원
+ *
+ * 레이블 형식: "- 가맹점명: (주)신세계프라퍼티" (신한카드 등 구조화 알림)
+ * 인라인 형식: "06/19 11;13 가맹점 / 누적 2,222,222원"
  */
 function parseMerchant(text: string): string | null {
+  // 레이블 형식 우선 시도
+  const labelMatch = text.match(/가맹점명\s*:\s*(.+?)(?:\n|$)/)
+  if (labelMatch) return labelMatch[1].trim()
+
+  // 인라인 형식 — 날짜/시간 뒤, '/' 구분자 또는 '누적' 앞까지
   const match = text.match(/\d{2}[;:]\d{2}\s+(.+?)(?:\s*\/|\s*누적|$)/)
   if (!match) return null
   return match[1].trim()
