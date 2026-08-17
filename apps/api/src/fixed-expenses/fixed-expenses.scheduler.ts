@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { MSG } from '../common/constants/messages';
-import { SchedulerLogStatus, SchedulerLogType, SchedulerTrigger } from '@prisma/client';
+import { SchedulerLogType, SchedulerTrigger } from '@prisma/client';
 import { FixedExpensesService } from './fixed-expenses.service';
 import { SchedulerLogService } from '../scheduler/scheduler-log.service';
 import { AppLoggerService } from '../logger/logger.service';
@@ -48,20 +48,14 @@ export class FixedExpensesScheduler {
     }
   }
 
-  /** 매월 1일 08:00 — 00:05 스케줄러가 성공한 경우에만 유저에게 등록 완료 알림 발송 */
-  @Cron('0 8 1 * *')
-  async handleMonthlyUserNotification() {
-    const now   = new Date();
-    const year  = now.getFullYear();
-    const month = now.getMonth() + 1;
-
-    const successLog = await this.prisma.schedulerLog.findFirst({
-      where: { type: SchedulerLogType.FIXED_EXPENSES, year, month, status: SchedulerLogStatus.SUCCESS },
-    });
-    if (!successLog) {
-      this.logger.log('고정 지출 성공 로그 없음 — 알림 발송 생략', 'FixedExpensesScheduler');
-      return;
-    }
+  /**
+   * 매일 08:00 — 오늘이 dayOfMonth인 고정 지출 유저에게만 납부일 알림 발송.
+   * 기존 매월 1일 일괄 발송 방식은 dayOfMonth와 무관하게 모든 유저에게 발송되어
+   * 납부일이 아직 안 된 유저도 알림을 받는 문제가 있어 일별 발송으로 변경.
+   */
+  @Cron('0 8 * * *')
+  async handleDailyFixedExpenseNotification() {
+    const todayDay = new Date().getDate();
 
     try {
       const devices = await this.prisma.device.findMany({
@@ -69,7 +63,7 @@ export class FixedExpensesScheduler {
           user: {
             role: 'USER',
             status: 'APPROVED',
-            fixedExpenses: { some: { isActive: true } },
+            fixedExpenses: { some: { isActive: true, dayOfMonth: todayDay } },
           },
           fcmToken: { not: null },
         },
@@ -78,9 +72,9 @@ export class FixedExpensesScheduler {
       const tokens = devices.map(d => d.fcmToken!);
       if (tokens.length === 0) return;
       await this.firebase.sendMulticast(tokens, MSG.fixedExpensePush.title, MSG.fixedExpensePush.body);
-      this.logger.log(`고정 지출 완료 알림 ${tokens.length}건 발송`, 'FixedExpensesScheduler');
+      this.logger.log(`고정 지출 납부일 알림 ${tokens.length}건 발송 (${todayDay}일)`, 'FixedExpensesScheduler');
     } catch (err) {
-      this.logger.error('고정 지출 완료 알림 발송 실패', (err as Error).stack, 'FixedExpensesScheduler');
+      this.logger.error('고정 지출 납부일 알림 발송 실패', (err as Error).stack, 'FixedExpensesScheduler');
     }
   }
 
