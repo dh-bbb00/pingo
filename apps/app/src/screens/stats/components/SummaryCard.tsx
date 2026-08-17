@@ -58,9 +58,11 @@ export default function SummaryCard({ total, prevTotal, dateTab, budget, isLoadi
     trendColor = theme.colors.semantic.income
   }
 
-  const budgetPct    = budget && budget > 0 ? Math.round((total / budget) * 100) : null
-  const isOver       = budgetPct !== null && budgetPct >= OVER_PCT
-  const isWarn       = budgetPct !== null && budgetPct >= WARN_PCT && !isOver
+  // 초과·경고 판정은 float 원본으로 비교 (반올림 시 99.9% → 100%로 오판 방지)
+  const budgetRatio  = budget && budget > 0 ? (total / budget) * 100 : null
+  const budgetPct    = budgetRatio !== null ? Math.round(budgetRatio) : null
+  const isOver       = budgetRatio !== null && budgetRatio >= OVER_PCT
+  const isWarn       = budgetRatio !== null && budgetRatio >= WARN_PCT && !isOver
   const barColor     = isWarn ? theme.colors.semantic.warning : theme.colors.primary
   const barWidth     = budgetPct !== null ? `${Math.min(budgetPct, 100)}%` : '0%'
   // 초과 시: 트랙 100% 안에서 예산분(primary) + 초과분(error) 비율로 분할

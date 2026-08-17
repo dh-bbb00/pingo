@@ -106,8 +106,10 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>{s.budgetAlertTitle}</Text>
             <View style={styles.alertList}>
               {budgetAlerts.map((item, idx) => {
-                const pct  = Math.round((item.amount / item.budget!) * 100)
-                const over = pct >= OVER_PCT
+                // 초과 판정은 float 원본으로 비교 (반올림 시 99.9% → 100%로 오판 방지)
+                const ratio = (item.amount / item.budget!) * 100
+                const pct   = Math.round(ratio)
+                const over  = ratio >= OVER_PCT
                 const name = item.category?.name ?? s.noCategory
                 const color = over ? theme.colors.semantic.error : theme.colors.semantic.warning
                 const bg    = over ? theme.colors.semantic.errorBackground : theme.colors.semantic.warningBackground
