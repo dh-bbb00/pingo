@@ -40,7 +40,10 @@ export default function TransactionItem({ item, onPress, showMemo }: Props) {
         <View style={styles.middle}>
           <Text style={styles.merchant} numberOfLines={1}>{item.merchantName}</Text>
           <Text style={styles.sub} numberOfLines={1}>
-            {[cat?.name ?? strings.history.noCategory, item.paymentMethod?.name].filter(Boolean).join(' · ')}
+            {[
+              cat?.name ?? strings.history.noCategory,
+              item.paymentMethod && [item.paymentMethod.name, item.paymentMethod.cardNumber].filter(Boolean).join(' '),
+            ].filter(Boolean).join(' · ')}
           </Text>
           {showMemo && item.memo && (
             <Text style={styles.memo} numberOfLines={1}>{item.memo}</Text>

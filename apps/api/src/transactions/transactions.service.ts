@@ -45,7 +45,7 @@ export class TransactionsService {
         where,
         include: {
           category:      { select: { id: true, name: true, icon: true, color: true } },
-          paymentMethod: { select: { id: true, name: true, type: true } },
+          paymentMethod: { select: { id: true, name: true, type: true, cardNumber: true } },
         },
         orderBy: { transactionDate: 'desc' },
         skip: (page - 1) * pageSize,
@@ -68,7 +68,7 @@ export class TransactionsService {
       where: { id, userId },
       include: {
           category:      { select: { id: true, name: true, icon: true, color: true } },
-          paymentMethod: { select: { id: true, name: true, type: true } },
+          paymentMethod: { select: { id: true, name: true, type: true, cardNumber: true } },
         },
     });
     if (!tx) throw new NotFoundException(MSG.common.notFound);
@@ -81,7 +81,7 @@ export class TransactionsService {
       data: { ...dto, userId, transactionDate: new Date(dto.transactionDate) },
       include: {
           category:      { select: { id: true, name: true, icon: true, color: true } },
-          paymentMethod: { select: { id: true, name: true, type: true } },
+          paymentMethod: { select: { id: true, name: true, type: true, cardNumber: true } },
         },
     });
   }

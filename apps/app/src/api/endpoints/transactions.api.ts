@@ -10,9 +10,10 @@ export interface TransactionCategory {
 }
 
 export interface TransactionPaymentMethod {
-  id:   string
-  name: string
-  type: string
+  id:         string
+  name:       string
+  type:       string
+  cardNumber: string | null
 }
 
 export interface Transaction {
