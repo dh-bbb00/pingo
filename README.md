@@ -1,6 +1,6 @@
 # Pingo
 
-카드 결제 알림을 자동으로 감지해 지출 내역을 빠르게 등록하는 **안드로이드 전용 가계부 앱**입니다.  
+카드 결제 알림을 자동으로 감지해 지출 내역을 빠르게 등록하는 **안드로이드 전용 가계부 앱**입니다.
 카드사 앱 알림이 오면 Pingo가 이를 자동 파싱해 금액·가맹점·결제수단을 폼에 채워주므로, 별도 입력 없이 탭 한 번으로 내역을 등록할 수 있습니다.
 
 ---
@@ -258,7 +258,7 @@ Pingo는 관리자가 승인한 사용자만 접근할 수 있습니다.
 ### 요구 사항
 
 - Node.js 22+
-- pnpm 9.0.0
+- pnpm 9+
 - Docker Desktop
 - Android Studio (앱 빌드 및 에뮬레이터)
 
@@ -272,7 +272,7 @@ pnpm install
 
 ### 2. 환경 변수 설정
 
-환경 변수는 루트(API/인프라)와 앱(React Native)으로 분리해서 관리합니다.  
+환경 변수는 루트(API/인프라)와 앱(React Native)으로 분리해서 관리합니다.
 `react-native-config`는 앱 `.env.*`의 모든 변수를 APK에 직접 번들링하므로, 앱 전용 파일에는 공개해도 무방한 `API_URL`만 둡니다.
 
 #### 루트 `.env` — API 서버 / 인프라
@@ -347,45 +347,6 @@ pnpm app:android
 
 ---
 
-## 주요 명령어
-
-### 인프라
-
-```bash
-pnpm infra:up        # 컨테이너 백그라운드 실행
-pnpm infra:up-dev    # 컨테이너 포그라운드 실행 (로그 출력)
-pnpm infra:down      # 컨테이너 종료
-pnpm infra:build     # 이미지 빌드
-pnpm infra:logs      # 로그 스트리밍
-pnpm infra:restart   # 컨테이너 재시작
-```
-
-### DB
-
-```bash
-pnpm db:migrate      # 마이그레이션 실행 (테이블 생성)
-pnpm db:seed         # Admin 계정 생성
-pnpm db:generate     # Prisma Client 재생성
-```
-
-### 앱
-
-```bash
-pnpm app:start                         # Metro 번들러 실행
-pnpm app:android                       # 에뮬레이터 실행 (개발 환경)
-pnpm --filter @pingo/app android:prod  # 프로덕션 환경으로 실행
-pnpm app:apk:debug                     # 디버그 APK 빌드
-pnpm app:apk:release                   # 릴리즈 APK 빌드
-```
-
-### 기타
-
-```bash
-pnpm adb:reset   # ADB 서버 재시작
-```
-
----
-
 ## 앱 실행 환경별 API URL
 
 | 환경 | API_URL | 비고 |
@@ -396,48 +357,9 @@ pnpm adb:reset   # ADB 서버 재시작
 
 ---
 
-## 사용 메뉴얼
-
-### 초기 설정
-
-1. **회원가입** — 이메일 + 비밀번호로 가입 요청. 관리자 승인을 받아야 앱을 사용할 수 있습니다.
-2. **알림 접근 권한 허용** — 앱 최초 실행 시 "알림 접근 권한" 허용 (설정 → 알림 접근). 카드사 알림 감지에 필수입니다.
-3. **카테고리 등록** — 더보기 → 카테고리에서 소비 분류를 설정합니다. 최대 20개까지 등록할 수 있습니다.
-4. **결제수단 등록** — 더보기 → 결제수단에서 카드를 등록합니다. 카드사명 + 끝 4자리로 알림 자동 매칭에 사용됩니다.
-5. **고정 지출 등록** — 더보기 → 고정 지출에서 월세, 구독료 등 정기 지출을 등록합니다. 매달 지정일에 자동으로 내역이 생성됩니다.
-
-### 카드 알림 자동 등록
-
-1. 카드 결제 시 카드사 앱 알림이 수신됩니다.
-2. Pingo 알림이 표시됩니다 — 탭하면 내역 등록 화면으로 이동합니다.
-3. 금액, 가맹점명, 결제수단이 자동으로 채워집니다.
-4. 이전에 같은 가맹점에서 결제한 적 있으면 추천 카테고리가 자동 적용됩니다.
-5. 카테고리, 날짜, 메모를 확인/수정 후 등록합니다.
-6. 미처 등록하지 못한 알림은 더보기 → 미등록 내역에서 모아볼 수 있습니다.
-
-### 주요 화면
-
-| 화면 | 설명 |
-|------|------|
-| 홈 | 이번 달 총 소비, 카테고리별 Top 3, 예산 초과 알림, 최근 거래, 6개월 추이 |
-| 내역 | 날짜별 소비 내역 목록. 알림으로 수신된 미확인 내역 직접 등록 가능 |
-| 통계 | 기간별·카테고리별 도넛 차트 + 막대 그래프, 지출 상위 10건 |
-| 더보기 | 카테고리, 결제수단, 고정 지출, 미등록 알림 목록, 내 정보 |
-
-### 관리자 화면
-
-관리자 계정(`ADMIN` 역할)으로 로그인하면 어드민 전용 화면으로 진입합니다.
-
-| 화면 | 설명 |
-|------|------|
-| 승인 관리 | 가입 요청 목록 확인, 승인/거절 처리 |
-| 유저 관리 | 가입된 사용자 목록, 계정 비활성화 처리 |
-
----
-
 ## Cloudflare Tunnel 설정
 
-React Native 앱에서 HTTPS로 접근하기 위한 외부 터널 설정입니다.  
+React Native 앱에서 HTTPS로 접근하기 위한 외부 터널 설정입니다.
 Cloudflare에 등록된 도메인이 필요합니다.
 
 ### 1. cloudflared 설치
@@ -452,7 +374,7 @@ brew install cloudflared
 cloudflared tunnel login
 ```
 
-브라우저가 열리면 Cloudflare 계정으로 로그인 후 도메인 선택.  
+브라우저가 열리면 Cloudflare 계정으로 로그인 후 도메인 선택.
 `~/.cloudflared/cert.pem` 파일이 생성됩니다.
 
 ### 3. 터널 생성
@@ -497,6 +419,84 @@ cloudflared tunnel route dns pingo api.yourdomain.com
 ```bash
 pnpm infra:down && pnpm infra:up
 ```
+
+---
+
+## 주요 명령어
+
+### 인프라
+
+```bash
+pnpm infra:up        # 컨테이너 백그라운드 실행
+pnpm infra:up-dev    # 컨테이너 포그라운드 실행 (로그 출력)
+pnpm infra:down      # 컨테이너 종료
+pnpm infra:build     # 이미지 빌드
+pnpm infra:logs      # 로그 스트리밍
+pnpm infra:restart   # 컨테이너 재시작
+```
+
+### DB
+
+```bash
+pnpm db:migrate      # 마이그레이션 실행 (테이블 생성)
+pnpm db:seed         # Admin 계정 생성
+pnpm db:generate     # Prisma Client 재생성
+```
+
+### 앱
+
+```bash
+pnpm app:start                         # Metro 번들러 실행
+pnpm app:android                       # 에뮬레이터 실행 (개발 환경)
+pnpm --filter @pingo/app android:prod  # 프로덕션 환경으로 실행
+pnpm app:apk:debug                     # 디버그 APK 빌드
+pnpm app:apk:release                   # 릴리즈 APK 빌드
+```
+
+### 기타
+
+```bash
+pnpm adb:reset   # ADB 서버 재시작
+```
+
+---
+
+## 사용 메뉴얼
+
+### 초기 설정
+
+1. **회원가입** — 이메일 + 비밀번호로 가입 요청. 관리자 승인을 받아야 앱을 사용할 수 있습니다.
+2. **알림 접근 권한 허용** — 앱 최초 실행 시 "알림 접근 권한" 허용 (설정 → 알림 접근). 카드사 알림 감지에 필수입니다.
+3. **카테고리 등록** — 더보기 → 카테고리에서 소비 분류를 설정합니다. 최대 20개까지 등록할 수 있습니다.
+4. **결제수단 등록** — 더보기 → 결제수단에서 카드를 등록합니다. 카드사명 + 끝 4자리로 알림 자동 매칭에 사용됩니다.
+5. **고정 지출 등록** — 더보기 → 고정 지출에서 월세, 구독료 등 정기 지출을 등록합니다. 매달 지정일에 자동으로 내역이 생성됩니다.
+
+### 카드 알림 자동 등록
+
+1. 카드 결제 시 카드사 앱 알림이 수신됩니다.
+2. Pingo 알림이 표시됩니다 — 탭하면 내역 등록 화면으로 이동합니다.
+3. 금액, 가맹점명, 결제수단이 자동으로 채워집니다.
+4. 이전에 같은 가맹점에서 결제한 적 있으면 추천 카테고리가 자동 적용됩니다.
+5. 카테고리, 날짜, 메모를 확인/수정 후 등록합니다.
+6. 미처 등록하지 못한 알림은 더보기 → 미등록 내역에서 모아볼 수 있습니다.
+
+### 주요 화면
+
+| 화면 | 설명 |
+|------|------|
+| 홈 | 이번 달 총 소비, 카테고리별 Top 3, 예산 초과 알림, 최근 거래, 6개월 추이 |
+| 내역 | 날짜별 소비 내역 목록. 알림으로 수신된 미확인 내역 직접 등록 가능 |
+| 통계 | 기간별·카테고리별 도넛 차트 + 막대 그래프, 지출 상위 10건 |
+| 더보기 | 카테고리, 결제수단, 고정 지출, 미등록 알림 목록, 내 정보 |
+
+### 관리자 화면
+
+관리자 계정(`ADMIN` 역할)으로 로그인하면 어드민 전용 화면으로 진입합니다.
+
+| 화면 | 설명 |
+|------|------|
+| 승인 관리 | 가입 요청 목록 확인, 승인/거절 처리 |
+| 유저 관리 | 가입된 사용자 목록, 계정 비활성화 처리 |
 
 ---
 
@@ -566,7 +566,7 @@ import FullScreenContainer from '@/components/containers/FullScreenContainer'
 
 ### 테마 시스템
 
-라이트/다크 모드를 지원하기 위해 모든 색상·폰트·간격 값은 테마 토큰을 통해 참조합니다.  
+라이트/다크 모드를 지원하기 위해 모든 색상·폰트·간격 값은 테마 토큰을 통해 참조합니다.
 `palette`(원시값)는 `theme/tokens/colors.ts`에만 존재하며 스타일 코드에서 직접 import하지 않습니다.
 
 #### 스타일 작성 규칙
@@ -619,7 +619,7 @@ export default function FooScreen() {
 | `colors.semantic.income` | green500 | green500 | 수입 (도메인) |
 | `colors.semantic.expense` | red500 | red400 | 지출 (도메인) |
 
-> `semantic.success/error`는 폼 검증·토스트 등 UI 피드백용,  
+> `semantic.success/error`는 폼 검증·토스트 등 UI 피드백용,
 > `semantic.income/expense`는 가계부 금액 표시 전용으로 구분합니다.
 
 ---
@@ -632,13 +632,13 @@ export default function FooScreen() {
 
 `react-native-android-notification-listener`가 등록한 HeadlessTask. 기기에 알림이 수신될 때마다 앱 상태(포그라운드/백그라운드/종료)와 무관하게 호출됩니다.
 
-- **`isCardUsageNotification(title, text)`** (`utils/cardNotificationParser.ts`)  
-  제목에 `(1234) 승인` 패턴, 본문에 금액 패턴이 있으면 카드 승인 알림으로 판별합니다.  
+- **`isCardUsageNotification(title, text)`** (`utils/cardNotificationParser.ts`)
+  제목에 `(1234) 승인` 패턴, 본문에 금액 패턴이 있으면 카드 승인 알림으로 판별합니다.
   제목에 `취소` 또는 `거절`이 포함된 알림은 제외합니다.
 
-- **`saveDetectedNotification(notification)`** (`store/notificationLogStore.ts`)  
-  알림 데이터를 MMKV에 저장하고 고유 `notificationId`를 반환합니다.  
-  id 형식: `` `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` ``  
+- **`saveDetectedNotification(notification)`** (`store/notificationLogStore.ts`)
+  알림 데이터를 MMKV에 저장하고 고유 `notificationId`를 반환합니다.
+  id 형식: `` `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` ``
   저장 포맷:
   ```ts
   {
@@ -651,11 +651,11 @@ export default function FooScreen() {
   }
   ```
 
-- **`schedulePendingReminder(notificationId)`** (`utils/notification.ts`)  
-  Notifee `TimestampTrigger`로 3일 뒤 예약 알림을 등록합니다.  
+- **`schedulePendingReminder(notificationId)`** (`utils/notification.ts`)
+  Notifee `TimestampTrigger`로 3일 뒤 예약 알림을 등록합니다.
   내부적으로 Android AlarmManager를 사용하므로 앱이 완전히 종료된 상태에서도 OS가 직접 발송합니다.
 
-- **`displayDetectedNotification(app, text, notificationId)`** (`utils/notification.ts`)  
+- **`displayDetectedNotification(app, text, notificationId)`** (`utils/notification.ts`)
   즉시 알림을 표시합니다. `data.notificationId`를 포함해 탭 시 App.tsx가 어떤 알림인지 식별합니다.
 
 ---
@@ -679,7 +679,7 @@ notifee.onForegroundEvent(({ type, detail }) => {
 
 #### 백그라운드 (앱이 실행 중이나 화면에 없는 상태)
 
-`notifee.onBackgroundEvent`가 탭 이벤트를 수신하면 앱이 포그라운드로 전환됩니다.  
+`notifee.onBackgroundEvent`가 탭 이벤트를 수신하면 앱이 포그라운드로 전환됩니다.
 전환 직후 `getInitialNotification()`이 이를 잡아 포그라운드와 동일하게 처리합니다.
 
 #### Killed (앱이 완전히 종료된 상태)
@@ -692,7 +692,7 @@ if (initial?.pressAction?.id === 'pending-notifications') {
 }
 ```
 
-앱이 종료 상태에서 알림을 탭하면 앱이 새로 실행되고 인증 흐름이 먼저 진행됩니다.  
+앱이 종료 상태에서 알림을 탭하면 앱이 새로 실행되고 인증 흐름이 먼저 진행됩니다.
 `notificationId`를 MMKV에 저장해두고, 인증 완료 시점에 꺼내서 이동합니다.
 
 - **이미 로그인된 상태** → `SplashScreen.tsx`에서 자동 로그인 완료 후 처리
