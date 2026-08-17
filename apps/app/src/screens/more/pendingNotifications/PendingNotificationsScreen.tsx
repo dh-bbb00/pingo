@@ -107,8 +107,18 @@ export default function PendingNotificationsScreen() {
    * 건별 등록: History 탭의 TransactionEdit으로 이동하며 notificationId를 전달.
    * TransactionEdit에서 이 id로 알림 데이터를 읽어 폼 자동 세팅.
    * More 스택 → History 스택 교차 이동이므로 navigationRef 사용.
+   *
+   * History 탭을 한 번도 방문하지 않은 경우 navigate with nested params만 호출하면
+   * HistoryNavigator가 TransactionEdit을 index=0으로 초기화해 뒤로가기 버튼이 사라지고
+   * 탭바가 표시되는 문제가 있다.
+   * History 탭을 먼저 방문(HistoryMain 초기화)한 뒤 TransactionEdit으로 이동해 해결.
    */
   function navigateToRegister(notificationId: string) {
+    // 1단계: History 탭 방문 — HistoryMain이 스택 첫 화면으로 초기화됨
+    navigationRef.navigate(Screens.Root.UserTabs as any, {
+      screen: Screens.UserTab.History,
+    })
+    // 2단계: TransactionEdit 푸시
     navigationRef.navigate(Screens.Root.UserTabs as any, {
       screen: Screens.UserTab.History,
       params: {

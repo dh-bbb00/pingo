@@ -32,12 +32,10 @@ export function UserTabNavigator() {
               }
             }
             if (name === 'History') {
-              return {
-                // 같은 탭 재탭 시 스택 초기화
-                tabPress: popToTopIfNested,
-                // 다른 탭으로 이탈 시 스택 초기화 — 미등록 알림 화면 등 중첩 화면이 남지 않도록
-                blur: popToTopIfNested,
-              }
+              // 같은 탭 재탭 시 스택 초기화
+              // 다른 탭 이탈 시 초기화는 HistoryNavigator 내부의 useIsFocused로 처리
+              // (CommonActions.reset 후 route.state에 key가 없어 blur 리스너가 동작하지 않는 문제 우회)
+              return { tabPress: popToTopIfNested }
             }
             if (name === 'More') {
               return { tabPress: popToTopIfNested }

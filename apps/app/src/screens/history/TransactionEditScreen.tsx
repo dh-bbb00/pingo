@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native'
-import { useRoute, useNavigation } from '@react-navigation/native'
+import { useRoute, useNavigation, CommonActions } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { HistoryStackParamList } from '@/types/navigation'
@@ -101,6 +101,19 @@ export default function TransactionEditScreen() {
   const { mutate: create, isPending: creating } = useCreateTransaction(
     notificationId ? handleAfterNotificationCreate : undefined
   )
+
+  // 탭 전환 시 History 스택 초기화 — 다른 탭으로 이동하면 TransactionEdit을 스택에서 제거.
+  // HistoryNavigator의 useIsFocused + navigationRef.getState() 방식은 state 타이밍 문제로
+  // 동작하지 않아, 화면 자신이 부모 탭(HistoryNavigator)의 blur를 직접 감지하는 방식 사용.
+  // pendingForm이 설정된 경우 = 카드/카테고리 추가를 위해 의도적으로 타 탭 이동이므로 유지.
+  useEffect(() => {
+    const tabNav = navigation.getParent()
+    if (!tabNav) return
+    return tabNav.addListener('blur', () => {
+      if (usePendingTransactionStore.getState().pendingForm) return
+      navigation.dispatch(CommonActions.reset({ routes: [{ name: Screens.History.HistoryMain }], index: 0 }))
+    })
+  }, [navigation])
 
   // 결제수단/카테고리 등록 후 복귀: 저장된 폼 + 새 ID 복원 (1회 실행)
   useEffect(() => {
