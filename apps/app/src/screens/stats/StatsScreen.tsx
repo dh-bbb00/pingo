@@ -184,6 +184,8 @@ export default function StatsScreen() {
         <CategoryTab
           dateTab={filter.dateTab}
           date={filter.date}
+          rangeStart={filter.rangeStart}
+          rangeEnd={filter.rangeEnd}
           selectedCategoryId={filter.selectedCategoryId}
           onSelectCategory={setSelectedCategoryId}
           refreshControl={refreshControl}
@@ -193,6 +195,8 @@ export default function StatsScreen() {
         <PaymentMethodTab
           dateTab={filter.dateTab}
           date={filter.date}
+          rangeStart={filter.rangeStart}
+          rangeEnd={filter.rangeEnd}
           selectedPaymentMethodId={filter.selectedPaymentMethodId}
           onSelectPaymentMethod={setSelectedPaymentMethodId}
           refreshControl={refreshControl}

@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useStatsByCategory, useStatsByDate, useStatsByMonth, useStatsTop10 } from '@/hooks/queries/useStatsData'
 import { useCategoriesAll } from '@/hooks/queries/useCategoriesAll'
-import { getDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } from '../utils'
+import { getDateRange, getCustomDateRange, getPrevCustomDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } from '../utils'
 import { DATE_TAB } from '@/api/endpoints/stats.api'
 import type { StatsDateTab } from '@/api/endpoints/stats.api'
 import SummaryCard from './SummaryCard'
@@ -19,12 +19,15 @@ const UNCATEGORIZED_ID = 'uncategorized'
 interface Props {
   dateTab:             StatsDateTab
   date:                Date
+  rangeStart:          Date
+  rangeEnd:            Date
   selectedCategoryId:  string | null
   onSelectCategory:    (id: string | null) => void
   refreshControl?:     React.ReactElement<any>
 }
 
-export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelectCategory, refreshControl }: Props) {
+export default function CategoryTab({ dateTab, date, rangeStart, rangeEnd, selectedCategoryId, onSelectCategory, refreshControl }: Props) {
+  const isRange = dateTab === DATE_TAB.RANGE
   const { theme } = useTheme()
   const { data: categories = [] } = useCategoriesAll()
 
@@ -43,8 +46,15 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
     ? (selectedCategory?.budget ?? null)
     : null
 
-  const range     = useMemo(() => selectedCategoryId ? getDateRange(dateTab, date) : null, [dateTab, date, selectedCategoryId])
-  const prevRange = useMemo(() => selectedCategoryId ? getDateRange(dateTab, getPrevDate(dateTab, date)) : null, [dateTab, date, selectedCategoryId])
+  const range     = useMemo(() => {
+    if (!selectedCategoryId) return null
+    return isRange ? getCustomDateRange(rangeStart, rangeEnd) : getDateRange(dateTab, date)
+  }, [isRange, dateTab, date, rangeStart, rangeEnd, selectedCategoryId])
+
+  const prevRange = useMemo(() => {
+    if (!selectedCategoryId) return null
+    return isRange ? getPrevCustomDateRange(rangeStart, rangeEnd) : getDateRange(dateTab, getPrevDate(dateTab, date))
+  }, [isRange, dateTab, date, rangeStart, rangeEnd, selectedCategoryId])
 
   const params     = useMemo(() => range     ? { ...range,     categoryId: selectedCategoryId! } : null, [range,     selectedCategoryId])
   const prevParams = useMemo(() => prevRange ? { ...prevRange, categoryId: selectedCategoryId! } : null, [prevRange, selectedCategoryId])
@@ -63,7 +73,7 @@ export default function CategoryTab({ dateTab, date, selectedCategoryId, onSelec
 
   const { data: catData,          isLoading: catLoading     } = useStatsByCategory(params)
   const { data: prevCatData }                                  = useStatsByCategory(prevParams)
-  const { data: byDateData,       isLoading: dateLoading     } = useStatsByDate(dateTab === DATE_TAB.MONTH && params ? params : null)
+  const { data: byDateData,       isLoading: dateLoading     } = useStatsByDate((dateTab === DATE_TAB.MONTH || dateTab === DATE_TAB.RANGE) && params ? params : null)
   const { data: byMonthData,      isLoading: monthLoading    } = useStatsByMonth(dateTab === DATE_TAB.YEAR  && params ? params : null)
   const { data: recentMonthsData = [], isLoading: recentMonthsLoading } = useStatsByMonth(recentMonthsParams)
   const { data: top10Data,        isLoading: top10Loading    } = useStatsTop10(params)

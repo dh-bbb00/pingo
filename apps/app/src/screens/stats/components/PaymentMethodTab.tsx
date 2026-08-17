@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useStatsByCategory, useStatsByDate, useStatsByMonth, useStatsTop10 } from '@/hooks/queries/useStatsData'
 import { usePaymentMethods } from '@/hooks/queries/usePaymentMethods'
-import { getDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } from '../utils'
+import { getDateRange, getCustomDateRange, getPrevCustomDateRange, getPrevDate, buildMonthlyBarData, buildYearlyBarData } from '../utils'
 import { DATE_TAB } from '@/api/endpoints/stats.api'
 import type { StatsDateTab } from '@/api/endpoints/stats.api'
 import SummaryCard from './SummaryCard'
@@ -18,12 +18,15 @@ const s = strings.stats
 interface Props {
   dateTab:                 StatsDateTab
   date:                    Date
+  rangeStart:              Date
+  rangeEnd:                Date
   selectedPaymentMethodId: string | null
   onSelectPaymentMethod:   (id: string | null) => void
   refreshControl?:         React.ReactElement<any>
 }
 
-export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodId, onSelectPaymentMethod, refreshControl }: Props) {
+export default function PaymentMethodTab({ dateTab, date, rangeStart, rangeEnd, selectedPaymentMethodId, onSelectPaymentMethod, refreshControl }: Props) {
+  const isRange = dateTab === DATE_TAB.RANGE
   const { theme } = useTheme()
   const { data: methods = [] } = usePaymentMethods()
 
@@ -34,15 +37,22 @@ export default function PaymentMethodTab({ dateTab, date, selectedPaymentMethodI
     }
   }, [methods]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const range     = useMemo(() => selectedPaymentMethodId ? getDateRange(dateTab, date) : null, [dateTab, date, selectedPaymentMethodId])
-  const prevRange = useMemo(() => selectedPaymentMethodId ? getDateRange(dateTab, getPrevDate(dateTab, date)) : null, [dateTab, date, selectedPaymentMethodId])
+  const range     = useMemo(() => {
+    if (!selectedPaymentMethodId) return null
+    return isRange ? getCustomDateRange(rangeStart, rangeEnd) : getDateRange(dateTab, date)
+  }, [isRange, dateTab, date, rangeStart, rangeEnd, selectedPaymentMethodId])
+
+  const prevRange = useMemo(() => {
+    if (!selectedPaymentMethodId) return null
+    return isRange ? getPrevCustomDateRange(rangeStart, rangeEnd) : getDateRange(dateTab, getPrevDate(dateTab, date))
+  }, [isRange, dateTab, date, rangeStart, rangeEnd, selectedPaymentMethodId])
 
   const params     = useMemo(() => range     ? { ...range,     paymentMethodId: selectedPaymentMethodId! } : null, [range,     selectedPaymentMethodId])
   const prevParams = useMemo(() => prevRange ? { ...prevRange, paymentMethodId: selectedPaymentMethodId! } : null, [prevRange, selectedPaymentMethodId])
 
   const { data: catData,     isLoading: catLoading  } = useStatsByCategory(params)
   const { data: prevCatData }                         = useStatsByCategory(prevParams)
-  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate(dateTab === DATE_TAB.MONTH && params ? params : null)
+  const { data: byDateData,  isLoading: dateLoading  } = useStatsByDate((dateTab === DATE_TAB.MONTH || dateTab === DATE_TAB.RANGE) && params ? params : null)
   const { data: byMonthData, isLoading: monthLoading } = useStatsByMonth(dateTab === DATE_TAB.YEAR  && params ? params : null)
   const { data: top10Data,   isLoading: top10Loading  } = useStatsTop10(params)
 
